@@ -4,7 +4,7 @@ OBJDIR ?= build
 
 all: 
 	@echo "Build prerequest ... "
-	@eval "cd external; ./prerequest.sh; cd ..;"
+	@eval "cd external; pwd; ./prerequest.sh; cd ..;"
 	@echo "done."
 	@mkdir -p $(OBJDIR)
 	@cp src/Makefile.build $(OBJDIR)/Makefile

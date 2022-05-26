@@ -1,11 +1,14 @@
 #!/bin/bash
 
+DLD=wget
+
 # fmt https://fmt.dev/latest/index.html
 
-
+mkdir bin include lib64
+ln -s lib64 lib
 if [ ! -f fmt-8.1.1.zip ]; then
   echo "Download fmt ... "
-  curl -O https://github.com/fmtlib/fmt/releases/download/8.1.1/fmt-8.1.1.zip
+  ${DLD} https://github.com/fmtlib/fmt/releases/download/8.1.1/fmt-8.1.1.zip
   echo "done."
 fi
 
@@ -28,7 +31,7 @@ fi
 # JSON for modern C++ https://json.nlohmann.me/
 if [ ! -f json.hpp ]; then
   echo "Download json ... "
-  curl -O https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
+  ${DLD} https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
   mkdir -p include
   cp json.hpp include
   echo "done."
