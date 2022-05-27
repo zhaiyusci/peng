@@ -1,5 +1,6 @@
 #include <cppitertools/itertools.hpp>
 #include <functional>
+#include <map>
 #include <string>
 #include <valarray>
 #include <vector>
@@ -17,6 +18,7 @@ class Particle {
         : _symbol(symbol), _mass(mass) {}
     inline std::string symbol() const { return _symbol; }
     inline double mass() const { return _mass; }
+    bool operator<(Particle rhs) const { return _mass < rhs.mass(); }
 };
 
 /**
@@ -49,3 +51,23 @@ class DiluteGas {
     auto species_info() { return iter::zip(species_, mole_fraction_); }
     auto pairs() { return iter::combinations(species_info(), 2); }
 };
+
+typedef std::function<std::tuple<double, double, double>(double)> Pot1d;
+
+// extern std::map<std::pair<Particle, Particle>, Pot1d> POTLIB;
+//
+class PotentialLibrary {
+  private:
+    std::map<std::pair<Particle, Particle>, Pot1d> potlib_;
+    static PotentialLibrary *instance_;
+    PotentialLibrary() {}
+
+  public:
+    static std::map<std::pair<Particle, Particle>, Pot1d> &getInstance() {
+      if (instance_ == nullptr) {
+        instance_ = new PotentialLibrary();
+      }
+      return instance_->potlib_;
+    }
+};
+PotentialLibrary *PotentialLibrary::instance_ = nullptr;
