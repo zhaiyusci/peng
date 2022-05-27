@@ -4,8 +4,11 @@ DLD=wget
 
 # fmt https://fmt.dev/latest/index.html
 
-mkdir bin include lib64
-ln -s lib64 lib
+if [ ! -e bin ]; then
+  mkdir bin include lib64
+  ln -s lib64 lib
+fi
+
 if [ ! -f fmt-8.1.1.zip ]; then
   echo "Download fmt ... "
   ${DLD} https://github.com/fmtlib/fmt/releases/download/8.1.1/fmt-8.1.1.zip
