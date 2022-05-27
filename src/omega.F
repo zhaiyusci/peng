@@ -4,7 +4,7 @@
 *   TRANSPORT COLLISION INTEGRALS FOR A DILUTE GAS.
 *   COMP. PHYS. COMMUN. 2, 47 (1971).
 **********************************ACQN**********************************
-#include"param.h"
+#include"param.hh"
       SUBROUTINE GETOMEGA(OMEGADATA, TTT, NTNT, MM1, MM2)
       IMPLICIT REAL*8 (A-H,O-Z)
       ! INTEGER, PARAMETER :: MAXORD=20

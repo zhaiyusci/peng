@@ -4,7 +4,7 @@
 ! the natural isotopic abundance averaged mass: m_He=4.002602d0;m_Ne=20.1797d0;
 ! m_Ar=39.948d0;m_Kr=83.80d0;m_Xe=131.29d0
 
-#include"param.h"
+#include"param.hh"
 
 
 SUBROUTINE BETA(T, MAXPQ, X, OMEGA11, OMEGA12, OMEGA22, ETA)

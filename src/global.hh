@@ -1,8 +1,8 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
-#include<vector>
-#include<string>
-#include"param.h"
+#include "param.hh"
+#include <string>
+#include <vector>
 extern std::vector<double> temperatures;
 extern double temps[60];
 extern double x[2]; 

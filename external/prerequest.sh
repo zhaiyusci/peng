@@ -2,12 +2,12 @@
 
 DLD=wget
 
-# fmt https://fmt.dev/latest/index.html
-
 if [ ! -e bin ]; then
-  mkdir bin include lib64
+  mkdir bin include lib64 share
   ln -s lib64 lib
 fi
+
+# fmt https://fmt.dev/latest/index.html
 
 if [ ! -f fmt-8.1.1.zip ]; then
   echo "Download fmt ... "
@@ -30,7 +30,6 @@ if [ ! -f FMT_FLAG ]; then
   echo "done."
 fi
 
-
 # JSON for modern C++ https://json.nlohmann.me/
 if [ ! -f json.hpp ]; then
   echo "Download json ... "
@@ -40,4 +39,26 @@ if [ ! -f json.hpp ]; then
   echo "done."
 fi
 
+# cppitertools https://twitter.com/cppitertools
+
+if [ ! -f cppitertools-2.1.zip ]; then
+  echo "Download cppitertools ... "
+  ${DLD} -O cppitertools-2.1.zip https://github.com/ryanhaining/cppitertools/archive/refs/tags/v2.1.zip 
+  echo "done."
+fi
+
+if [ ! -f ITERTOOLS_FLAG ]; then
+  echo "Build cppitertools ... "
+  unzip -qo cppitertools-2.1.zip
+  cd ./cppitertools-2.1
+  mkdir -p build
+  cd build
+  pwd
+  cmake -DCMAKE_INSTALL_PREFIX=../.. ..
+  cmake --build .
+  cmake --install .
+  cd ../..
+  touch ITERTOOLS_FLAG
+  echo "done."
+fi
 

@@ -1,7 +1,11 @@
 include
 lib
 lib64
+share
 fmt-8.1.1  
 fmt-8.1.1.zip
 FMT_FLAG
+ITERTOOLS_FLAG
+cppitertools-2.1
+cppitertools-2.1.zip
 json.hpp

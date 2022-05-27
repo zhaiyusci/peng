@@ -1,6 +1,6 @@
 FFLAGS=-O3 -fcheck=all -Wall -Werror -g -fPIC 
-CC=gcc
-CXX=g++
+CC=clang
+CXX=clang++
 FC=gfortran
 CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++11 -I../external/include
 OBJECTS=omega.o pec.o 
@@ -24,8 +24,8 @@ test:
 	./main.exe > tmp
 	diff l answer || echo ""
 
-main.o omega.o alpha.o alpha_impl.o beta.o beta_impl.o: param.h
-main.o global.o alpha.o beta.o: global.h
+main.o omega.o alpha.o alpha_impl.o beta.o beta_impl.o: param.hh
+main.o global.o alpha.o beta.o: global.hh
 
 main.exe: main.o beta.o inversion.o global.o beta_impl.o alpha.o alpha_impl.o
 	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lfmt 

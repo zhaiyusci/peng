@@ -1,7 +1,7 @@
-#include<vector>
-#include"param.h"
-#include"global.h"
-#include<iostream>
+#include "global.hh"
+#include "param.hh"
+#include <iostream>
+#include <vector>
 
 using std::vector;
 using std::string;

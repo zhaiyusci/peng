@@ -1,6 +1,6 @@
 
 // Define the global variables
-#include"global.h"
+#include "global.hh"
 
 std::vector<double> temperatures;
 double temps[60]={}; // TTT in GETOMEGA in omega.F

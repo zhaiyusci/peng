@@ -1,8 +1,8 @@
-#include<vector>
-#include"param.h"
-#include"global.h"
-#include<iostream>
-#include<tuple>
+#include "global.hh"
+#include "param.hh"
+#include <iostream>
+#include <tuple>
+#include <vector>
 
 using std::tuple;
 using std::tie;

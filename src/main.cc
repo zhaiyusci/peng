@@ -1,4 +1,7 @@
+#include "global.hh"
+#include "param.hh"
 #include <dlfcn.h>
+#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -7,11 +10,6 @@
 #include <tuple>
 #include <vector>
 
-#include <fmt/core.h>
-
-#include "global.h"
-#include "param.h"
-
 using fmt::format;
 
 using std::cout;
@@ -19,16 +17,17 @@ using std::endl;
 using std::fstream;
 using std::stringstream;
 
-using std::map;
-using std::tuple;
-using std::tie;
 using std::get;
 using std::make_tuple;
+using std::map;
+using std::tie;
+using std::tuple;
 
-using std::vector;
 using std::string;
+using std::vector;
 
-vector<double> comp2chant(const vector<vector<double>> &compdata, size_t ix, size_t m) {
+vector<double> comp2chant(const vector<vector<double>> &compdata, size_t ix,
+                          size_t m) {
   vector<double> res;
   for (size_t it = 0; it != static_cast<size_t>(ntemp); ++it)
     res.push_back(compdata[it * xs.size() + ix][m - 1]);
@@ -48,7 +47,7 @@ void chant(vector<string> properties, int ix, int m = maxpq) {
 
   auto linelen = properties.size() * 26 + 15;
   cout << format(fmt::runtime(format("{{:^{}s}}", linelen - 15) +
-                     string(" (of order {:>3d})")),
+                              string(" (of order {:>3d})")),
                  "Results", m)
        << endl;
   cout << string(linelen, '-') << endl;
