@@ -62,3 +62,25 @@ if [ ! -f ITERTOOLS_FLAG ]; then
   echo "done."
 fi
 
+# NLOpt https://nlopt.readthedocs.io/en/latest/
+if [ ! -f nlopt-2.7.1.tar.gz ]; then
+  echo "Download NLOpt ... "
+  ${DLD} -O nlopt-2.7.1.tar.gz https://github.com/stevengj/nlopt/archive/v2.7.1.tar.gz
+  echo "done."
+fi
+
+if [ ! -f NLOPT_FLAG ]; then
+  echo "Build cppitertools ... "
+  tar xzf nlopt-2.7.1.tar.gz
+  cd ./nlopt-2.7.1
+  mkdir -p build
+  cd build
+  pwd
+  cmake -DCMAKE_INSTALL_PREFIX=../.. ..
+  cmake --build .
+  cmake --install .
+  cd ../..
+  touch NLOPT_FLAG
+  echo "done."
+fi
+

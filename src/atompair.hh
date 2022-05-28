@@ -1,3 +1,5 @@
+#ifndef __DILUTE_ATOMPAIR_HH__
+#define __DILUTE_ATOMPAIR_HH__
 #include <cppitertools/itertools.hpp>
 #include <functional>
 #include <map>
@@ -70,4 +72,5 @@ class PotentialLibrary {
       return instance_->potlib_;
     }
 };
-PotentialLibrary *PotentialLibrary::instance_ = nullptr;
+
+#endif

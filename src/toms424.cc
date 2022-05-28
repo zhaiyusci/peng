@@ -22,7 +22,8 @@ double ccquad_fortran(double (*f)(double *), double *a, double *b,
       size_t limit);
   double quadrature(0.0);
   vector<double> cs;
-  std::tie(quadrature, *esterr, *used, cs) = ccquad(f_fort, *a, *b, *tolerr, *limit);
+  std::tie(quadrature, *esterr, *used, cs) =
+      ccquad(f_fort, *a, *b, *tolerr, *limit);
   for (size_t i = 0; i != (size_t)(*used); ++i) {
     csxfrm[i] = cs[i];
   }
@@ -37,54 +38,53 @@ extern "C" double ccquad_(double (*f)(double *), double *a, double *b,
 }
 
 class Jterator {
- private:
-  const std::vector<size_t> l;
-  friend class iterator;
+  private:
+    const std::vector<size_t> l;
+    friend class iterator;
 
- public:
-  Jterator(const std::vector<size_t> &l)
-      : l(l),
-        begin_(iterator(this, std::vector<size_t>(l.size(), 1))),
-        end_(++iterator(this, l)){};
-  class iterator {
-   private:
-    Jterator *jterator;
-    std::vector<size_t> val;
+  public:
+    Jterator(const std::vector<size_t> &l)
+        : l(l), begin_(iterator(this, std::vector<size_t>(l.size(), 1))),
+          end_(++iterator(this, l)){};
+    class iterator {
+      private:
+        Jterator *jterator;
+        std::vector<size_t> val;
 
-   public:
-    iterator(Jterator *jterator, const std::vector<size_t> &val)
-        : jterator(jterator), val(val) {}
-    iterator &operator++() {
-      size_t s = val.size();
+      public:
+        iterator(Jterator *jterator, const std::vector<size_t> &val)
+            : jterator(jterator), val(val) {}
+        iterator &operator++() {
+          size_t s = val.size();
 
-      for (size_t i = 0; i != s; ++i) {  // i in [0, s)
-        if (s - 1 - i != 0) {
-          val[s - 1 - i] += jterator->l[s - 2 - i];
-        } else {
-          ++val[0];
-        }
-        if (val[s - 1 - i] <= jterator->l[s - 1 - i]) {
-          for (size_t j = s - i; j != s; ++j) {
-            val[j] = val[j - 1];
+          for (size_t i = 0; i != s; ++i) { // i in [0, s)
+            if (s - 1 - i != 0) {
+              val[s - 1 - i] += jterator->l[s - 2 - i];
+            } else {
+              ++val[0];
+            }
+            if (val[s - 1 - i] <= jterator->l[s - 1 - i]) {
+              for (size_t j = s - i; j != s; ++j) {
+                val[j] = val[j - 1];
+              }
+              break;
+            }
           }
-          break;
+          return *this;
         }
-      }
-      return *this;
-    }
-    const std::vector<size_t> &operator*() { return val; }
-    bool operator==(iterator rhs) {
-      // return val[0] == 2;
-      return jterator == rhs.jterator && val == rhs.val;
-    }
-    bool operator!=(iterator rhs) { return !(*this == rhs); }
-  };
+        const std::vector<size_t> &operator*() { return val; }
+        bool operator==(iterator rhs) {
+          // return val[0] == 2;
+          return jterator == rhs.jterator && val == rhs.val;
+        }
+        bool operator!=(iterator rhs) { return !(*this == rhs); }
+    };
 
-  iterator begin_;
-  iterator end_;
+    iterator begin_;
+    iterator end_;
 
-  const iterator &begin() const { return begin_; }
-  const iterator &end() const { return end_; }
+    const iterator &begin() const { return begin_; }
+    const iterator &end() const { return end_; }
 };
 
 tuple<double, double, size_t, vector<double>>
@@ -179,7 +179,7 @@ ccquad(const function<double(double)> &f, double a, double b, double tolerr,
           size_t j1 = used + step;
           size_t j2 = used + 2 * step;
           r3pass(n * 2, step, n * 2 - 2 * step, csxfrm + used, csxfrm + j1,
-              csxfrm + j2);
+                 csxfrm + j2);
           step = 3 * step;
         } while (step < n);
       }
@@ -254,7 +254,8 @@ ccquad(const function<double(double)> &f, double a, double b, double tolerr,
     //     write(6,900) n,sclint,sclerr
     // 900  format ( 3h n=,i5,23h integral estimated as ,e15.8,
     //    *  7h error ,e15.8 )
-    if (fabs(newint) * tolerr >= esterr) break;
+    if (fabs(newint) * tolerr >= esterr)
+      break;
     //  if estimated error too large, refine sampling if permitted.
     oldint = newint;
   } while (3 * n + 1 <= limit);
@@ -273,17 +274,16 @@ ccquad(const function<double(double)> &f, double a, double b, double tolerr,
   // std::cerr << width << "   "<< n << std::endl;
 
   if (esterr > tolerr) {
-    std::cerr << "=== WARNING ===" << std::endl
-      << "The estimate relative error is GREATER than the one user assigned."
-      << std::endl
-      << "That is mainly because user choose a small number of "
-      << "function evaluations (`limit`)."
-      << std::endl
-      << "Because of the structure of program, the actual maxium "
-      << "number of function evaluations is "
-      << limit << "." << std::endl
-      << "To break the limitation, set limit >= " << (limit - 1) * 3 + 1
-      << " in the next run." << std::endl;
+    std::cerr
+        << "=== WARNING ===" << std::endl
+        << "The estimate relative error is GREATER than the one user assigned."
+        << std::endl
+        << "That is mainly because user choose a small number of "
+        << "function evaluations (`limit`)." << std::endl
+        << "Because of the structure of program, the actual maxium "
+        << "number of function evaluations is " << limit << "." << std::endl
+        << "To break the limitation, set limit >= " << (limit - 1) * 3 + 1
+        << " in the next run." << std::endl;
   }
 
   return make_tuple(quadrature, esterr, used, std::move(csxfrm_container));
