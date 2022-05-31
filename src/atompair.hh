@@ -54,7 +54,11 @@ class DiluteGas {
     auto pairs() { return iter::combinations(species_info(), 2); }
 };
 
-typedef std::function<std::tuple<double, double, double>(double)> Pot1d;
+/**
+ * The 1-dimension function with its 1st order derivative.
+ */
+typedef std::function<std::tuple<double, double>(double)> Pot1d;
+
 
 // extern std::map<std::pair<Particle, Particle>, Pot1d> POTLIB;
 //

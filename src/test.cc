@@ -8,10 +8,10 @@ auto getpot(std::string soname) {
             << std::endl;
   auto pot = reinterpret_cast<void (*)(double, double *, double *, double *)>(
       dlsym(so, "pot"));
-  return [=](double r) -> std::tuple<double, double, double> {
+  return [=](double r) -> std::tuple<double, double> {
     double v, dv, d2v;
     pot(r, &v, &dv, &d2v);
-    return std::make_tuple(v, dv, d2v);
+    return std::make_tuple(v, dv);
   };
   // for (double r = 1.0; r <= 10.0; ++r) {
   // double v, dv, d2v;
@@ -28,8 +28,8 @@ int main() {
   PotentialLibrary::getInstance()[std::make_pair(Ar, Xe)] =
       getpot("./pot11.so");
   for (double r = 1.0; r <= 10.0; ++r) {
-    double v, dv, d2v;
-    std::tie(v, dv, d2v) =
+    double v, dv;
+    std::tie(v, dv) =
         PotentialLibrary::getInstance()[std::make_pair(Ar, Xe)](r);
     std::cout << r << "\t" << v << std::endl;
   }
