@@ -1,11 +1,11 @@
 #include "atompair.hh"
+#include "toms424.hh"
 #include <functional>
 #include <iomanip>
 #include <iostream>
 #include <nlopt.hpp>
 #include <tuple>
 #include <vector>
-
 
 std::tuple<double, double, bool, size_t>
 CachedFuncDeriv1D::cubic_spline_(double x) const {
@@ -248,6 +248,10 @@ class Pot1DFeatures {
     Pot1D *pot() const { return pot_; }
 };
 
+std::function<double(double)> f2g(const std::function<double(double)> &f,
+                                  double a) {
+  return [=](double y) { return a / y / y * f(a / y); };
+}
 class IntegralRange {
   private:
     const Pot1DFeatures *const pf_;
@@ -312,6 +316,43 @@ class IntegralRange {
       r_Op = 0.0; // TODO
       return std::make_tuple(r_O, r_Op);
     }
+    double F(double r, double b, double E) {
+      double v, dv;
+      std::tie(v, dv) = (*pot_)(r);
+      return 1.0 - v / E - b * b / (r * r);
+    }
+    double chi(double r_m, double E) {
+      double b = rm2b(r_m, E);
+      auto integrated = [&](double y) {
+        // return 0.0; // TODO
+        double v, dv;
+        std::tie(v, dv) = (*pot_)(r_m / y);
+        if (y == 0.0) {
+          v = 0.0;
+        }
+        if (y == 1) {
+          return 0.0;
+        }
+        return 1.0 / sqrt(1.0 - v / E - b * b / r_m / r_m * y * y) / r_m;
+      };
+      double quadrature, esterr;
+      size_t used;
+      std::vector<double> _;
+      std::tie(quadrature, esterr, used, _) =
+          ccquad(integrated, 0.0, 1.0, 1.0e-9, 10000);
+      for (auto &&x : _)
+        std::cout << x << std::endl;
+
+      return M_PI - 2 * b * quadrature;
+    }
+    double rm2b(double r_m, double E) {
+      double v, dv;
+      std::tie(v, dv) = (*pot_)(r_m);
+      double b = r_m * sqrt((E - v) / E);
+      std::cout << "b = " << b << std::endl;
+      return b;
+    }
+
 };
 
 int main() {
@@ -325,5 +366,6 @@ int main() {
   IntegralRange ir(pf);
   for (double E = 0.0; E <= 0.8; E += 0.1)
     std::cout << "r_O " << E << " " << std::get<0>(ir.r_range(E)) << std::endl;
+  std::cout << ir.chi(100.9, std::get<0>(lj(0.9))) << std::endl;
   return 0;
 }

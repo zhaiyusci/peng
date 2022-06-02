@@ -6,13 +6,12 @@
 #include <utility>
 #include <vector>
 
-// using std::cout;
-// using std::endl;
 using std::function;
 using std::make_tuple;
 using std::tuple;
 using std::vector;
 
+/*
 double ccquad_fortran(double (*f)(double *), double *a, double *b,
                       double *tolerr, int *limit, double *esterr, int *used,
                       double *csxfrm) {
@@ -36,6 +35,7 @@ extern "C" double ccquad_(double (*f)(double *), double *a, double *b,
   auto res = ccquad_fortran(f, a, b, tolerr, limit, esterr, used, csxfrm);
   return res;
 }
+*/
 
 class Jterator {
   private:
@@ -265,6 +265,7 @@ ccquad(const function<double(double)> &f, double a, double b, double tolerr,
   //     write (6,910)
   // 910 format ( 25h refinement not permitted )
   double quadrature = width * newint / (n / 2.0);
+  std::cout << "quadrature " << quadrature << std::endl;
   // std::cerr << "esterr :>" << std::endl;
   // std::cerr << "raw esterr" << std::endl;
   // std::cerr << esterr << std::endl;

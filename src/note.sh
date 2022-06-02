@@ -7,5 +7,5 @@
 # g++ test.cc atompair.cc -I../external/include --std=c++17 -ldl -g
 
 # Potential 1D Optimization
-g++ -O3 -Wall pot1d.cc -I ../external/include -L ../external/lib -lnlopt -Wl,-rpath,"../external/lib"
+g++ -O3 -Wall pot1d.cc toms424.cc -I ../external/include -L ../external/lib -lnlopt -Wl,-rpath,"../external/lib"
 
