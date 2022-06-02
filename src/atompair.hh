@@ -1,5 +1,6 @@
 #ifndef __DILUTE_ATOMPAIR_HH__
 #define __DILUTE_ATOMPAIR_HH__
+#include "pot1d.hh"
 #include <cppitertools/itertools.hpp>
 #include <functional>
 #include <map>
@@ -54,22 +55,16 @@ class DiluteGas {
     auto pairs() { return iter::combinations(species_info(), 2); }
 };
 
-/**
- * The 1-dimension function with its 1st order derivative.
- */
-typedef std::function<std::tuple<double, double>(double)> Pot1d;
-
-
 // extern std::map<std::pair<Particle, Particle>, Pot1d> POTLIB;
 //
 class PotentialLibrary {
   private:
-    std::map<std::pair<Particle, Particle>, Pot1d> potlib_;
+    std::map<std::pair<Particle, Particle>, FuncDeriv1D> potlib_;
     static PotentialLibrary *instance_;
     PotentialLibrary() {}
 
   public:
-    static std::map<std::pair<Particle, Particle>, Pot1d> &getInstance() {
+    static std::map<std::pair<Particle, Particle>, FuncDeriv1D> &getInstance() {
       if (instance_ == nullptr) {
         instance_ = new PotentialLibrary();
       }

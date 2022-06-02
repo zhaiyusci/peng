@@ -70,7 +70,7 @@ if [ ! -f nlopt-2.7.1.tar.gz ]; then
 fi
 
 if [ ! -f NLOPT_FLAG ]; then
-  echo "Build cppitertools ... "
+  echo "Build NLOpt ... "
   tar xzf nlopt-2.7.1.tar.gz
   cd ./nlopt-2.7.1
   mkdir -p build
@@ -81,6 +81,28 @@ if [ ! -f NLOPT_FLAG ]; then
   cmake --install .
   cd ../..
   touch NLOPT_FLAG
+  echo "done."
+fi
+
+# DataFrame https://github.com/hosseinmoein/DataFrame
+if [ ! -f DataFrame-1.20.0.tar.gz ]; then
+  echo "Download DataFrame ... "
+  ${DLD} -O DataFrame-1.20.0.tar.gz https://github.com/hosseinmoein/DataFrame/archive/refs/tags/1.20.0.tar.gz
+  echo "done."
+fi
+
+if [ ! -f DATAFRAME_FLAG ]; then
+  echo "Build DataFrame ... "
+  tar xzf DataFrame-1.20.0.tar.gz
+  cd ./DataFrame-1.20.0
+  mkdir -p build
+  cd build
+  pwd
+  cmake -DCMAKE_INSTALL_PREFIX=../.. -DCMAKE_BUILD_TYPE=Release ..
+  cmake --build .
+  cmake --install .
+  cd ../..
+  touch DATAFRAME_FLAG
   echo "done."
 fi
 
