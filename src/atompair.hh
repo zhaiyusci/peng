@@ -1,5 +1,6 @@
 #ifndef __DILUTE_ATOMPAIR_HH__
 #define __DILUTE_ATOMPAIR_HH__
+#include "cachedfunc.hh"
 #include "pot1d.hh"
 #include <cppitertools/itertools.hpp>
 #include <functional>

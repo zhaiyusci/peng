@@ -1,6 +1,6 @@
 FFLAGS=-O3 -fcheck=all -Wall -Werror -g -fPIC 
-CC=clang
-CXX=clang++
+CC=gcc
+CXX=g++
 FC=gfortran
 CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include
 OBJECTS=omega.o pec.o 
@@ -16,9 +16,15 @@ OBJ := $(OBJ:%.F90=%.o)
 
 VPATH = ../src
 
+PWD = $(shell pwd)
 .PHONY: clean all
 
-all: main.exe omega11.so omega12.so omega22.so 
+all: main.exe omega11.so omega12.so omega22.so test2.exe
+
+test2.exe: mathtools.o test2.cc
+	$(CXX) $(CPPFLAGS) -o $@ $^ -L ../external/lib -lnlopt -Wl,-rpath,"$(PWD)/../external/lib"
+
+mathtools.o: mathtools.hh
 
 test:
 	./main.exe > tmp

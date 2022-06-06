@@ -265,7 +265,7 @@ ccquad(const function<double(double)> &f, double a, double b, double tolerr,
   //     write (6,910)
   // 910 format ( 25h refinement not permitted )
   double quadrature = width * newint / (n / 2.0);
-  std::cout << "quadrature " << quadrature << std::endl;
+  // std::cout << "quadrature " << quadrature << std::endl;
   // std::cerr << "esterr :>" << std::endl;
   // std::cerr << "raw esterr" << std::endl;
   // std::cerr << esterr << std::endl;
