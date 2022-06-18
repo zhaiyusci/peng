@@ -142,24 +142,33 @@ public:
     return std::make_tuple(r_O, r_Op);
   }
 
-  double chi(double r_m, double E) {
+  double chi(double E, double r_m) {
+    // double E = ppot_->value(r_E);
     double b = r2b(r_m, E);
+    // std::cout << "b    " << b << std::endl;
     auto integrated = [&](double y) {
-      double v;
-      v = (*ppot_)(r_m / y);
+      double r = r_m / y;
+      double v = (*ppot_)(r);
       if (y <= 1.0e-8) {
         v = 0.0;
       }
       if (y >= 1 - 1.0e-8) {
         return 0.0;
       }
-      return 1.0 / sqrt(1.0 - v / E - b * b / r_m / r_m * y * y) / r_m;
+      double F = (1.0 - v / E - b * b / r / r);
+      if (F < 0.0) {
+        // std::cout << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
+      }
+      double res = 1.0 / sqrt(F) / r_m;
+
+      // std::cout << "integrated    " << res << " y    " << y << std::endl;
+      return res;
     };
     double quadrature, esterr;
     size_t used;
     std::vector<double> _;
     std::tie(quadrature, esterr, used, _) =
-        ccquad(integrated, 0.0, 1.0, 1.0e-3, 10000);
+        ccquad(integrated, 0.0, 1.0, 1.0e-8, 10000); // TODO
     // for (auto &&x : _)
     // std::cout << x << std::endl;
 
@@ -170,6 +179,64 @@ public:
     double b = r * sqrt((E - v) / E);
     // std::cout << "b = " << b << std::endl;
     return b;
+  }
+
+  double Q(int l, double r_E) {
+
+    double E = ppot_->value(r_E);
+    std::cout << "E" << std::endl;
+    std::cout << E << std::endl;
+    double r_O, r_Op;
+    std::tie(r_O, r_Op) = r_range(E);
+    std::cout << "r_O,   r_Op" << std::endl;
+    std::cout << r_O << "    " << r_Op << std::endl;
+    double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
+    auto integrated1 = [&](double r_m) {
+      double v, dv;
+      v = ppot_->value(r_m);
+      dv = ppot_->derivative(r_m);
+      double chival = chi(E, r_m);
+      std::cout << "YO " << r_m << "    " << chival << std::endl;
+      double res =
+          (1.0 - pow(cos(chival), l)) * (2.0 * (E - v) - r_m * dv) * r_m;
+      return res;
+    };
+    double quadrature1, quadrature2;
+    double esterr;
+    int used;
+    std::vector<double> _;
+    std::cout << "r_E << "
+                 " << r_Op"
+              << std::endl;
+    std::cout << r_E << "    " << r_Op << std::endl;
+    std::tie(quadrature1, esterr, used, _) =
+        ccquad(integrated1, r_E, r_Op, 1.0e-3, 100000); // TODO
+    auto integrated2 = [&](double y) {
+      double x;
+      x = r_O / y;
+      if (y <= 1.0e-8) {
+        return 0.0;
+      }
+      // if (y >= 1 - 1.0e-8) {
+      // return 0.0;
+      // }
+      return x / y * integrated1(x);
+    };
+    // std::tie(quadrature2, esterr, used, _) =
+    // ccquad(integrated2, 0.0, 1.0, 1.0e-3, 100000); // TODO
+
+    for (double r = 90; r <= 100; r += 1.0) {
+      std::cout << "dbg==  " << r << "           " << integrated1(r)
+                << std::endl;
+    }
+
+    std::tie(quadrature2, esterr, used, _) =
+        ccquad(integrated1, r_O, 1000.0, 1.0e-3, 100000); // TODO
+    std::cout << "quadrature1 << "
+                 " << quadrature2"
+              << std::endl;
+    std::cout << quadrature1 << "    " << quadrature2 << std::endl;
+    return coeff * (quadrature1 + quadrature2);
   }
 };
 } // namespace dlt
@@ -188,7 +255,24 @@ int main() {
               << std::get<1>(ir.r_range(E)) << std::endl;
   }
 
-  std::cout << ir.chi(0.9, lj(0.9)) << std::endl;
+  std::cout << "ir.chi(lj(0.9), 0.9)" << std::endl;
+  std::cout << ir.chi(lj(0.9), 0.9) << std::endl;
+  std::cout << "ir.chi(lj(0.9), 99.9)" << std::endl;
+  std::cout << ir.chi(lj(0.9), 99.9) << std::endl;
+  std::cout << "E = " << lj(0.999) << std::endl;
+  std::cout << "ir.Q(1, 0.999)" << std::endl;
+  std::cout << ir.Q(1, 0.999) << std::endl;
+  std::cout << "ir.Q(2, 0.999)" << std::endl;
+  std::cout << ir.Q(2, 0.999) << std::endl;
+
+  // double r_O, r_Op;
+  // std::tie(r_O, r_Op) = ir.r_range(0.7);
+  // std::cout << r_O << "  " << r_Op << std::endl;
+  // std::cout << "ir.chi(0.7, 1.2)" << std::endl;
+  // std::cout << ir.chi(0.7, 1.2) << std::endl;
+  // for (double rm = 0.9; rm <= 1.3; rm += 0.10) {
+  // std::cout << ir.chi(lj(0.9), rm) << std::endl;
+  // }
 
   return 0;
 }
