@@ -1,6 +1,7 @@
 #ifndef __DILUTE_MATHTOOLS_HH__
 #define __DILUTE_MATHTOOLS_HH__
 #include <iostream>
+#include <memory>
 #include <nlopt.hpp>
 #include <valarray>
 namespace dlt {
@@ -9,7 +10,7 @@ class NegFuncDeriv1D;
 
 class FuncDeriv1D {
 private:
-  NegFuncDeriv1D *pneg_ = nullptr;
+  std::unique_ptr<NegFuncDeriv1D> pneg_;
 
 public:
   double operator()(double x) const { return value(x); }
@@ -17,7 +18,6 @@ public:
   virtual double derivative(double x) const;
   virtual bool provide_derivative() const { return false; };
   virtual FuncDeriv1D &operator-();
-  virtual ~FuncDeriv1D();
 };
 
 class NegFuncDeriv1D : public FuncDeriv1D {
@@ -32,7 +32,6 @@ public:
   inline double derivative(double x) const { return -pneg_->derivative(x); }
   inline bool provide_derivative() const { return pneg_->provide_derivative(); }
   FuncDeriv1D &operator-() const { return *pneg_; };
-  ~NegFuncDeriv1D() = default;
 };
 
 std::tuple<double, double> find_local_minimum(FuncDeriv1D &func, double lower,

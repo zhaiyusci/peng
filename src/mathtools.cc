@@ -11,14 +11,10 @@ double FuncDeriv1D::derivative(double x) const {
 }
 FuncDeriv1D &FuncDeriv1D::operator-() {
   if (pneg_ == nullptr)
-    pneg_ = new NegFuncDeriv1D(this);
+    pneg_.reset(new NegFuncDeriv1D(this));
   return *pneg_;
 }
 
-FuncDeriv1D::~FuncDeriv1D() {
-  if (pneg_ != nullptr)
-    delete pneg_;
-}
 double wrapper(const std::vector<double> &x, std::vector<double> &grad,
                void *f_data) {
   FuncDeriv1D *pot = reinterpret_cast<FuncDeriv1D *>(f_data);

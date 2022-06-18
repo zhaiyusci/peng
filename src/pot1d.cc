@@ -112,28 +112,33 @@ private:
   double r_C_;
   double E_C_;
   std::unique_ptr<LocalRoot> y_root_;
-  std::unique_ptr<Y> y;
+  std::unique_ptr<Y> y_;
 
 public:
   IntegralRange(Pot1DFeatures &pf) : pf_(&pf), ppot_(&(pf.pot())) {
 
-    y.reset(new Y(*ppot_));
+    y_.reset(new Y(*ppot_));
 
-    std::tie(r_C_, E_C_) = find_local_maximum(*y, 1.0, 2 * pf_->r_min());
+    std::tie(r_C_, E_C_) = find_local_maximum(*y_, 1.0, 2 * pf_->r_min());
     // TODO: fit reduced potential
     std::cout << "r_C\tE_C" << std::endl;
     std::cout << r_C_ << "\t" << E_C_ << std::endl;
-    y_root_.reset(new LocalRoot(*y, r_C_, 10.0, 21));
+    y_root_.reset(new LocalRoot(*y_, r_C_, 10.0, 21));
   }
   const double &r_C() const { return r_C_; }
   const double &E_C() const { return E_C_; }
 
   std::tuple<double, double> r_range(double E) const {
     double r_O, r_Op;
-    r_O = (*y_root_)(E);
-    double b_O = r2b(r_O, E);
-    PhiEff phieff(*ppot_, b_O, E);
-    r_Op = find_local_root(phieff, E, 1.0, r_C_, 1);
+    if (E >= E_C_) {
+      r_O = r_C_;
+      r_Op = r_C_;
+    } else {
+      r_O = (*y_root_)(E);
+      double b_O = r2b(r_O, E);
+      PhiEff phieff(*ppot_, b_O, E);
+      r_Op = find_local_root(phieff, E, 1.0, r_C_, 1);
+    }
     return std::make_tuple(r_O, r_Op);
   }
 
@@ -172,13 +177,13 @@ public:
 int main() {
   std::cerr << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__
             << std::endl;
-  std::cout << std::setprecision(8);
+  std::cout << std::setprecision(18);
 
   dlt::Pot1DFeatures pf(lj);
   std::cout << " " << pf.r_min() << " " << pf.sigma() << " " << pf.epsilon()
             << " " << std::endl;
   dlt::IntegralRange ir(pf);
-  for (double E = 0.0; E <= 0.8; E += 0.1) {
+  for (double E = 0.0; E <= 1.0; E += 0.1) {
     std::cout << "r_O ==> " << E << " " << std::get<0>(ir.r_range(E)) << " "
               << std::get<1>(ir.r_range(E)) << std::endl;
   }
