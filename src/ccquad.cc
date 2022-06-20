@@ -46,6 +46,20 @@ public:
     r += b + 1;
     return r;
   }
+  size_t idxrev(size_t r) {
+    if (r == 0)
+      return 0;
+    size_t b = 0;
+    size_t rt = r - 1;
+    while (rt) {
+      rt >>= 1;
+      ++b;
+    }
+    // std::cout << "b " << b << std::endl;
+    size_t r0 = (1 << b >> 1) + 1;
+    rt = r - r0;
+    return ((rt + 1) << (order_ - b)) - (1 << (order_ - b) >> 1);
+  }
   double sins(size_t r) {
     return r > num_ ? sins_[idx(2 * num_ - r)] : sins_[idx(r)];
   }
@@ -96,7 +110,7 @@ int main() {
   dt += t1 - t0;
   std::cout << "Algo4: " << dt.count() << std::endl;
 
-  for (size_t maxorder = 3; maxorder != 15; ++maxorder) {
+  for (size_t maxorder = 3; maxorder != 5; ++maxorder) {
     std::cout << "= = = = = = = = = = = = = = = = = = = = " << std::endl;
     cc.set_order(maxorder);
     // std::vector<int> ord{0, 8, 4, 2, 6, 1, 3, 5, 7}; // For test 0-8
@@ -107,6 +121,19 @@ int main() {
                 << sin(M_PI / pow(2, maxorder) * i) << std::endl;
     }
   }
+
+  cc.set_order(4);
+  // cc.idxrev(0);
+  std::cout << cc.idxrev(0);
+  std::cout << cc.idxrev(1);
+  std::cout << cc.idxrev(2);
+  std::cout << cc.idxrev(3);
+  std::cout << cc.idxrev(4);
+  std::cout << cc.idxrev(5);
+  std::cout << cc.idxrev(6);
+  std::cout << cc.idxrev(7);
+  std::cout << cc.idxrev(8);
+  std::cout << std::endl;
 
   return 0;
 }
