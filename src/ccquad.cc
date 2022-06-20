@@ -24,9 +24,7 @@ public:
     coss_.push_back(0.0);
     maxorder_ = 0;
     order_ = 0;
-    std::cerr << __LINE__ << "    " << order << std::endl;
     allocate(order);
-    std::cerr << __LINE__ << "    " << order << std::endl;
   }
   void set_order(size_t order) {
     if (order > maxorder_) {
@@ -55,7 +53,6 @@ public:
     return r > num_ ? -coss_[idx(2 * num_ - r)] : coss_[idx(r)];
   }
   void allocate(size_t order) {
-    std::cerr << __LINE__ << "    " << order << std::endl;
     if (order <= maxorder_) {
       return;
     }
@@ -70,7 +67,6 @@ public:
       double ls = sins_[0];
       for (size_t i = 0; i != maxnum_; ++i) {
         size_t r = idx(i + 1);
-        std::cerr << i << "   " << r << std::endl;
         double rc = coss_[r];
         double rs = sins_[r];
         double c = lc * rc - ls * rs;
@@ -93,21 +89,23 @@ int main() {
   // Only consider [0,pi/2]
   auto t0 = std::chrono::high_resolution_clock::now();
   auto dt = t0 - t0;
-  size_t maxorder = 3;
-  CCIntegrator cc(3);
+  CCIntegrator cc(12);
   // cc.set_order(maxorder);
   // init
   auto t1 = std::chrono::high_resolution_clock::now();
   dt += t1 - t0;
   std::cout << "Algo4: " << dt.count() << std::endl;
 
-  cc.set_order(maxorder);
-  // std::vector<int> ord{0, 8, 4, 2, 6, 1, 3, 5, 7}; // For test 0-8
-  std::vector<int> ord{0, 4, 2, 1, 3}; // For test 0-8
-  for (int i = 0; i != pow(2, maxorder) + 1; ++i) {
-    std::cout << cc.coss(i) << "  " << cos(M_PI / pow(2, maxorder) * i) << "  "
-              << cc.sins(i) << "  " << sin(M_PI / pow(2, maxorder) * i)
-              << std::endl;
+  for (size_t maxorder = 3; maxorder != 15; ++maxorder) {
+    std::cout << "= = = = = = = = = = = = = = = = = = = = " << std::endl;
+    cc.set_order(maxorder);
+    // std::vector<int> ord{0, 8, 4, 2, 6, 1, 3, 5, 7}; // For test 0-8
+    std::vector<int> ord{0, 4, 2, 1, 3}; // For test 0-8
+    for (int i = 0; i != pow(2, maxorder) + 1; ++i) {
+      std::cout << cc.coss(i) << "  " << cos(M_PI / pow(2, maxorder) * i)
+                << "  " << cc.sins(i) << "  "
+                << sin(M_PI / pow(2, maxorder) * i) << std::endl;
+    }
   }
 
   return 0;
