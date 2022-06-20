@@ -240,22 +240,23 @@ ccquad(const function<double(double)> &f, double a, double b, double tolerr,
       newint += 0.5 * csxfrm[0];
     }
     //
-    //  test if done.
-    //  test if estimated error adequate.
+    /*
+     *
+     *
+    // Case relative err
     esterr = fabs(oldint * 3.0 - newint);
-    // std::cerr <<std::setprecision(15)<< "inloop =====" << std::endl;
-    // std::cerr << oldint << std::endl;
-    // std::cerr << newint << std::endl;
-    // std::cerr << esterr << std::endl;
-    //
-    //  insert the following four statements to trace program flow.
-    //     sclint=width*newint/double(n/2))
-    //     sclerr=width*(oldint*3.e0-newint)/double(n/2)
-    //     write(6,900) n,sclint,sclerr
-    // 900  format ( 3h n=,i5,23h integral estimated as ,e15.8,
-    //    *  7h error ,e15.8 )
     if (fabs(newint) * tolerr >= esterr)
       break;
+
+      */
+
+    // Case absolute err
+    esterr = fabs(oldint * 3.0 - newint) * width / (n / 2.0);
+    if (tolerr >= esterr)
+      break;
+
+    double quadrature = width * newint / (n / 2.0);
+    std::cerr << __FILE__ "   " << esterr << "   " << quadrature << std::endl;
     //  if estimated error too large, refine sampling if permitted.
     oldint = newint;
   } while (3 * n + 1 <= limit);
