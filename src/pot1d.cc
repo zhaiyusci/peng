@@ -1,4 +1,5 @@
 // #include "atompair.hh"
+#include "cgquad.hh"
 #include "mathtools.hh"
 #include "toms424.hh"
 #include <functional>
@@ -113,6 +114,7 @@ private:
   double E_C_;
   std::unique_ptr<LocalRoot> y_root_;
   std::unique_ptr<Y> y_;
+  CGIntegrator chicg;
 
 public:
   IntegralRange(Pot1DFeatures &pf) : pf_(&pf), ppot_(&(pf.pot())) {
@@ -145,44 +147,60 @@ public:
   double chi(double E, double r_m) {
     // double E = ppot_->value(r_E);
     double b = r2b(r_m, E);
-    // std::cout << "b    " << b << std::endl;
-    auto integrated = [&](double y) {
+    // std::cout << "b    " << b << " " << r_m << " " << E << std::endl;
+    auto integrand = [&](double y) {
+      // std::cout << y << std::endl;
       // y = fabs(y);
-      if (y <= 0) // r<=0
-        return 0.0;
+      // std::cout << y << std::endl;
+      // if (y < 0) // r<=0
+      // return 0.0;
       double r = r_m / y;
       double v = (*ppot_)(r);
-      if (y <= 1.0e-8) { // r --> inf
-        v = 0.0;
-      }
+      // if (y <= 1.0e-8) { // r --> inf
+      // v = 0.0;
+      // }
       // if (y >= 1 - 1.0e-8) { // r --> r_m, deal with numerical err
       // std::cout << __LINE__ << std::endl;
       // return 0.0;
       // }
       double F = (1.0 - v / E - b * b / r / r);
-      if (F < 0.0) {
-        F = 0.0;
-        // std::cout << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
+      if (y <= 1.0e-8) { // r --> inf
+        F = 1.0;
       }
+      if (F < 0.0) {
+        // should never run here if Chebyshev-Gauss Quarduture is used
+        // because y does not equal 1 in CG Quad
+        F = 0.0;
+        std::cout << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
+      }
+      // std::cout << __LINE__ << " : " << v << "    " << E << "   " << b << " "
+      // << r << std::endl;
+      // std::cout << __LINE__ << " : " << b << "    " << F << "   " << r_m
+      // << std::endl;
       double res = 1.0 / sqrt(F) / r_m;
 
       // std::cout << "integrated    " << res << " y    " << y << std::endl;
-      return res;
+      return res * sqrt(1.0 - y * y);
     };
     double quadrature, esterr;
     size_t used;
     std::vector<double> _;
-    std::tie(quadrature, esterr, used, _) =
-        ccquad(integrated, -1.0, 1.0, 1.0e-3 / 2 / b / r_m, 10000000); // TODO
+    // std::tie(quadrature, esterr, used, _) =
+    // ccquad(integrated, -1.0, 1.0, 1.0e-3 / 2 / b / r_m, 10000000); // TODO
     // for (auto &&x : _)
     // std::cout << x << std::endl;
     // std::cout << " USED " << used << "   b   " << b << std::endl;
+    std::tie(quadrature, esterr) =
+        chicg.integrate(integrand, -1, 1, 1.e-4, 4, false);
 
-    return M_PI - 2 * b * quadrature;
-    // return M_PI - b * quadrature;
+    // return M_PI - 2 * b * quadrature;
+    return M_PI - b * quadrature;
   }
   double r2b(double r, double E) const {
     double v = ppot_->value(r);
+    if (r > 1.0e8) {
+      v = 0.0;
+    }
     double b = r * sqrt((E - v) / E);
     // std::cout << "b = " << b << std::endl;
     return b;
@@ -269,6 +287,15 @@ int main() {
   }
   */
 
+  std::cout << "ir.E_C()" << ir.E_C() << std::endl;
+  std::cout << "lj(0.9)" << lj(0.9) << std::endl;
+  double E_O, E_Op;
+  std::tie(E_O, E_Op) = ir.r_range(lj(0.9));
+  std::cout << "E_O" << E_O << std::endl;
+  std::cout << ir.chi(10.0, 0.9) << std::endl;
+
+  std::cout << " ========= ========== =====" << std::endl;
+
   std::cout << "ir.chi(lj(0.9), 0.9)" << std::endl;
   std::cout << ir.chi(lj(0.9), 0.9) << std::endl;
   std::cout << "ir.chi(lj(0.9), 99.9)" << std::endl;
@@ -276,9 +303,9 @@ int main() {
   std::cout << "ir.chi(lj(0.9), 9999.9)" << std::endl;
   std::cout << ir.chi(lj(0.9), 9999.9) << std::endl;
   std::cout << "E = " << lj(0.999) << std::endl;
-  for (double rmm = 0.9; rmm <= 10.0; rmm += 1.0) {
-    std::cout << rmm << "   " << ir.chi(lj(0.9), rmm) << std::endl;
-  }
+  // for (double rmm = 0.9; rmm <= 50.0; rmm += 5.0) {
+  // std::cout << rmm << "   " << ir.chi(lj(0.9), rmm) << std::endl;
+  // }
 
   /*
   std::cout << "ir.Q(1, 0.999)" << std::endl;

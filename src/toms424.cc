@@ -255,8 +255,9 @@ ccquad(const function<double(double)> &f, double a, double b, double tolerr,
     if (tolerr >= esterr)
       break;
 
-    double quadrature = width * newint / (n / 2.0);
-    std::cerr << __FILE__ "   " << esterr << "   " << quadrature << std::endl;
+    // double quadrature = width * newint / (n / 2.0);
+    // std::cerr << __FILE__ "   " << esterr << "   " << quadrature <<
+    // std::endl;
     //  if estimated error too large, refine sampling if permitted.
     oldint = newint;
   } while (3 * n + 1 <= limit);
