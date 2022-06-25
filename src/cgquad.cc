@@ -14,7 +14,6 @@ CGIntegrator::CGIntegrator(size_t order) {
   backend->angles_.push_back(0.5); // pi/2
   backend->coss_.push_back(0.0);
   backend->maxorder_ = 0;
-  order_ = 0;
   backend->size_ = 1;
   backend->gap_ = 1.0;
   backend->allocate(order);

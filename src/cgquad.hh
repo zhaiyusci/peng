@@ -10,7 +10,6 @@ namespace dlt {
 class CGIntegrator {
 public:
   // Status
-  size_t order_;
 
 public:
   CGIntegrator() : CGIntegrator(1) {}
