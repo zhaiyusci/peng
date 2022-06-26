@@ -36,7 +36,7 @@ public:
     size_t order_;
     size_t negative_;
     size_t idx_;
-    size_t maxidx_;
+    size_t idxsize_;
     size_t totidx_;
 
   public:
@@ -47,23 +47,23 @@ public:
         idx_ = 0;
         negative_ = 0;
         order_ = 1;
-        maxidx_ = 1;
+        idxsize_ = 1;
         return *this;
       }
-      if (idx_ != maxidx_) {
+      if (idx_ != idxsize_) {
         return *this;
       }
       idx_ = 0;
       ++negative_;
       if ((!ci_->half_visit_) && negative_ == 1 && ci_->half_storage_)
-        totidx_ -= maxidx_;
+        totidx_ -= idxsize_;
       if (negative_ != (ci_->half_visit_ ? 0 : 1) + 1) {
         return *this;
       }
       idx_ = 0;
       negative_ = 0;
       ++order_;
-      maxidx_ = pow(3, order_ - 1);
+      idxsize_ = pow(3, order_ - 1);
       return *this;
     }
     size_t order() { return order_; }
@@ -86,13 +86,13 @@ public:
         : ci_(ci), order_(order), negative_(negative), idx_(idx) {
       if (order == 0) {
         totidx_ = 0;
-        maxidx_ = 1;
+        idxsize_ = 1;
       } else {
-        maxidx_ = pow(3, order - 1);
+        idxsize_ = pow(3, order - 1);
         if (ci_->half_storage_) {
           totidx_ = (pow(3, order - 1) + 1) / 2 + idx;
         } else {
-          totidx_ = pow(3, order - 1) + negative * maxidx_ + idx;
+          totidx_ = pow(3, order - 1) + negative * idxsize_ + idx;
         }
       }
     }
@@ -113,7 +113,7 @@ protected:
 public:
   CGIntegrator(double a, double b, bool symm);
   std::tuple<double, double> integrate(double tol, size_t ordersize);
-  // virtual void calculate_integrands(size_t maxordersize);
+  virtual void calculate_integrands(size_t ordersize) = 0;
   double map_pm1(double x);
 };
 
