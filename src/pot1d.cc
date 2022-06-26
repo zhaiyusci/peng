@@ -128,18 +128,22 @@ private:
   public:
     ChiCG(IntegralRange *ir)
         : CGIntegrator(-1, 1, true), ir_(ir), ordersize_(1) {
-      integrands_.resize(1);
-      integrands_[0] = 1.0;
+      ordersize_ = 0;
+      integrands_.clear();
+      integrands_.resize(0);
+      // calculate_integrands(1);
     }
     void set_r_m_E_b(double r_m, double E, double b) {
       if (r_m_ != r_m || E_ != E) {
         r_m_ = r_m;
         E_ = E;
         b_ = b;
-        ordersize_ = 1;
-        integrands_.resize(1);
-        std::cerr << " integrands_.size -- " << integrands_.size() << std::endl;
-        integrands_[0] = 1.0;
+        ordersize_ = 0;
+        integrands_.clear();
+        integrands_.resize(0);
+        // calculate_integrands(1);
+        // std::cerr << " integrands_.size -- " << integrands_.size() <<
+        // std::endl;
       }
       return;
     }
@@ -149,9 +153,9 @@ private:
       }
       CubicIter ci(ordersize_, ordersize, true, true);
       size_t num = (pow(3, ordersize - 1) + 1) / 2;
-      integrands_.resize(num);
+      integrands_.reserve(num);
       for (auto &&i : ci) {
-        double y = CGIntegratorBackend::instance()->coss(i);
+        double y = map_pm1(CGIntegratorBackend::instance()->coss(i));
         double r = r_m_ / y;
         double v = (*ir_->ppot_)(r);
         double F = (1.0 - v / E_ - b_ * b_ / r / r);
@@ -166,8 +170,11 @@ private:
         }
         double res = 1.0 / sqrt(F) / r_m_;
 
-        integrands_[i] = (res * sqrt(1.0 - y * y));
+        std::cout << __LINE__ << ' ' << i << ' ' << (res * sqrt(1.0 - y * y))
+                  << std::endl;
+        integrands_.push_back(res * sqrt(1.0 - y * y));
       }
+      ordersize_ = ordersize;
       return;
     }
   };

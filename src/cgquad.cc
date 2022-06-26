@@ -41,7 +41,8 @@ void CGIntegratorBackend::allocate(size_t ordersize) {
 std::tuple<double, double> CGIntegrator::integrate(double tol,
                                                    size_t maxordersize) {
   auto backend = CGIntegratorBackend::instance();
-  calculate_integrands(0);
+  backend->allocate(1);
+  calculate_integrands(1);
   // init
   double res = (symm_ ? 0.5 : 1) * integrands_[0];
   double oldint = 0.0;
@@ -53,6 +54,7 @@ std::tuple<double, double> CGIntegrator::integrate(double tol,
     // std::cout << integrands_.size() << std::endl;
     CubicIter ci(ordersize - 1, ordersize, symm_, symm_);
     for (auto &&i : ci) {
+      std::cout << __LINE__ << ' ' << i << ' ' << integrands_[i] << std::endl;
       res += integrands_[i];
     }
     oldint = newint;
@@ -60,7 +62,7 @@ std::tuple<double, double> CGIntegrator::integrate(double tol,
     err = fabs(oldint - newint);
     // std::cerr << "ERR for order" << order << " : " << err << "   ";
     err /= fabs(newint); // relative error...
-    std::cerr << err << std::endl;
+    // std::cerr << err << std::endl;
     // std::cout << newint << std::endl;
     if (err < tol) {
       std::cerr << "Meet the errtol requirement   order = " << ordersize - 1
