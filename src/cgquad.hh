@@ -7,12 +7,27 @@
 
 namespace dlt {
 
-// size_t half_stosize(size_t order) { return (pow(3, order) + 1) / 2; }
-// This class used to iterate over the n^3 data...
+/** This class used to iterate over the n^3 data...
+ *
+ * There are two fashions to visit the data.
+ *
+ * 1. In case half_visit == true, only the positive half the data is visited,
+ * This can often happen if the function we want to treat is an even function.
+ * When this happens, the half_storage must be true because if the data is
+ * stored fully, i.e., the negative part of the function is also recorded as
+ * grids, It is unreasonable to only visit the positive half.
+ *
+ * 2. When half_visit == false, both positive half and negative half is visited.
+ * This case coresponds to two fashions of storage.
+ * The full storage will cache all the results in a list,
+ * while the half storage only record the positive half.
+ * Chances are that we generate the full grids from a half-stored grids,
+ * like in the CGIntegrator case.
+ */
 class CubicIter {
 private:
   size_t border_;
-  size_t eorder_; // eorder is not included
+  size_t eorder_;     // eorder is not included
   bool half_visit_;   // 0: only positive half
                       // 1: also negative half
   bool half_storage_; // in storage, only save the positive half
@@ -40,35 +55,20 @@ public:
     size_t totidx_;
 
   public:
-    iterator &operator++() {
-      ++totidx_;
-      ++idx_;
-      if (order_ == 0) {
-        idx_ = 0;
-        negative_ = 0;
-        order_ = 1;
-        idxsize_ = 1;
-        return *this;
-      }
-      if (idx_ != idxsize_) {
-        return *this;
-      }
-      idx_ = 0;
-      ++negative_;
-      if ((!ci_->half_visit_) && negative_ == 1 && ci_->half_storage_)
-        totidx_ -= idxsize_;
-      if (negative_ != (ci_->half_visit_ ? 0 : 1) + 1) {
-        return *this;
-      }
-      idx_ = 0;
-      negative_ = 0;
-      ++order_;
-      idxsize_ = pow(3, order_ - 1);
-      return *this;
-    }
+    /** Used with ++iterator.
+     */
+    iterator &operator++();
+    /** Returns the order.
+     */
     size_t order() { return order_; }
     bool negative() { return negative_ == 1; }
+    /** Returns the index, 0-based, of the current order and sign
+     * (if fully visit the space, i.e., half_visit_ == false).
+     */
     size_t idx() { return idx_; }
+    /** Returns the total index, but the sign is also returned.
+     * You can seperate the sign and index easily.
+     */
     int operator*() const {
       if (ci_->half_storage_) {
         return totidx_ * (negative_ ? -1 : 1);
@@ -82,23 +82,35 @@ public:
     }
     bool operator!=(iterator &rhs) const { return !(operator==(rhs)); }
 
-    iterator(CubicIter *ci, size_t order, size_t negative, size_t idx)
-        : ci_(ci), order_(order), negative_(negative), idx_(idx) {
-      if (order == 0) {
-        totidx_ = 0;
-        idxsize_ = 1;
-      } else {
-        idxsize_ = pow(3, order - 1);
-        if (ci_->half_storage_) {
-          totidx_ = (pow(3, order - 1) + 1) / 2 + idx;
-        } else {
-          totidx_ = pow(3, order - 1) + negative * idxsize_ + idx;
-        }
-      }
-    }
+    iterator(CubicIter *ci, size_t order, size_t negative, size_t idx);
   };
+  /** Returns the begin iterator, following the STL fashion.
+   */
   iterator begin() { return iterator(this, border_, 0, 0); }
+  /** Returns the end iterator, not really visited, following the STL fashion.
+   */
   iterator end() { return iterator(this, eorder_, 0, 0); }
+
+private:
+  size_t size_from_0_(size_t order) {
+    if (order == 0) {
+      return 0;
+    }
+    if (half_visit_) {
+      return (pow(3, order - 1) + 1) / 2;
+    } else {
+      return pow(3, order - 1);
+    }
+  }
+
+public:
+  /** The size of the Iterable object if counting from order 0.
+   */
+  size_t size_from_0() { return size_from_0_(eorder_); }
+  /** The size of the Iterable object.
+   * In my context, I do not really need this method.
+   */
+  size_t size() { return size_from_0_(eorder_) - size_from_0_(border_); }
 };
 
 class CGIntegrator {

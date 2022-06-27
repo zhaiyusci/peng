@@ -54,7 +54,8 @@ std::tuple<double, double> CGIntegrator::integrate(double tol,
     // std::cout << integrands_.size() << std::endl;
     CubicIter ci(ordersize - 1, ordersize, symm_, symm_);
     for (auto &&i : ci) {
-      std::cout << __LINE__ << ' ' << i << ' ' << integrands_[i] << std::endl;
+      // std::cout << __LINE__ << ' ' << i << ' ' << integrands_[i] <<
+      // std::endl;
       res += integrands_[i];
     }
     oldint = newint;
@@ -85,10 +86,52 @@ CGIntegratorBackend::CGIntegratorBackend() {
   coss_.push_back(0.0);
   ordersize_ = 1;
   gap_ = 1.0;
-};
+}
 
 double CGIntegratorBackend::coss(int i) {
   return (i < 0 ? -1 : 1) * coss_[abs(i)];
+}
+
+CubicIter::iterator::iterator(CubicIter *ci, size_t order, size_t negative,
+                              size_t idx)
+    : ci_(ci), order_(order), negative_(negative), idx_(idx) {
+  if (order == 0) {
+    totidx_ = 0;
+    idxsize_ = 1;
+  } else {
+    idxsize_ = pow(3, order - 1);
+    if (ci_->half_storage_) {
+      totidx_ = (pow(3, order - 1) + 1) / 2 + idx;
+    } else {
+      totidx_ = pow(3, order - 1) + negative * idxsize_ + idx;
+    }
+  }
+}
+CubicIter::iterator &CubicIter::iterator::operator++() {
+  ++totidx_;
+  ++idx_;
+  if (order_ == 0) {
+    idx_ = 0;
+    negative_ = 0;
+    order_ = 1;
+    idxsize_ = 1;
+    return *this;
+  }
+  if (idx_ != idxsize_) {
+    return *this;
+  }
+  idx_ = 0;
+  ++negative_;
+  if ((!ci_->half_visit_) && negative_ == 1 && ci_->half_storage_)
+    totidx_ -= idxsize_;
+  if (negative_ != (ci_->half_visit_ ? 0 : 1) + 1) {
+    return *this;
+  }
+  idx_ = 0;
+  negative_ = 0;
+  ++order_;
+  idxsize_ = pow(3, order_ - 1);
+  return *this;
 }
 
 } // namespace dlt
