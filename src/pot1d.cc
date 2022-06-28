@@ -195,7 +195,7 @@ public:
 
     ChiCG chicg(this, r_m, E);
     double quadrature, err;
-    std::tie(quadrature, err) = chicg.integrate(1.0e-4, 4);
+    std::tie(quadrature, err) = chicg.integrate(1.0e-4, 15);
     return M_PI - b * quadrature;
   }
   // }}}
@@ -411,11 +411,11 @@ public:
     QCG1 qcg1(this, r_E, r_Op);
     double quadrature1;
     qcg1.set_l(l);
-    std::tie(quadrature1, esterr) = qcg1.integrate(1.e-4, 10);
+    std::tie(quadrature1, esterr) = qcg1.integrate(1.e-4, 15);
     QCG2 qcg2(this, r_E, r_O);
     double quadrature2;
     qcg2.set_l(l);
-    std::tie(quadrature2, esterr) = qcg2.integrate(1.e-4, 10);
+    std::tie(quadrature2, esterr) = qcg2.integrate(1.e-4, 15);
     quadrature2 /= 2;
     return coeff * (quadrature1 + quadrature2);
   }

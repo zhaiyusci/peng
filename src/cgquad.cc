@@ -66,11 +66,14 @@ std::tuple<double, double> CGIntegrator::integrate(double tol,
     // std::cerr << err << std::endl;
     // std::cout << newint << std::endl;
     if (err < tol) {
-      std::cerr << "Meet the errtol requirement   order = " << ordersize - 1
-                << std::endl;
-      break;
+      return std::make_tuple(newint, err);
     }
   }
+  std::cerr << "WARNING\n"
+            << __FILE__ << ' ' << __LINE__ << ": "
+            << "The Chebyshev-Gauss Quadrature did NOT meet the errtol "
+               "requirement with order = "
+            << maxordersize << "." << std::endl;
   return std::make_tuple(newint, err);
 }
 
