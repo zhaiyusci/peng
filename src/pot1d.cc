@@ -188,7 +188,6 @@ private:
     }
   };
 
-
 public:
   double chi(double E, double r_m) {
     // double E = ppot_->value(r_E);
@@ -244,7 +243,7 @@ public:
   /** This class inheriated from the Chebyshev-Gauss Quarduture class, compute
    * the integration required by the computation of chi.
    */
-  class QCG1 : public CGIntegrator {
+  class QCG1 : public CGIntegrator { //{{{
   private:
     IntegralRange *ir_;
     size_t ordersize_;
@@ -288,8 +287,6 @@ public:
      */
     void calculate_integrands(size_t ordersize) override {
       // See if we need an update based on the "flag".
-      std::cout << "cache_ordersize_ --- " << cache_ordersize_ << '\n'
-                << ordersize << std::endl;
       if (cache_ordersize_ < ordersize) {
         CubicIter ci(cache_ordersize_, ordersize, false, true);
         size_t num = ci.size_from_0();
@@ -315,86 +312,184 @@ public:
         CubicIter ci(ordersize_, ordersize, false, false);
         size_t num = ci.size_from_0();
         integrands_.reserve(num);
-        std::cout << __LINE__ << std::endl;
+        // std::cout << __LINE__ << std::endl;
         for (auto &&i : ci) {
-          std::cout << __LINE__ << ' ' << i << std::endl;
+          // std::cout << __LINE__ << ' ' << i << std::endl;
           double res = (1.0 - pow(coschis_[i], l_)) * fct2_[i];
-          std::cout << __LINE__ << ' ' << res << std::endl;
+          // std::cout << __LINE__ << ' ' << res << std::endl;
           integrands_.push_back(res);
         }
         ordersize_ = ordersize;
       }
       return;
     }
-};
+  }; // }}}
 
+  class QCG2 : public CGIntegrator { //{{{
+  private:
+    IntegralRange *ir_;
+    size_t ordersize_;
+    size_t cache_ordersize_;
+    size_t l_;
+    std::vector<double> coschis_;
+    std::vector<double> fct2_;
+    // the following is for recording running status
+    // const double r_E_;
+    const double E_;
+    const double r_O_;
 
-double Q(int l, double r_E) {
-
-  double E = ppot_->value(r_E);
-  std::cout << "E" << std::endl;
-  std::cout << E << std::endl;
-  double r_O, r_Op;
-  std::tie(r_O, r_Op) = r_range(E);
-  std::cout << "r_O,   r_Op" << std::endl;
-  std::cout << r_O << "    " << r_Op << std::endl;
-  double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
-  auto integrated1 = [&](double r_m) {
-    double v, dv;
-    v = ppot_->value(r_m);
-    dv = ppot_->derivative(r_m);
-    double chival = chi(E, r_m);
-    double res = (1.0 - pow(cos(chival), l)) * (2.0 * (E - v) - r_m * dv) * r_m;
-    // std::cout << __LINE__ << "   " << res << std::endl;
-    // std::cout << __LINE__ << "   " << (1.0 - pow(cos(chival), l)) << " "
-    // << (2.0 * (E - v) - r_m * dv) << "   " << r_m << std::endl;
-    return res;
-  };
-  double quadrature1, quadrature2;
-  double esterr;
-  int used;
-  std::vector<double> _;
-  std::cout << "r_E << "
-               " << r_Op"
-            << std::endl;
-  std::cout << r_E << "    " << r_Op << std::endl;
-  std::tie(quadrature1, esterr, used, _) =
-      ccquad(integrated1, r_E, r_Op, 1.0e-3 / coeff, 100000); // TODO
-  auto integrated2 = [&](double y) {
-    double x;
-    x = r_O / y;
-    if (y <= 1.0e-8) {
-      return 0.0;
+  public:
+    QCG2(IntegralRange *ir, double r_E, double r_O)
+        : CGIntegrator(-1, 1, true), ir_(ir),
+          // r_E_(r_E),
+          E_(ir->ppot_->value(r_E)), r_O_(r_O) {
+      ordersize_ = 0;
+      cache_ordersize_ = 0;
+      l_ = 0;
+      integrands_.clear();
+      integrands_.resize(0);
+      coschis_.clear();
+      coschis_.resize(0);
+      fct2_.clear();
+      fct2_.resize(0);
     }
-    // if (y >= 1 - 1.0e-8) {
-    // return 0.0;
+    /** Set the parameters, clear the inner storage if it is needed.
+     */
+    void set_l(size_t l) {
+      if (l_ != l) {
+        // cache is kept in this case.
+        ordersize_ = 0;
+        integrands_.clear();
+        integrands_.resize(0);
+        l_ = l;
+      }
+      return;
+    }
+
+    /** Compute the integrands with computed values cached.
+     */
+    void calculate_integrands(size_t ordersize) override {
+      // See if we need an update based on the "flag".
+      if (cache_ordersize_ < ordersize) {
+        CubicIter ci(cache_ordersize_, ordersize, true, true);
+        size_t num = ci.size_from_0();
+        integrands_.reserve(num);
+        coschis_.reserve(num);
+        fct2_.reserve(num);
+        for (auto &&i : ci) {
+          double y = CGIntegratorBackend::instance()->coss(i);
+          if (y < 1.0e-8) {
+            y = 1.0e-8; // prevent div by 0
+          }
+          double r_m = r_O_ / y;
+          double v, dv;
+          v = ir_->ppot_->value(r_m);
+          dv = ir_->ppot_->derivative(r_m);
+          double coschi = cos(ir_->chi(E_, r_m));
+          // Here I put everything else in fct2, include the weight
+          double fct2 =
+              (2.0 * (E_ - v) - r_m * dv) * r_m * r_m / y * sqrt(1.0 - y * y);
+          // std::cout << __LINE__ << ' ' << y << ' ' << coschi << ' ' << fct2
+          // << '\n';
+          coschis_.push_back(coschi);
+          fct2_.push_back(fct2);
+        }
+        cache_ordersize_ = ordersize;
+      }
+      std::cout << coschis_.size() << '\n' << fct2_.size() << std::endl;
+      if (ordersize_ < ordersize) {
+        CubicIter ci(ordersize_, ordersize, true, true);
+        size_t num = ci.size_from_0();
+        integrands_.reserve(num);
+        // std::cout << __LINE__ << std::endl;
+        for (auto &&i : ci) {
+          // std::cout << __LINE__ << ' ' << i << std::endl;
+          double res = (1.0 - pow(coschis_[i], l_)) * fct2_[i];
+          // std::cout << __LINE__ << ' ' << res << ' ' << coschis_[i] << ' '
+          // << fct2_[i] << std::endl;
+          // std::cout << __LINE__ << ' ' << res << ' ' << pow(coschis_[i], l_)
+          // << ' ' << fct2_[i] << std::endl;
+          integrands_.push_back(res);
+        }
+        ordersize_ = ordersize;
+      }
+      return;
+    }
+  }; // }}}
+
+  double Q(int l, double r_E) {
+
+    double E = ppot_->value(r_E);
+    // std::cout << "E" << std::endl;
+    // std::cout << E << std::endl;
+    double r_O, r_Op;
+    std::tie(r_O, r_Op) = r_range(E);
+    // std::cout << "r_O,   r_Op" << std::endl;
+    // std::cout << r_O << "    " << r_Op << std::endl;
+    double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
+    /* auto integrated1 = [&](double r_m) {
+      double v, dv;
+      v = ppot_->value(r_m);
+      dv = ppot_->derivative(r_m);
+      double chival = chi(E, r_m);
+      double res = (1.0 - pow(cos(chival), l)) * (2.0 * (E - v) - r_m * dv) *
+    r_m;
+      // std::cout << __LINE__ << "   " << res << std::endl;
+      // std::cout << __LINE__ << "   " << (1.0 - pow(cos(chival), l)) << " "
+      // << (2.0 * (E - v) - r_m * dv) << "   " << r_m << std::endl;
+      return res;
+    };
+    double quadrature1, quadrature2;
+    double esterr;
+    int used;
+    std::vector<double> _;
+    std::cout << "r_E << "
+                 " << r_Op"
+              << std::endl;
+    std::cout << r_E << "    " << r_Op << std::endl;
+    std::tie(quadrature1, esterr, used, _) =
+        ccquad(integrated1, r_E, r_Op, 1.0e-3 / coeff, 100000); // TODO
+    auto integrated2 = [&](double y) {
+      double x;
+      x = r_O / y;
+      if (y <= 1.0e-8) {
+        return 0.0;
+      }
+      // if (y >= 1 - 1.0e-8) {
+      // return 0.0;
+      // }
+      return x / y * integrated1(x);
+    };
+    std::tie(quadrature2, esterr, used, _) =
+        ccquad(integrated2, -1.0, 1.0, 1.0e-5, 100000); // TODO
+
+    // for (double r = 90; r <= 100; r += 1.0) {
+    // std::cout << "dbg==  " << r << "           " << integrated1(r)
+    // << std::endl;
     // }
-    return x / y * integrated1(x);
-  };
-  std::tie(quadrature2, esterr, used, _) =
-      ccquad(integrated2, 0.0, 1.0, 1.0e-3, 100000); // TODO
 
-  // for (double r = 90; r <= 100; r += 1.0) {
-  // std::cout << "dbg==  " << r << "           " << integrated1(r)
-  // << std::endl;
-  // }
-
-  // std::cout << "quadrature2" << std::endl;
-  // std::tie(quadrature2, esterr, used, _) =
-  // // ccquad(integrated1, r_O, 2000.0, 1.0e-3 / coeff, 100000); // TODO
-  // ccquad(integrated1, r_O, 20.0, 1.0e-3 / coeff, 10000); // TODO
-  // std::cout << " USED " << used << std::endl;
-  QCG1 qcg1(this, r_E, r_Op);
-  double quadrature11;
-  qcg1.set_l(2);
-  std::tie(quadrature11, esterr) = qcg1.integrate(1.e-4, 10);
-  std::cout << "quadrature1 << "
-               " << quadrature2"
-            << std::endl;
-  std::cout << quadrature1 << "    " << quadrature2 << std::endl;
-  std::cout << quadrature11 << "    " << quadrature2 << std::endl;
-  return coeff * (quadrature1 + quadrature2);
-}
+    // std::cout << "quadrature2" << std::endl;
+    // std::tie(quadrature2, esterr, used, _) =
+    // ccquad(integrated1, r_O, 500.0, 1.0e-3 / coeff, 10000); // TODO
+    // std::cout << " USED " << used << std::endl;
+    */
+    double esterr;
+    QCG1 qcg1(this, r_E, r_Op);
+    double quadrature1;
+    qcg1.set_l(l);
+    std::tie(quadrature1, esterr) = qcg1.integrate(1.e-4, 10);
+    QCG2 qcg2(this, r_E, r_O);
+    double quadrature2;
+    qcg2.set_l(l);
+    std::tie(quadrature2, esterr) = qcg2.integrate(1.e-4, 10);
+    quadrature2 /= 2;
+    std::cout << "quadrature1 << "
+                 " << quadrature2"
+              << std::endl;
+    // std::cout << quadrature1 << "    " << quadrature2 << std::endl;
+    std::cout << quadrature1 << "    " << quadrature2 << std::endl;
+    return coeff * (quadrature1 + quadrature2);
+  }
 };
 } // namespace dlt
 
