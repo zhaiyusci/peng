@@ -60,13 +60,13 @@ public:
     std::tie(r_min_, epsilon_) = find_local_minimum(*ppot_, 1.0, 5.0);
     // TODO: I believe this range is safe...
     epsilon_ *= -1;
-    std::cout << "epsilon\tr_min" << std::endl;
-    std::cout << epsilon_ << "\t" << r_min_ << std::endl;
+    // std::cout << "epsilon\tr_min" << std::endl;
+    // std::cout << epsilon_ << "\t" << r_min_ << std::endl;
 
     sigma_ = find_local_root(*ppot_, 0.0, 0.5 * r_min_, r_min_);
     // TODO: I believe this range is safe...
-    std::cout << "sigma_" << std::endl;
-    std::cout << sigma_ << std::endl;
+    // std::cout << "sigma_" << std::endl;
+    // std::cout << sigma_ << std::endl;
     return;
   }
   /** The collision radius.
@@ -173,10 +173,10 @@ private:
         if (y <= 1.0e-8) { // r --> inf
           F = 1.0;
         }
-        if (F < 0.0) {
+        if (F <= 1.0e-12) {
           // should never run here if Chebyshev-Gauss Quarduture is used
           // because y does not equal 1 in CG Quad
-          F = 0.0;
+          F = 1.0e-12;
           std::cout << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
         }
         double res = 1.0 / sqrt(F) / r_m_;
@@ -194,7 +194,6 @@ public:
     double b = r2b(r_m, E);
 
     ChiCG chicg(this, r_m, E);
-    // std::cout << "b    " << b << " " << r_m << " " << E << std::endl;
     double quadrature, err;
     std::tie(quadrature, err) = chicg.integrate(1.0e-4, 4);
     return M_PI - b * quadrature;
@@ -207,8 +206,6 @@ public:
 
     std::tie(r_C_, E_C_) = find_local_maximum(*y_, 1.0, 2 * pf_->r_min());
     // TODO: fit reduced potential
-    std::cout << "r_C\tE_C" << std::endl;
-    std::cout << r_C_ << "\t" << E_C_ << std::endl;
     y_root_.reset(new LocalRoot(*y_, r_C_, 10.0, 21));
   }
 
@@ -235,7 +232,6 @@ public:
       v = 0.0;
     }
     double b = r * sqrt((E - v) / E);
-    // std::cout << "b = " << b << std::endl;
     return b;
   }
 
@@ -307,16 +303,13 @@ public:
         }
         cache_ordersize_ = ordersize;
       }
-      std::cout << coschis_.size() << '\n' << fct2_.size() << std::endl;
+      // std::cout << coschis_.size() << '\n' << fct2_.size() << std::endl;
       if (ordersize_ < ordersize) {
         CubicIter ci(ordersize_, ordersize, false, false);
         size_t num = ci.size_from_0();
         integrands_.reserve(num);
-        // std::cout << __LINE__ << std::endl;
         for (auto &&i : ci) {
-          // std::cout << __LINE__ << ' ' << i << std::endl;
           double res = (1.0 - pow(coschis_[i], l_)) * fct2_[i];
-          // std::cout << __LINE__ << ' ' << res << std::endl;
           integrands_.push_back(res);
         }
         ordersize_ = ordersize;
@@ -389,26 +382,17 @@ public:
           // Here I put everything else in fct2, include the weight
           double fct2 =
               (2.0 * (E_ - v) - r_m * dv) * r_m * r_m / y * sqrt(1.0 - y * y);
-          // std::cout << __LINE__ << ' ' << y << ' ' << coschi << ' ' << fct2
-          // << '\n';
           coschis_.push_back(coschi);
           fct2_.push_back(fct2);
         }
         cache_ordersize_ = ordersize;
       }
-      std::cout << coschis_.size() << '\n' << fct2_.size() << std::endl;
       if (ordersize_ < ordersize) {
         CubicIter ci(ordersize_, ordersize, true, true);
         size_t num = ci.size_from_0();
         integrands_.reserve(num);
-        // std::cout << __LINE__ << std::endl;
         for (auto &&i : ci) {
-          // std::cout << __LINE__ << ' ' << i << std::endl;
           double res = (1.0 - pow(coschis_[i], l_)) * fct2_[i];
-          // std::cout << __LINE__ << ' ' << res << ' ' << coschis_[i] << ' '
-          // << fct2_[i] << std::endl;
-          // std::cout << __LINE__ << ' ' << res << ' ' << pow(coschis_[i], l_)
-          // << ' ' << fct2_[i] << std::endl;
           integrands_.push_back(res);
         }
         ordersize_ = ordersize;
@@ -420,59 +404,9 @@ public:
   double Q(int l, double r_E) {
 
     double E = ppot_->value(r_E);
-    // std::cout << "E" << std::endl;
-    // std::cout << E << std::endl;
     double r_O, r_Op;
     std::tie(r_O, r_Op) = r_range(E);
-    // std::cout << "r_O,   r_Op" << std::endl;
-    // std::cout << r_O << "    " << r_Op << std::endl;
     double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
-    /* auto integrated1 = [&](double r_m) {
-      double v, dv;
-      v = ppot_->value(r_m);
-      dv = ppot_->derivative(r_m);
-      double chival = chi(E, r_m);
-      double res = (1.0 - pow(cos(chival), l)) * (2.0 * (E - v) - r_m * dv) *
-    r_m;
-      // std::cout << __LINE__ << "   " << res << std::endl;
-      // std::cout << __LINE__ << "   " << (1.0 - pow(cos(chival), l)) << " "
-      // << (2.0 * (E - v) - r_m * dv) << "   " << r_m << std::endl;
-      return res;
-    };
-    double quadrature1, quadrature2;
-    double esterr;
-    int used;
-    std::vector<double> _;
-    std::cout << "r_E << "
-                 " << r_Op"
-              << std::endl;
-    std::cout << r_E << "    " << r_Op << std::endl;
-    std::tie(quadrature1, esterr, used, _) =
-        ccquad(integrated1, r_E, r_Op, 1.0e-3 / coeff, 100000); // TODO
-    auto integrated2 = [&](double y) {
-      double x;
-      x = r_O / y;
-      if (y <= 1.0e-8) {
-        return 0.0;
-      }
-      // if (y >= 1 - 1.0e-8) {
-      // return 0.0;
-      // }
-      return x / y * integrated1(x);
-    };
-    std::tie(quadrature2, esterr, used, _) =
-        ccquad(integrated2, -1.0, 1.0, 1.0e-5, 100000); // TODO
-
-    // for (double r = 90; r <= 100; r += 1.0) {
-    // std::cout << "dbg==  " << r << "           " << integrated1(r)
-    // << std::endl;
-    // }
-
-    // std::cout << "quadrature2" << std::endl;
-    // std::tie(quadrature2, esterr, used, _) =
-    // ccquad(integrated1, r_O, 500.0, 1.0e-3 / coeff, 10000); // TODO
-    // std::cout << " USED " << used << std::endl;
-    */
     double esterr;
     QCG1 qcg1(this, r_E, r_Op);
     double quadrature1;
@@ -483,11 +417,6 @@ public:
     qcg2.set_l(l);
     std::tie(quadrature2, esterr) = qcg2.integrate(1.e-4, 10);
     quadrature2 /= 2;
-    std::cout << "quadrature1 << "
-                 " << quadrature2"
-              << std::endl;
-    // std::cout << quadrature1 << "    " << quadrature2 << std::endl;
-    std::cout << quadrature1 << "    " << quadrature2 << std::endl;
     return coeff * (quadrature1 + quadrature2);
   }
 };
@@ -502,12 +431,6 @@ int main() {
   std::cout << " " << pf.r_min() << " " << pf.sigma() << " " << pf.epsilon()
             << " " << std::endl;
   dlt::IntegralRange ir(pf);
-  /*
-     for (double E = 0.0; E <= 1.0; E += 0.1) {
-     std::cout << "r_O ==> " << E << " " << std::get<0>(ir.r_range(E)) << " "
-     << std::get<1>(ir.r_range(E)) << std::endl;
-     }
-     */
 
   std::cout << "ir.E_C()" << ir.E_C() << std::endl;
   std::cout << "lj(0.9)" << lj(0.9) << std::endl;
@@ -534,15 +457,6 @@ int main() {
   std::cout << ir.Q(1, 0.999) << std::endl;
   std::cout << "ir.Q(2, 0.999)" << std::endl;
   std::cout << ir.Q(2, 0.999) << std::endl;
-
-  // double r_O, r_Op;
-  // std::tie(r_O, r_Op) = ir.r_range(0.7);
-  // std::cout << r_O << "  " << r_Op << std::endl;
-  // std::cout << "ir.chi(0.7, 1.2)" << std::endl;
-  // std::cout << ir.chi(0.7, 1.2) << std::endl;
-  // for (double rm = 0.9; rm <= 1.3; rm += 0.10) {
-  // std::cout << ir.chi(lj(0.9), rm) << std::endl;
-  // }
 
   return 0;
 }
