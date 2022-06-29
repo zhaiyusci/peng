@@ -2,6 +2,7 @@
 #include "cgquad.hh"
 #include "mathtools.hh"
 #include "toms424.hh"
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -499,19 +500,28 @@ public:
         Q_ordersize_ = ordersize;
       }
       if (v_ordersize_ < ordersize) {
-        CubicIter ci(Q_ordersize_, ordersize, true, true);
+        CubicIter ci(v_ordersize_, ordersize, true, true);
         size_t num = ci.size_from_0();
         Qs_.reserve(num);
+        std::ofstream fs;
+        fs.open("out.txt", std::ios::app);
+        std::cout << "!@#$%^&*()" << std::endl;
+        fs << "!@#$%^&*()" << std::endl;
+        fs << "s_ " << s_ << " ordersize " << ordersize << std::endl;
         for (auto &&i : ci) {
           double y = CGIntegratorBackend::instance()->coss(i);
           if (y < 1.0e-8) {
             y = 1.0e-8; // prevent div by 0
           }
           double r_E = map_pm1(y);
+
           vs_.push_back(ir_->ppot_->value(r_E));
           // weight is included in dvs
           dvs_.push_back(ir_->ppot_->derivative(r_E) * sqrt(1.0 - y * y));
+          std::cout << i << ' ' << vs_[i] << ' ' << dvs_[i] << std::endl;
         }
+        fs << std::flush;
+        fs.close();
         v_ordersize_ = ordersize;
       }
       // std::cout << "Line " << __LINE__ << std::endl;
@@ -521,6 +531,7 @@ public:
         vs_.reserve(num);
         dvs_.reserve(num);
         // std::cout << "Line " << __LINE__ << std::endl;
+
         for (auto &&i : ci) {
           double x = vs_[i] / T_;
           double res = exp(-x) * pow(x, s_ + 1) * Qs_[i] * dvs_[i];
@@ -532,13 +543,14 @@ public:
       return;
     }
   }; // }}}
+
   double Omega(size_t l, size_t s, double T) {
     static OmegaCG omegacg(this);
     double coeff = -1.0 / T / std::tgamma(s + 2);
     double esterr;
     double quadrature1;
     omegacg.set_l_s_T(l, s, T);
-    std::tie(quadrature1, esterr) = omegacg.integrate(1.e-4, 6);
+    std::tie(quadrature1, esterr) = omegacg.integrate(1.e-4, 7);
     // std::cout << "Line " << __LINE__ << std::endl;
     quadrature1 /= 2;
     return coeff * quadrature1;
@@ -604,8 +616,10 @@ int main() {
   std::cout << "ir.Omega(1, 2, 30)" << std::endl;
   std::cout << ir.Omega(1, 2, 30) << std::endl;
 
+  /*
   std::cout << "ir.Omega(2, 2, 30)" << std::endl;
   std::cout << ir.Omega(2, 2, 30) << std::endl;
+  */
 
   std::cout << "ir.Omega(1, 1, 30)" << std::endl;
   std::cout << ir.Omega(1, 1, 30) << std::endl;
