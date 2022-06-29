@@ -132,11 +132,10 @@ private:
   std::unique_ptr<LocalRoot> y_root_;
   std::unique_ptr<Y> y_;
 
-  // {{{ chi stuff ...
   /** This class inheriated from the Chebyshev-Gauss Quarduture class, compute
    * the integration required by the computation of chi.
    */
-  class ChiCG : public CGIntegrator {
+  class ChiCG : public CGIntegrator { // {{{
   private:
     IntegralRange *ir_;
     size_t ordersize_;
@@ -151,7 +150,6 @@ private:
           b_(ir_->r2b(r_m, E)) {
       ordersize_ = 0;
       integrands_.clear();
-      integrands_.resize(0);
     }
 
     /** Compute the integrands with computed values cached.
@@ -176,8 +174,9 @@ private:
         if (F <= 1.0e-12) {
           // should never run here if Chebyshev-Gauss Quarduture is used
           // because y does not equal 1 in CG Quad
+          std::cerr << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
+          throw std::runtime_error("178 F<0");
           F = 1.0e-12;
-          std::cout << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
         }
         double res = 1.0 / sqrt(F) / r_m_;
         integrands_.push_back(res * sqrt(1.0 - y * y));
@@ -186,7 +185,7 @@ private:
       ordersize_ = ordersize;
       return;
     }
-  };
+  }; // }}}
 
 public:
   double chi(double E, double r_m) {
@@ -198,7 +197,6 @@ public:
     std::tie(quadrature, err) = chicg.integrate(1.0e-4, 15);
     return M_PI - b * quadrature;
   }
-  // }}}
 
   IntegralRange(Pot1DFeatures &pf) : pf_(&pf), ppot_(&(pf.pot())) {
 
@@ -206,23 +204,37 @@ public:
 
     std::tie(r_C_, E_C_) = find_local_maximum(*y_, 1.0, 2 * pf_->r_min());
     // TODO: fit reduced potential
-    y_root_.reset(new LocalRoot(*y_, r_C_, 10.0, 21));
+    y_root_.reset(new LocalRoot(*y_, r_C_, 15.0, 21, 1.0e-12));
   }
 
   const double &r_C() const { return r_C_; }
   const double &E_C() const { return E_C_; }
 
   std::tuple<double, double> r_range(double E) const {
-    double r_O, r_Op;
+    double r_O, r_Op, b_O;
     if (E >= E_C_) {
       r_O = r_C_;
       r_Op = r_C_;
+      b_O = r2b(r_O, E);
     } else {
       r_O = (*y_root_)(E);
-      double b_O = r2b(r_O, E);
+      b_O = r2b(r_O, E);
       PhiEff phieff(*ppot_, b_O, E);
-      r_Op = find_local_root(phieff, E, 1.0, r_C_);
+      r_Op = find_local_root(phieff, E, 1.0, r_C_, 21, 1.0e-12);
+      // std::cout << "Zero check: " << phieff(r_Op) - E << std::endl;
+      if (fabs(phieff(r_Op) - E) >= 1.0e-6) {
+        double _;
+        std::tie(r_Op, _) = find_local_maximum(phieff, 1.0, r_C_);
+        r_Op = find_local_root(phieff, E, 0.0, r_Op, 21, 1.0e-12);
+      }
     }
+    // std::cout << "r_O, r_Op, r_C   " << r_O << ' ' << r_Op << ' ' << r_C()
+    // << std::endl;
+
+    // std::cout << "F(r_O) = "
+    // << 1.0 - ppot_->value(r_O) / E - b_O * b_O / r_O / r_O << '\n';
+    // std::cout << "F(r_Op) = "
+    // << 1.0 - ppot_->value(r_Op) / E - b_O * b_O / r_Op / r_Op << '\n';
     return std::make_tuple(r_O, r_Op);
   }
 
@@ -237,7 +249,7 @@ public:
 
   // Q stuff
   /** This class inheriated from the Chebyshev-Gauss Quarduture class, compute
-   * the integration required by the computation of chi.
+   * the integration required by the computation of Q.
    */
   class QCG1 : public CGIntegrator { //{{{
   private:
@@ -253,27 +265,20 @@ public:
 
   public:
     QCG1(IntegralRange *ir, double r_E, double r_Op)
-        : CGIntegrator(r_E, r_Op, false), ir_(ir),
-          // r_E_(r_E),
-          E_(ir->ppot_->value(r_E)) {
+        : CGIntegrator(r_E, r_Op, false), ir_(ir), E_(ir->ppot_->value(r_E)) {
       ordersize_ = 0;
       cache_ordersize_ = 0;
       l_ = 0;
       integrands_.clear();
-      integrands_.resize(0);
       coschis_.clear();
-      coschis_.resize(0);
       fct2_.clear();
-      fct2_.resize(0);
     }
     /** Set the parameters, clear the inner storage if it is needed.
      */
     void set_l(size_t l) {
       if (l_ != l) {
-        // cache is kept in this case.
         ordersize_ = 0;
         integrands_.clear();
-        integrands_.resize(0);
         l_ = l;
       }
       return;
@@ -327,9 +332,9 @@ public:
     std::vector<double> coschis_;
     std::vector<double> fct2_;
     // the following is for recording running status
-    // const double r_E_;
+    // double r_E_;
     const double E_;
-    const double r_O_;
+    double r_O_;
 
   public:
     QCG2(IntegralRange *ir, double r_E, double r_O)
@@ -340,20 +345,15 @@ public:
       cache_ordersize_ = 0;
       l_ = 0;
       integrands_.clear();
-      integrands_.resize(0);
       coschis_.clear();
-      coschis_.resize(0);
       fct2_.clear();
-      fct2_.resize(0);
     }
     /** Set the parameters, clear the inner storage if it is needed.
      */
     void set_l(size_t l) {
       if (l_ != l) {
-        // cache is kept in this case.
         ordersize_ = 0;
         integrands_.clear();
-        integrands_.resize(0);
         l_ = l;
       }
       return;
@@ -401,23 +401,147 @@ public:
     }
   }; // }}}
 
-  double Q(int l, double r_E) {
+  /** Compute Q.
+   *
+   * It is faster to keep the r_E unchanged and scan the l.
+   */
+  double Q(size_t l, double r_E) {
+    static double old_r_E = 0.0;
+    static double E, r_O, r_Op;
+    static std::unique_ptr<QCG1> qcg1;
+    static std::unique_ptr<QCG2> qcg2;
 
-    double E = ppot_->value(r_E);
-    double r_O, r_Op;
-    std::tie(r_O, r_Op) = r_range(E);
+    if (old_r_E != r_E) {
+      old_r_E = r_E;
+      E = ppot_->value(r_E); // This is common
+      std::tie(r_O, r_Op) = r_range(E);
+      qcg1.reset(new QCG1(this, r_E, r_Op));
+      qcg2.reset(new QCG2(this, r_E, r_O));
+    }
+
     double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
     double esterr;
-    QCG1 qcg1(this, r_E, r_Op);
     double quadrature1;
-    qcg1.set_l(l);
-    std::tie(quadrature1, esterr) = qcg1.integrate(1.e-4, 15);
-    QCG2 qcg2(this, r_E, r_O);
+    qcg1->set_l(l);
+    std::tie(quadrature1, esterr) = qcg1->integrate(1.e-4, 15);
     double quadrature2;
-    qcg2.set_l(l);
-    std::tie(quadrature2, esterr) = qcg2.integrate(1.e-4, 15);
+    qcg2->set_l(l);
+    std::tie(quadrature2, esterr) = qcg2->integrate(1.e-4, 15);
     quadrature2 /= 2;
     return coeff * (quadrature1 + quadrature2);
+  }
+
+  // Omega stuff
+  /** This class inheriated from the Chebyshev-Gauss Quarduture class, compute
+   * the integration required by the computation of Omega.
+   */
+  class OmegaCG : public CGIntegrator { //{{{
+  private:
+    IntegralRange *ir_;
+    size_t ordersize_;
+    size_t v_ordersize_;
+    size_t Q_ordersize_;
+    std::vector<double> Qs_;
+    std::vector<double> vs_;
+    std::vector<double> dvs_;
+    // the following is for recording running status
+    // const double r_E_;
+    size_t l_;
+    size_t s_;
+    double T_;
+
+  public:
+    OmegaCG(IntegralRange *ir) : CGIntegrator(0.9, 1, true), ir_(ir) {
+      ordersize_ = 0;
+      v_ordersize_ = 0;
+      Q_ordersize_ = 0;
+      l_ = 0;
+      s_ = 0;
+      T_ = 0.0;
+      integrands_.clear();
+      Qs_.clear();
+      vs_.clear();
+      dvs_.clear();
+    }
+    /** Set the parameters, clear the inner storage if it is needed.
+     */
+    void set_l_s_T(size_t l, size_t s, double T) {
+      if (s_ != s || l_ != l || T_ != T) {
+        ordersize_ = 0;
+        integrands_.clear();
+      }
+      if (l_ != l) {
+        Q_ordersize_ = 0;
+        Qs_.clear();
+      }
+      s_ = s;
+      l_ = l;
+      T_ = T;
+      return;
+    }
+
+    /** Compute the integrands with computed values cached.
+     */
+    void calculate_integrands(size_t ordersize) override {
+      // See if we need an update based on the "flag".
+      if (Q_ordersize_ < ordersize) {
+        CubicIter ci(Q_ordersize_, ordersize, true, true);
+        size_t num = ci.size_from_0();
+        Qs_.reserve(num);
+        for (auto &&i : ci) {
+          double y = CGIntegratorBackend::instance()->coss(i);
+          if (y < 1.0e-8) {
+            y = 1.0e-8; // prevent div by 0
+          }
+          double r_E = map_pm1(y);
+          Qs_.push_back(ir_->Q(l_, r_E));
+        }
+        Q_ordersize_ = ordersize;
+      }
+      if (v_ordersize_ < ordersize) {
+        CubicIter ci(Q_ordersize_, ordersize, true, true);
+        size_t num = ci.size_from_0();
+        Qs_.reserve(num);
+        for (auto &&i : ci) {
+          double y = CGIntegratorBackend::instance()->coss(i);
+          if (y < 1.0e-8) {
+            y = 1.0e-8; // prevent div by 0
+          }
+          double r_E = map_pm1(y);
+          vs_.push_back(ir_->ppot_->value(r_E));
+          // weight is included in dvs
+          dvs_.push_back(ir_->ppot_->derivative(r_E) * sqrt(1.0 - y * y));
+        }
+        v_ordersize_ = ordersize;
+      }
+      // std::cout << "Line " << __LINE__ << std::endl;
+      if (ordersize_ < ordersize) {
+        CubicIter ci(ordersize_, ordersize, true, true);
+        size_t num = ci.size_from_0();
+        vs_.reserve(num);
+        dvs_.reserve(num);
+        // std::cout << "Line " << __LINE__ << std::endl;
+        for (auto &&i : ci) {
+          double x = vs_[i] / T_;
+          double res = exp(-x) * pow(x, s_ + 1) * Qs_[i] * dvs_[i];
+          integrands_.push_back(res);
+        }
+        ordersize_ = ordersize;
+      }
+      // std::cout << "Line " << __LINE__ << std::endl;
+      return;
+    }
+  }; // }}}
+  double Omega(size_t l, size_t s, double T) {
+    static OmegaCG omegacg(this);
+    double coeff = -1.0 / T / std::tgamma(s + 2);
+    double esterr;
+    double quadrature1;
+    omegacg.set_l_s_T(l, s, T);
+    std::tie(quadrature1, esterr) = omegacg.integrate(1.e-4, 6);
+    // std::cout << "Line " << __LINE__ << std::endl;
+    quadrature1 /= 2;
+    return coeff * quadrature1;
   }
 };
 } // namespace dlt
@@ -455,8 +579,36 @@ int main() {
 
   std::cout << "ir.Q(1, 0.999)" << std::endl;
   std::cout << ir.Q(1, 0.999) << std::endl;
+
   std::cout << "ir.Q(2, 0.999)" << std::endl;
   std::cout << ir.Q(2, 0.999) << std::endl;
+
+  std::cout << "ir.Q(3, 0.999)" << std::endl;
+  std::cout << ir.Q(3, 0.999) << std::endl;
+
+  std::cout << "ir.Q(3, 0.99)" << std::endl;
+  std::cout << ir.Q(3, 0.99) << std::endl;
+
+  std::cout << "ir.Q(4, 0.999)" << std::endl;
+  std::cout << ir.Q(3, 0.999) << std::endl;
+
+  std::cout << "ir.Q(3, 0.99)" << std::endl;
+  std::cout << ir.Q(3, 0.99) << std::endl;
+
+  std::cout << "ir.Q(3, 0.999)" << std::endl;
+  std::cout << ir.Q(3, 0.999) << std::endl;
+
+  std::cout << "ir.Omega(1, 1, 30)" << std::endl;
+  std::cout << ir.Omega(1, 1, 30) << std::endl;
+
+  std::cout << "ir.Omega(1, 2, 30)" << std::endl;
+  std::cout << ir.Omega(1, 2, 30) << std::endl;
+
+  std::cout << "ir.Omega(2, 2, 30)" << std::endl;
+  std::cout << ir.Omega(2, 2, 30) << std::endl;
+
+  std::cout << "ir.Omega(1, 1, 30)" << std::endl;
+  std::cout << ir.Omega(1, 1, 30) << std::endl;
 
   return 0;
 }
