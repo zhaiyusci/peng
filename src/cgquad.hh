@@ -124,7 +124,7 @@ protected:
 
 public:
   CGIntegrator(double a, double b, bool symm);
-  std::tuple<double, double> integrate(double tol, size_t ordersize);
+  std::tuple<double, double, bool> integrate(double tol, size_t ordersize);
   virtual void calculate_integrands(size_t ordersize) = 0;
   double map_pm1(double x);
 };

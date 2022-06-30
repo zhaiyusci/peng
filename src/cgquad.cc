@@ -38,8 +38,8 @@ void CGIntegratorBackend::allocate(size_t ordersize) {
   return;
 }
 
-std::tuple<double, double> CGIntegrator::integrate(double tol,
-                                                   size_t maxordersize) {
+std::tuple<double, double, bool> CGIntegrator::integrate(double tol,
+                                                         size_t maxordersize) {
   auto backend = CGIntegratorBackend::instance();
   backend->allocate(1);
   calculate_integrands(1);
@@ -66,7 +66,7 @@ std::tuple<double, double> CGIntegrator::integrate(double tol,
     // std::cerr << err << std::endl;
     // std::cout << newint << std::endl;
     if (err < tol) {
-      return std::make_tuple(newint, err);
+      return std::make_tuple(newint, err, err < tol);
     }
   }
   std::cerr << "WARNING\n"
@@ -74,7 +74,7 @@ std::tuple<double, double> CGIntegrator::integrate(double tol,
             << "The Chebyshev-Gauss Quadrature did NOT meet the errtol "
                "requirement with order = "
             << maxordersize << "." << std::endl;
-  return std::make_tuple(newint, err);
+  return std::make_tuple(newint, err, err < tol);
 }
 
 double CGIntegrator::map_pm1(double x) { return k0_ + k1_ * x; }
