@@ -452,7 +452,7 @@ public:
     double T_;
 
   public:
-    OmegaCG(IntegralRange *ir) : CGIntegrator(0.9, 1, true), ir_(ir) {
+    OmegaCG(IntegralRange *ir) : CGIntegrator(-1.0, 1.0, true), ir_(ir) {
       ordersize_ = 0;
       v_ordersize_ = 0;
       Q_ordersize_ = 0;
@@ -504,10 +504,6 @@ public:
         size_t num = ci.size_from_0();
         Qs_.reserve(num);
         std::ofstream fs;
-        fs.open("out.txt", std::ios::app);
-        std::cout << "!@#$%^&*()" << std::endl;
-        fs << "!@#$%^&*()" << std::endl;
-        fs << "s_ " << s_ << " ordersize " << ordersize << std::endl;
         for (auto &&i : ci) {
           double y = CGIntegratorBackend::instance()->coss(i);
           if (y < 1.0e-8) {
@@ -518,10 +514,7 @@ public:
           vs_.push_back(ir_->ppot_->value(r_E));
           // weight is included in dvs
           dvs_.push_back(ir_->ppot_->derivative(r_E) * sqrt(1.0 - y * y));
-          std::cout << i << ' ' << vs_[i] << ' ' << dvs_[i] << std::endl;
         }
-        fs << std::flush;
-        fs.close();
         v_ordersize_ = ordersize;
       }
       // std::cout << "Line " << __LINE__ << std::endl;
