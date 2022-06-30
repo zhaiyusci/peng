@@ -8,8 +8,9 @@
 
 namespace dlt {
 
-/** This class find the features of a potential function.
- */
+///
+/// This class find the features of a potential function.
+///
 class Pot1DFeatures {
 private:
   double sigma_;
@@ -21,27 +22,34 @@ private:
 public:
   Pot1DFeatures(FuncDeriv1D &pot);
 
-  /** The collision radius.
-   */
+  ///
+  /// The collision radius.
+  ///
   const double &sigma() const { return sigma_; }
 
-  /** The well depth.
-   */
+  ///
+  /// The well depth.
+  ///
   const double &epsilon() const { return epsilon_; }
 
-  /** The equlibrium nuclear seperation.
-   */
+  ///
+  /// The equlibrium nuclear seperation.
+  ///
   const double &r_min() const { return r_min_; }
 
-  /** The potential.
-   */
+  ///
+  /// The potential.
+  ///
   FuncDeriv1D &pot() const { return *ppot_; }
 };
 
-/** The quadrature algorithm for reduced potential.
- */
-
+/// The quadrature algorithm for reduced potential.
 class ReducedPotentialQuadrature {
+  // 1. The functions need to find the numerical roots / minima / maxima
+
+  ///
+  /// Phi functions
+  ///
   class PhiEff : public FuncDeriv1D {
   private:
     FuncDeriv1D *ppot_;
@@ -64,17 +72,12 @@ class ReducedPotentialQuadrature {
     double value(double r) const;
   };
 
-private:
-  const Pot1DFeatures *const pf_;
-  FuncDeriv1D *const ppot_;
-  double r_C_;
-  double E_C_;
-  std::unique_ptr<LocalRoot> y_root_;
-  std::unique_ptr<Y> y_;
+  // 2. Worker class that actually do the inegration, inheriated from
+  // CGIntegrator
 
-  /** This class inheriated from the Chebyshev-Gauss Quarduture class, compute
-   * the integration required by the computation of chi.
-   */
+  ///
+  /// Compute the integration required by the computation of chi.
+  ///
   class ChiCG : public CGIntegrator { // {{{
   private:
     ReducedPotentialQuadrature *rpq_;
@@ -92,20 +95,9 @@ private:
 
   }; // }}}
 
-public:
-  double chi(double E, double r_m);
-
-  ReducedPotentialQuadrature(Pot1DFeatures &pf);
-  const double &r_C() const { return r_C_; }
-  const double &E_C() const { return E_C_; }
-
-  std::tuple<double, double> r_range(double E) const;
-  double r2b(double r, double E) const;
-
-  // Q stuff
-  /** This class inheriated from the Chebyshev-Gauss Quarduture class, compute
-   * the integration required by the computation of Q.
-   */
+  ///
+  /// Compute the integration required by the computation of Q, range 1.
+  ///
   class QCG1 : public CGIntegrator { //{{{
   private:
     ReducedPotentialQuadrature *rpq_;
@@ -129,6 +121,9 @@ public:
     void calculate_integrands(size_t ordersize) override;
   }; // }}}
 
+  ///
+  /// Compute the integration required by the computation of Q, range 2.
+  ///
   class QCG2 : public CGIntegrator { //{{{
   private:
     ReducedPotentialQuadrature *rpq_;
@@ -153,16 +148,9 @@ public:
     void calculate_integrands(size_t ordersize) override;
   }; // }}}
 
-  /** Compute Q.
-   *
-   * It is faster to keep the r_E unchanged and scan the l.
-   */
-  double Q(size_t l, double r_E);
-
-  // Omega stuff
-  /** This class inheriated from the Chebyshev-Gauss Quarduture class, compute
-   * the integration required by the computation of Omega.
-   */
+  ///
+  /// Compute the integration required by the computation of Omega.
+  ///
   class OmegaCG : public CGIntegrator { //{{{
   private:
     ReducedPotentialQuadrature *rpq_;
@@ -189,6 +177,39 @@ public:
     void calculate_integrands(size_t ordersize) override;
   }; // }}}
 
+private:
+  const Pot1DFeatures *const pf_;
+  FuncDeriv1D *const ppot_;
+  double r_C_;
+  double E_C_;
+  std::unique_ptr<LocalRoot> y_root_;
+  std::unique_ptr<Y> y_;
+
+public:
+  ReducedPotentialQuadrature(Pot1DFeatures &pf);
+  const double &r_C() const { return r_C_; }
+  const double &E_C() const { return E_C_; }
+
+  std::tuple<double, double> r_range(double E) const;
+  double r2b(double r, double E) const;
+
+  ///
+  /// Compute chi.
+  ///
+  double chi(double E, double r_m);
+
+  ///
+  /// Compute Q.
+  ///
+  /// Tip: It is faster to keep the r_E unchanged and scan the l.
+  ///
+  double Q(size_t l, double r_E);
+
+  ///
+  /// Compute Omega.
+  ///
+  /// Tip: It is faster to keep the l and T unchanged and scan the s.
+  ///
   double Omega(size_t l, size_t s, double T);
 };
 } // namespace dlt
