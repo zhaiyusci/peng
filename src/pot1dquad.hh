@@ -81,17 +81,27 @@ class ReducedPotentialQuadrature {
   class ChiCG : public CGIntegrator { // {{{
   private:
     ReducedPotentialQuadrature *rpq_;
+    size_t cache_ordersize_;
+    std::vector<double> vs_;
     // the following is for recording running status
-    const double r_m_;
-    const double E_;
-    const double b_;
+    double r_m_;
+    double E_;
+    double b_;
 
   public:
-    ChiCG(ReducedPotentialQuadrature *rpq, double r_m, double E);
+    ChiCG(ReducedPotentialQuadrature *rpq);
+
+    void set_param(double r_m, double E, double b = -1.0);
+
     /** Compute the integrands with computed values cached.
      */
     void calculate_integrands(size_t ordersize) override;
 
+    void clean_cache() {
+      cache_ordersize_ = 0;
+      vs_.clear();
+      clean_workspace();
+    }
   }; // }}}
 
   ///
@@ -218,9 +228,10 @@ private:
   double E_C_;
   std::unique_ptr<LocalRoot> y_root_;
   std::unique_ptr<Y> y_;
-  OmegaCG omegacg_;
+  ChiCG chicg;
   QCG1 qcg1_;
   QCG2 qcg2_;
+  OmegaCG omegacg_;
 
 public:
   ReducedPotentialQuadrature(Pot1DFeatures &pf);
