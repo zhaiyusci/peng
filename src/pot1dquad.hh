@@ -81,7 +81,6 @@ class ReducedPotentialQuadrature {
   class ChiCG : public CGIntegrator { // {{{
   private:
     ReducedPotentialQuadrature *rpq_;
-    size_t ordersize_;
     // the following is for recording running status
     const double r_m_;
     const double E_;
@@ -101,24 +100,37 @@ class ReducedPotentialQuadrature {
   class QCG1 : public CGIntegrator { //{{{
   private:
     ReducedPotentialQuadrature *rpq_;
-    size_t ordersize_;
     size_t cache_ordersize_;
     size_t l_;
     std::vector<double> coschis_;
     std::vector<double> fct2_;
     // the following is for recording running status
-    // const double r_E_;
-    const double E_;
+    double r_E_;
+    double r_Op_;
+    double E_;
 
   public:
-    QCG1(ReducedPotentialQuadrature *rpq, double r_E, double r_Op);
-    /** Set the parameters, clear the inner storage if it is needed.
-     */
-    void set_l(size_t l);
+    QCG1(ReducedPotentialQuadrature *rpq);
+
+    ///
+    /// Set the parameters, clear the inner storage if it is needed.
+    ///
+    /// Here E should always greater than zero.  If not ptovided, the default
+    /// value of E is -1.0, thus we can compute E automatically.
+    ///
+    void set_param(size_t l, double r_E, double r_Op, double E = -1.0);
 
     /** Compute the integrands with computed values cached.
      */
     void calculate_integrands(size_t ordersize) override;
+
+    void clean_cache() {
+      coschis_.clear();
+      fct2_.clear();
+      cache_ordersize_ = 0;
+      // Always clean workspace of the base class.
+      clean_workspace();
+    }
   }; // }}}
 
   ///
@@ -127,25 +139,33 @@ class ReducedPotentialQuadrature {
   class QCG2 : public CGIntegrator { //{{{
   private:
     ReducedPotentialQuadrature *rpq_;
-    size_t ordersize_;
     size_t cache_ordersize_;
     size_t l_;
     std::vector<double> coschis_;
     std::vector<double> fct2_;
     // the following is for recording running status
-    // double r_E_;
-    const double E_;
+    double r_E_;
+    double E_;
     double r_O_;
 
   public:
-    QCG2(ReducedPotentialQuadrature *rpq, double r_E, double r_O);
+    QCG2(ReducedPotentialQuadrature *rpq);
+
     /** Set the parameters, clear the inner storage if it is needed.
      */
-    void set_l(size_t l);
+    void set_param(size_t l, double r_E, double r_O, double E = -1.0);
 
     /** Compute the integrands with computed values cached.
      */
     void calculate_integrands(size_t ordersize) override;
+
+    void clean_cache() {
+      coschis_.clear();
+      fct2_.clear();
+      cache_ordersize_ = 0;
+      // Always clean workspace of the base class.
+      clean_workspace();
+    }
   }; // }}}
 
   ///
@@ -154,7 +174,6 @@ class ReducedPotentialQuadrature {
   class OmegaCG : public CGIntegrator { //{{{
   private:
     ReducedPotentialQuadrature *rpq_;
-    size_t ordersize_;
     size_t v_ordersize_;
     size_t Q_ordersize_;
     std::vector<double> Qs_;
@@ -184,6 +203,9 @@ private:
   double E_C_;
   std::unique_ptr<LocalRoot> y_root_;
   std::unique_ptr<Y> y_;
+  OmegaCG omegacg_;
+  QCG1 qcg1;
+  QCG2 qcg2;
 
 public:
   ReducedPotentialQuadrature(Pot1DFeatures &pf);

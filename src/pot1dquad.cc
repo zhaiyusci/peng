@@ -70,7 +70,7 @@ double ReducedPotentialQuadrature::Y::value(double r) const {
 
 ReducedPotentialQuadrature::ChiCG::ChiCG(ReducedPotentialQuadrature *rpq,
                                          double r_m, double E)
-    : CGIntegrator(-1, 1, true), rpq_(rpq), r_m_(r_m), E_(E),
+    : CGIntegrator(true, -1.0, 1.0), rpq_(rpq), r_m_(r_m), E_(E),
       b_(rpq_->r2b(r_m, E)) {
   ordersize_ = 0;
   integrands_.clear();
@@ -126,7 +126,7 @@ double ReducedPotentialQuadrature::chi(double E, double r_m) {
 }
 
 ReducedPotentialQuadrature::ReducedPotentialQuadrature(Pot1DFeatures &pf)
-    : pf_(&pf), ppot_(&(pf.pot())) {
+    : pf_(&pf), ppot_(&(pf.pot())), omegacg_(this), qcg1(this), qcg2(this) {
 
   y_.reset(new Y(*ppot_));
 
@@ -165,9 +165,8 @@ double ReducedPotentialQuadrature::r2b(double r, double E) const {
   return b;
 }
 
-ReducedPotentialQuadrature::QCG1::QCG1(ReducedPotentialQuadrature *rpq,
-                                       double r_E, double r_Op)
-    : CGIntegrator(r_E, r_Op, false), rpq_(rpq), E_(rpq->ppot_->value(r_E)) {
+ReducedPotentialQuadrature::QCG1::QCG1(ReducedPotentialQuadrature *rpq)
+    : CGIntegrator(false), rpq_(rpq) {
   ordersize_ = 0;
   cache_ordersize_ = 0;
   l_ = 0;
@@ -175,13 +174,23 @@ ReducedPotentialQuadrature::QCG1::QCG1(ReducedPotentialQuadrature *rpq,
   coschis_.clear();
   fct2_.clear();
 }
-/** Set the parameters, clear the inner storage if it is needed.
- */
-void ReducedPotentialQuadrature::QCG1::set_l(size_t l) {
+
+void ReducedPotentialQuadrature::QCG1::set_param(size_t l, double r_E,
+                                                 double r_Op, double E) {
   if (l_ != l) {
-    ordersize_ = 0;
-    integrands_.clear();
+    clean_workspace();
     l_ = l;
+  }
+  if (r_E_ != r_E || r_Op_ != r_Op) {
+    clean_cache();
+    set_a_b(r_E, r_Op);
+    r_E_ = r_E;
+    r_Op_ = r_Op;
+    if (E < 0.0) {
+      E_ = rpq_->ppot_->value(r_E);
+    } else {
+      E_ = E;
+    }
   }
   return;
 }
@@ -224,26 +233,30 @@ void ReducedPotentialQuadrature::QCG1::calculate_integrands(size_t ordersize) {
   return;
 }
 
-ReducedPotentialQuadrature::QCG2::QCG2(ReducedPotentialQuadrature *rpq,
-                                       double r_E, double r_O)
-    : CGIntegrator(-1, 1, true), rpq_(rpq),
-      // r_E_(r_E),
-      E_(rpq->ppot_->value(r_E)), r_O_(r_O) {
-  ordersize_ = 0;
-  cache_ordersize_ = 0;
+ReducedPotentialQuadrature::QCG2::QCG2(ReducedPotentialQuadrature *rpq)
+    : CGIntegrator(true), rpq_(rpq) {
+  clean_workspace();
+  clean_cache();
   l_ = 0;
-  integrands_.clear();
-  coschis_.clear();
-  fct2_.clear();
 }
 
 /** Set the parameters, clear the inner storage if it is needed.
  */
-void ReducedPotentialQuadrature::QCG2::set_l(size_t l) {
+void ReducedPotentialQuadrature::QCG2::set_param(size_t l, double r_E,
+                                                 double r_O, double E) {
   if (l_ != l) {
-    ordersize_ = 0;
-    integrands_.clear();
+    clean_workspace();
     l_ = l;
+  }
+  if (r_E_ != r_E || r_O_ != r_O) {
+    clean_cache();
+    r_E_ = r_E;
+    r_O_ = r_O;
+    if (E < 0.0) {
+      E_ = rpq_->ppot_->value(r_E);
+    } else {
+      E_ = E;
+    }
   }
   return;
 }
@@ -294,32 +307,26 @@ void ReducedPotentialQuadrature::QCG2::calculate_integrands(size_t ordersize) {
  * It is faster to keep the r_E unchanged and scan the l.
  */
 double ReducedPotentialQuadrature::Q(size_t l, double r_E) {
-  static double old_r_E = 0.0;
-  static double E, r_O, r_Op;
-  static std::unique_ptr<QCG1> qcg1;
-  static std::unique_ptr<QCG2> qcg2;
+  // double old_r_E = 0.0;
+  double E, r_O, r_Op;
 
-  if (old_r_E != r_E) {
-    old_r_E = r_E;
-    E = ppot_->value(r_E); // This is common
-    std::tie(r_O, r_Op) = r_range(E);
-    qcg1.reset(new QCG1(this, r_E, r_Op));
-    qcg2.reset(new QCG2(this, r_E, r_O));
-  }
+  // old_r_E = r_E;
+  E = ppot_->value(r_E); // This is common
+  std::tie(r_O, r_Op) = r_range(E);
 
   double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
   double esterr;
   double quadrature1;
   bool converged;
-  qcg1->set_l(l);
-  std::tie(quadrature1, esterr, converged) = qcg1->integrate(1.e-4, 15);
+  qcg1.set_param(l, r_E, r_Op, E);
+  std::tie(quadrature1, esterr, converged) = qcg1.integrate(1.e-4, 15);
   if (!converged) {
     std::cout << "Line " << __LINE__ << " QCG1 not converged with E = " << E
               << "." << std::endl;
   }
   double quadrature2;
-  qcg2->set_l(l);
-  std::tie(quadrature2, esterr, converged) = qcg2->integrate(1.e-4, 15);
+  qcg2.set_param(l, r_E, r_O, E);
+  std::tie(quadrature2, esterr, converged) = qcg2.integrate(1.e-4, 15);
   if (!converged) {
     std::cout << "Line " << __LINE__ << " QCG2 not converged with E = " << E
               << "." << std::endl;
@@ -333,7 +340,7 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E) {
  * the integration required by the computation of Omega.
  */
 ReducedPotentialQuadrature::OmegaCG::OmegaCG(ReducedPotentialQuadrature *rpq)
-    : CGIntegrator(-0.5, 1.0, true), rpq_(rpq) {
+    : CGIntegrator(true, -0.5, 1.0), rpq_(rpq) {
   ordersize_ = 0;
   v_ordersize_ = 0;
   Q_ordersize_ = 0;
@@ -419,13 +426,12 @@ void ReducedPotentialQuadrature::OmegaCG::calculate_integrands(
 }
 
 double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
-  static OmegaCG omegacg(this);
   double coeff = -1.0 / T / std::tgamma(s + 2);
   double esterr;
   double quadrature1;
   double converged;
-  omegacg.set_l_s_T(l, s, T);
-  std::tie(quadrature1, esterr, converged) = omegacg.integrate(1.e-4, 7);
+  omegacg_.set_l_s_T(l, s, T);
+  std::tie(quadrature1, esterr, converged) = omegacg_.integrate(1.e-4, 7);
   if (!converged) {
     std::cout << "Line " << __LINE__ << " OmegaCG not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;
@@ -469,39 +475,37 @@ int main() {
 
   std::cout << "rpq.Q(1, 0.999)" << std::endl;
   std::cout << rpq.Q(1, 0.999) << std::endl;
+  //
+  //   std::cout << "rpq.Q(2, 0.999)" << std::endl;
+  //   std::cout << rpq.Q(2, 0.999) << std::endl;
+  //
+  //   std::cout << "rpq.Q(3, 0.999)" << std::endl;
+  //   std::cout << rpq.Q(3, 0.999) << std::endl;
+  //
+  //   std::cout << "rpq.Q(3, 0.99)" << std::endl;
+  //   std::cout << rpq.Q(3, 0.99) << std::endl;
+  //
+  //   std::cout << "rpq.Q(4, 0.999)" << std::endl;
+  //   std::cout << rpq.Q(3, 0.999) << std::endl;
+  //
+  //   std::cout << "rpq.Q(3, 0.99)" << std::endl;
+  //   std::cout << rpq.Q(3, 0.99) << std::endl;
+  //
+  //   std::cout << "rpq.Q(3, 0.999)" << std::endl;
+  //   std::cout << rpq.Q(3, 0.999) << std::endl;
+  //
+  //   std::cout << "rpq.Q(3, 0.3)" << std::endl;
+  //   std::cout << rpq.Q(3, 0.3) << std::endl;
 
-  std::cout << "rpq.Q(2, 0.999)" << std::endl;
-  std::cout << rpq.Q(2, 0.999) << std::endl;
-
-  std::cout << "rpq.Q(3, 0.999)" << std::endl;
-  std::cout << rpq.Q(3, 0.999) << std::endl;
-
-  std::cout << "rpq.Q(3, 0.99)" << std::endl;
-  std::cout << rpq.Q(3, 0.99) << std::endl;
-
-  std::cout << "rpq.Q(4, 0.999)" << std::endl;
-  std::cout << rpq.Q(3, 0.999) << std::endl;
-
-  std::cout << "rpq.Q(3, 0.99)" << std::endl;
-  std::cout << rpq.Q(3, 0.99) << std::endl;
-
-  std::cout << "rpq.Q(3, 0.999)" << std::endl;
-  std::cout << rpq.Q(3, 0.999) << std::endl;
-
-  std::cout << "rpq.Q(3, 0.3)" << std::endl;
-  std::cout << rpq.Q(3, 0.3) << std::endl;
-
-  std::cout << "rpq.Omega(1, 1, 30)" << std::endl;
-  std::cout << rpq.Omega(1, 1, 30) << std::endl;
-
-  std::cout << "rpq.Omega(1, 2, 30)" << std::endl;
-  std::cout << rpq.Omega(1, 2, 30) << std::endl;
-
-  /*
-  std::cout << "ir.Omega(2, 2, 30)" << std::endl;
-  std::cout << ir.Omega(2, 2, 30) << std::endl;
-  */
-
+  //   std::cout << "rpq.Omega(1, 1, 30)" << std::endl;
+  //   std::cout << rpq.Omega(1, 1, 30) << std::endl;
+  //
+  //   std::cout << "rpq.Omega(1, 2, 30)" << std::endl;
+  //   std::cout << rpq.Omega(1, 2, 30) << std::endl;
+  //
+  //   std::cout << "ir.Omega(2, 2, 30)" << std::endl;
+  //   std::cout << ir.Omega(2, 2, 30) << std::endl;
+  //
   std::cout << "rpq.Omega(1, 1, 30)" << std::endl;
   std::cout << rpq.Omega(1, 1, 30) << std::endl;
 

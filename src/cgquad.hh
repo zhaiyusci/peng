@@ -7,23 +7,23 @@
 
 namespace dlt {
 
-/** This class used to iterate over the n^3 data...
- *
- * There are two fashions to visit the data.
- *
- * 1. In case half_visit == true, only the positive half the data is visited,
- * This can often happen if the function we want to treat is an even function.
- * When this happens, the half_storage must be true because if the data is
- * stored fully, i.e., the negative part of the function is also recorded as
- * grids, It is unreasonable to only visit the positive half.
- *
- * 2. When half_visit == false, both positive half and negative half is visited.
- * This case coresponds to two fashions of storage.
- * The full storage will cache all the results in a list,
- * while the half storage only record the positive half.
- * Chances are that we generate the full grids from a half-stored grids,
- * like in the CGIntegrator case.
- */
+///
+/// This class is used to iterate over the n^3 data...
+///
+/// There are two fashions to visit the data.
+///
+/// 1. In case half_visit == true, only the positive half the data is visited,
+/// This can often happen if the function we want to treat is an even function.
+/// When this happens, the half_storage must be true because if the data is
+/// stored fully, i.e., the negative part of the function is also recorded as
+/// grids, It is unreasonable to only visit the positive half.
+///
+/// 2. When half_visit == false, both positive half and negative half is
+/// visited. This case coresponds to two fashions of storage. The full storage
+/// will cache all the results in a list, while the half storage only record the
+/// positive half. Chances are that we generate the full grids from a
+/// half-stored grids, like in the CGIntegrator case.
+///
 class CubicIter {
 private:
   size_t border_;
@@ -55,20 +55,27 @@ public:
     size_t totidx_;
 
   public:
-    /** Used with ++iterator.
-     */
+    ///
+    /// Used with ++iterator.
+    ///
     iterator &operator++();
-    /** Returns the order.
-     */
+
+    ///
+    /// Returns the order.
+    ///
     size_t order() { return order_; }
     bool negative() { return negative_ == 1; }
-    /** Returns the index, 0-based, of the current order and sign
-     * (if fully visit the space, i.e., half_visit_ == false).
-     */
+
+    ///
+    /// Returns the index, 0-based, of the current order and sign
+    ///(if fully visit the space, i.e., half_visit_ == false).
+    ///
     size_t idx() { return idx_; }
-    /** Returns the total index, but the sign is also returned.
-     * You can seperate the sign and index easily.
-     */
+
+    ///
+    /// Returns the total index, but the sign is also returned.
+    /// You can seperate the sign and index easily.
+    ///
     int operator*() const {
       if (ci_->half_storage_) {
         return totidx_ * (negative_ ? -1 : 1);
@@ -84,11 +91,15 @@ public:
 
     iterator(CubicIter *ci, size_t order, size_t negative, size_t idx);
   };
-  /** Returns the begin iterator, following the STL fashion.
-   */
+
+  ///
+  /// Returns the begin iterator, following the STL fashion.
+  ///
   iterator begin() { return iterator(this, border_, 0, 0); }
-  /** Returns the end iterator, not really visited, following the STL fashion.
-   */
+
+  ///
+  /// Returns the end iterator, not really visited, following the STL fashion.
+  ///
   iterator end() { return iterator(this, eorder_, 0, 0); }
 
 private:
@@ -104,28 +115,57 @@ private:
   }
 
 public:
-  /** The size of the Iterable object if counting from order 0.
-   */
+  ///
+  /// The size of the Iterable object if counting from order 0.
+  ///
   size_t size_from_0() { return size_from_0_(eorder_); }
-  /** The size of the Iterable object.
-   * In my context, I do not really need this method.
-   */
+
+  ///
+  /// The size of the Iterable object.
+  /// In my context, I do not really need this method.
+  /// TODO: check it.
+  ///
   size_t size() { return size_from_0_(eorder_) - size_from_0_(border_); }
 };
 
 class CGIntegrator {
 protected:
+  const bool symm_;
   double a_;
   double b_;
   double k0_;
   double k1_;
-  bool symm_;
+
+  // Working space
+  size_t ordersize_;
   std::vector<double> integrands_;
 
 public:
-  CGIntegrator(double a, double b, bool symm);
+  CGIntegrator(bool symm, double a = -1.0, double b = 1.0);
+  void set_a_b(double a, double b);
   std::tuple<double, double, bool> integrate(double tol, size_t ordersize);
+  void clean_workspace() {
+    ordersize_ = 0;
+    integrands_.clear();
+  }
+
+  ///
+  /// User implemented method. Basically, user should
+  ///
+  /// 1. Fill in integrands_ according the rule.  The internal iterating
+  /// logic is implemented with CubicIter class, the document of which is
+  /// provided;
+  ///
+  /// 2. Update ordersize_ together with integrands_;
+  ///
+  /// 3. Design an algorithm with cache mechanism if needed to save the
+  /// computational resource.
+  ///
   virtual void calculate_integrands(size_t ordersize) = 0;
+
+  ///
+  /// Map the variable in [-1,1] to [a,b].
+  ///
   double map_pm1(double x);
 };
 

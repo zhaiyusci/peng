@@ -10,10 +10,18 @@
 namespace dlt {
 
 CGIntegratorBackend *CGIntegratorBackend::instance_ = nullptr;
-CGIntegrator::CGIntegrator(double a, double b, bool symm)
-    : a_(a), b_(b), symm_(symm) {
+CGIntegrator::CGIntegrator(bool symm, double a, double b) : symm_(symm) {
+  set_a_b(a, b);
+}
+
+void CGIntegrator::set_a_b(double a, double b) {
+  a_ = a;
+  b_ = b;
   k0_ = 0.5 * (b + a);
   k1_ = 0.5 * (b - a);
+  // Always clean up working space
+  ordersize_ = 0;
+  integrands_.clear();
 }
 
 void CGIntegratorBackend::allocate(size_t ordersize) {
