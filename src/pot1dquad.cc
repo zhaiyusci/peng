@@ -37,7 +37,8 @@ public:
 
 namespace dlt {
 
-Pot1DFeatures::Pot1DFeatures(FuncDeriv1D &pot) : ppot_(&pot) {
+Pot1DFeatures::Pot1DFeatures(FuncDeriv1D &pot)
+    : ppot_(&pot), p_reduced_(nullptr) {
   std::tie(r_min_, epsilon_) = find_local_minimum(*ppot_, 1.0, 5.0);
   // TODO: I believe this range is safe...
   epsilon_ *= -1;
@@ -107,7 +108,7 @@ void ReducedPotentialQuadrature::ChiCG::calculate_integrands(size_t ordersize) {
     for (auto &&i : ci) {
       double y = map_pm1(CGIntegratorBackend::instance()->coss(i));
       double r = r_m_ / y;
-      double v = (*rpq_->ppot_)(r);
+      double v = (*rpq_->p_reduced_pot_)(r);
       vs_.push_back(v);
     }
     cache_ordersize_ = ordersize;
@@ -162,12 +163,13 @@ double ReducedPotentialQuadrature::chi(double E, double r_m) {
 }
 
 ReducedPotentialQuadrature::ReducedPotentialQuadrature(Pot1DFeatures &pf)
-    : pf_(&pf), ppot_(&(pf.pot())), chicg(this), qcg1_(this), qcg2_(this),
-      omegacg_(this) {
+    : p_reduced_pot_(&(pf.reduced_pot())), chicg(this), qcg1_(this),
+      qcg2_(this), omegacg_(this) {
 
-  y_.reset(new Y(*ppot_));
+  y_.reset(new Y(*p_reduced_pot_));
 
-  std::tie(r_C_, E_C_) = find_local_maximum(*y_, 1.0, 2 * pf_->r_min());
+  std::tie(r_C_, E_C_) = find_local_maximum(
+      *y_, 1.0, 2 * p_reduced_pot_->r_min() / p_reduced_pot_->sigma());
   // TODO: fit reduced potential
   y_root_.reset(new LocalRoot(*y_, r_C_, 15.0, 21, 1.0e-12));
 }
@@ -181,7 +183,7 @@ std::tuple<double, double> ReducedPotentialQuadrature::r_range(double E) const {
   } else {
     r_O = (*y_root_)(E);
     b_O = r2b(r_O, E);
-    PhiEff phieff(*ppot_, b_O, E);
+    PhiEff phieff(*p_reduced_pot_, b_O, E);
     r_Op = find_local_root(phieff, E, 1.0, r_C_, 21, 1.0e-12);
     // std::cout << "Zero check: " << phieff(r_Op) - E << std::endl;
     if (fabs(phieff(r_Op) - E) >= 1.0e-6) {
@@ -194,7 +196,7 @@ std::tuple<double, double> ReducedPotentialQuadrature::r_range(double E) const {
 }
 
 double ReducedPotentialQuadrature::r2b(double r, double E) const {
-  double v = ppot_->value(r);
+  double v = p_reduced_pot_->value(r);
   if (r > 1.0e8) {
     v = 0.0;
   }
@@ -219,7 +221,7 @@ void ReducedPotentialQuadrature::QCG1::set_param(size_t l, double r_E,
     r_E_ = r_E;
     r_Op_ = r_Op;
     if (E < 0.0) {
-      E_ = rpq_->ppot_->value(r_E);
+      E_ = rpq_->p_reduced_pot_->value(r_E);
     } else {
       E_ = E;
     }
@@ -241,8 +243,8 @@ void ReducedPotentialQuadrature::QCG1::calculate_integrands(size_t ordersize) {
       double y = CGIntegratorBackend::instance()->coss(i);
       double r_m = map_pm1(y);
       double v, dv;
-      v = rpq_->ppot_->value(r_m);
-      dv = rpq_->ppot_->derivative(r_m);
+      v = rpq_->p_reduced_pot_->value(r_m);
+      dv = rpq_->p_reduced_pot_->derivative(r_m);
       double coschi = cos(rpq_->chi(E_, r_m));
       // Here I put everything else in fct2, include the weight
       double fct2 = (2.0 * (E_ - v) - r_m * dv) * r_m * sqrt(1.0 - y * y);
@@ -284,7 +286,7 @@ void ReducedPotentialQuadrature::QCG2::set_param(size_t l, double r_E,
     r_E_ = r_E;
     r_O_ = r_O;
     if (E < 0.0) {
-      E_ = rpq_->ppot_->value(r_E);
+      E_ = rpq_->p_reduced_pot_->value(r_E);
     } else {
       E_ = E;
     }
@@ -309,8 +311,8 @@ void ReducedPotentialQuadrature::QCG2::calculate_integrands(size_t ordersize) {
       }
       double r_m = r_O_ / y;
       double v, dv;
-      v = rpq_->ppot_->value(r_m);
-      dv = rpq_->ppot_->derivative(r_m);
+      v = rpq_->p_reduced_pot_->value(r_m);
+      dv = rpq_->p_reduced_pot_->derivative(r_m);
       double coschi = cos(rpq_->chi(E_, r_m));
       // Here I put everything else in fct2, include the weight
       double fct2 =
@@ -342,7 +344,7 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E) {
   double E, r_O, r_Op;
 
   // old_r_E = r_E;
-  E = ppot_->value(r_E); // This is common
+  E = p_reduced_pot_->value(r_E); // This is common
   std::tie(r_O, r_Op) = r_range(E);
 
   double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
@@ -428,9 +430,9 @@ void ReducedPotentialQuadrature::OmegaCG::calculate_integrands(
       }
       double r_E = map_pm1(y);
 
-      vs_.push_back(rpq_->ppot_->value(r_E));
+      vs_.push_back(rpq_->p_reduced_pot_->value(r_E));
       // weight is included in dvs
-      dvs_.push_back(rpq_->ppot_->derivative(r_E) * sqrt(1.0 - y * y));
+      dvs_.push_back(rpq_->p_reduced_pot_->derivative(r_E) * sqrt(1.0 - y * y));
     }
     ordersize_v_ = ordersize;
   }
@@ -468,6 +470,18 @@ double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
   quadrature1 /= 2;
   return coeff * quadrature1;
 }
+
+double ReducedPotentialQuadrature::unreduced_Omega(size_t l, size_t s,
+                                                   double T) {
+  const double kB = 1.380649e-23;      // BY DEFINITION
+  const double amu = 1.6605390666e-27; // CODATA2018
+  const double AA = 1.e-10;            // BY DEFINITION
+  return Omega(l, s, T * kB / p_reduced_pot_->epsilon()) * 0.5 *
+         std::tgamma(s + 2) * (1.0 - 0.5 * (1.0 + pow(-1, l)) / (1. + l)) *
+         M_PI * pow((p_reduced_pot_->sigma() * AA), 2) /
+         sqrt(2 * M_PI * MU * amu / (kB * T));
+}
+
 } // namespace dlt
 
 int main() {
