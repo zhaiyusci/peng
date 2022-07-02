@@ -41,26 +41,26 @@ fi
 
 # cppitertools https://twitter.com/cppitertools
 
-if [ ! -f cppitertools-2.1.zip ]; then
-  echo "Download cppitertools ... "
-  ${DLD} -O cppitertools-2.1.zip https://github.com/ryanhaining/cppitertools/archive/refs/tags/v2.1.zip 
-  echo "done."
-fi
-
-if [ ! -f ITERTOOLS_FLAG ]; then
-  echo "Build cppitertools ... "
-  unzip -qo cppitertools-2.1.zip
-  cd ./cppitertools-2.1
-  mkdir -p build
-  cd build
-  pwd
-  cmake -DCMAKE_INSTALL_PREFIX=../.. ..
-  cmake --build .
-  cmake --install .
-  cd ../..
-  touch ITERTOOLS_FLAG
-  echo "done."
-fi
+# if [ ! -f cppitertools-2.1.zip ]; then
+#   echo "Download cppitertools ... "
+#   ${DLD} -O cppitertools-2.1.zip https://github.com/ryanhaining/cppitertools/archive/refs/tags/v2.1.zip 
+#   echo "done."
+# fi
+# 
+# if [ ! -f ITERTOOLS_FLAG ]; then
+#   echo "Build cppitertools ... "
+#   unzip -qo cppitertools-2.1.zip
+#   cd ./cppitertools-2.1
+#   mkdir -p build
+#   cd build
+#   pwd
+#   cmake -DCMAKE_INSTALL_PREFIX=../.. ..
+#   cmake --build .
+#   cmake --install .
+#   cd ../..
+#   touch ITERTOOLS_FLAG
+#   echo "done."
+# fi
 
 # NLOpt https://nlopt.readthedocs.io/en/latest/
 if [ ! -f nlopt-2.7.1.tar.gz ]; then
@@ -85,24 +85,24 @@ if [ ! -f NLOPT_FLAG ]; then
 fi
 
 # DataFrame https://github.com/hosseinmoein/DataFrame
-if [ ! -f DataFrame-1.20.0.tar.gz ]; then
-  echo "Download DataFrame ... "
-  ${DLD} -O DataFrame-1.20.0.tar.gz https://github.com/hosseinmoein/DataFrame/archive/refs/tags/1.20.0.tar.gz
-  echo "done."
-fi
-
-if [ ! -f DATAFRAME_FLAG ]; then
-  echo "Build DataFrame ... "
-  tar xzf DataFrame-1.20.0.tar.gz
-  cd ./DataFrame-1.20.0
-  mkdir -p build
-  cd build
-  pwd
-  cmake -DCMAKE_INSTALL_PREFIX=../.. -DCMAKE_BUILD_TYPE=Release ..
-  cmake --build .
-  cmake --install .
-  cd ../..
-  touch DATAFRAME_FLAG
-  echo "done."
-fi
+# if [ ! -f DataFrame-1.20.0.tar.gz ]; then
+#   echo "Download DataFrame ... "
+#   ${DLD} -O DataFrame-1.20.0.tar.gz https://github.com/hosseinmoein/DataFrame/archive/refs/tags/1.20.0.tar.gz
+#   echo "done."
+# fi
+# 
+# if [ ! -f DATAFRAME_FLAG ]; then
+#   echo "Build DataFrame ... "
+#   tar xzf DataFrame-1.20.0.tar.gz
+#   cd ./DataFrame-1.20.0
+#   mkdir -p build
+#   cd build
+#   pwd
+#   cmake -DCMAKE_INSTALL_PREFIX=../.. -DCMAKE_BUILD_TYPE=Release ..
+#   cmake --build .
+#   cmake --install .
+#   cd ../..
+#   touch DATAFRAME_FLAG
+#   echo "done."
+# fi
 
