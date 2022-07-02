@@ -162,9 +162,10 @@ double ReducedPotentialQuadrature::chi(double E, double r_m) {
   return M_PI - b * quadrature;
 }
 
-ReducedPotentialQuadrature::ReducedPotentialQuadrature(Pot1DFeatures &pf)
-    : p_reduced_pot_(&(pf.reduced_pot())), chicg(this), qcg1_(this),
-      qcg2_(this), omegacg_(this) {
+ReducedPotentialQuadrature::ReducedPotentialQuadrature(
+    ReducedPotential &reduced_pot)
+    : p_reduced_pot_(&reduced_pot), chicg(this), qcg1_(this), qcg2_(this),
+      omegacg_(this) {
 
   y_.reset(new Y(*p_reduced_pot_));
 
@@ -471,17 +472,6 @@ double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
   return coeff * quadrature1;
 }
 
-double ReducedPotentialQuadrature::unreduced_Omega(size_t l, size_t s,
-                                                   double T) {
-  const double kB = 1.380649e-23;      // BY DEFINITION
-  const double amu = 1.6605390666e-27; // CODATA2018
-  const double AA = 1.e-10;            // BY DEFINITION
-  return Omega(l, s, T * kB / p_reduced_pot_->epsilon()) * 0.5 *
-         std::tgamma(s + 2) * (1.0 - 0.5 * (1.0 + pow(-1, l)) / (1. + l)) *
-         M_PI * pow((p_reduced_pot_->sigma() * AA), 2) /
-         sqrt(2 * M_PI * MU * amu / (kB * T));
-}
-
 } // namespace dlt
 
 int main() {
@@ -492,7 +482,7 @@ int main() {
   dlt::Pot1DFeatures pf(lj);
   std::cout << " " << pf.r_min() << " " << pf.sigma() << " " << pf.epsilon()
             << " " << std::endl;
-  dlt::ReducedPotentialQuadrature rpq(pf);
+  dlt::ReducedPotentialQuadrature rpq(pf.reduced_potential());
 
   std::cout << "rpq.E_C()" << rpq.E_C() << std::endl;
   std::cout << "lj(0.9)" << lj(0.9) << std::endl;

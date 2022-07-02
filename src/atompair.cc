@@ -1,3 +1,3 @@
 #include "atompair.hh"
 
-PotentialLibrary *PotentialLibrary::instance_ = nullptr;
+// PotentialLibrary *PotentialLibrary::instance_ = nullptr;

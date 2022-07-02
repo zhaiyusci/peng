@@ -12,7 +12,7 @@ namespace dlt {
 /// This class defined the reduced potential energy surface,
 /// i.e., the "star" one.
 ///
-class ReducedPot : public FuncDeriv1D {
+class ReducedPotential : public FuncDeriv1D {
 private:
   double sigma_;
   double epsilon_;
@@ -20,8 +20,8 @@ private:
   FuncDeriv1D *const p_pri_pot_;
 
 public:
-  ReducedPot(double sigma, double epsilon, double r_min,
-             FuncDeriv1D *const p_pri_pot)
+  ReducedPotential(double sigma, double epsilon, double r_min,
+                   FuncDeriv1D *const p_pri_pot)
       : sigma_(sigma), epsilon_(epsilon), r_min_(r_min), p_pri_pot_(p_pri_pot) {
   }
 
@@ -62,7 +62,7 @@ private:
   double epsilon_;
   double r_min_;
   FuncDeriv1D *const ppot_;
-  std::unique_ptr<ReducedPot> p_reduced_;
+  std::unique_ptr<ReducedPotential> p_reduced_;
 
 public:
   Pot1DFeatures(FuncDeriv1D &pot);
@@ -90,9 +90,9 @@ public:
   ///
   /// Reduced potential energy curve.
   ///
-  ReducedPot &reduced_pot() {
+  ReducedPotential &reduced_potential() {
     if (p_reduced_ == nullptr) {
-      p_reduced_.reset(new ReducedPot(sigma_, epsilon_, r_min_, ppot_));
+      p_reduced_.reset(new ReducedPotential(sigma_, epsilon_, r_min_, ppot_));
     }
     return *p_reduced_;
   }
@@ -277,7 +277,7 @@ class ReducedPotentialQuadrature {
   }; // }}}
 
 private:
-  ReducedPot *const p_reduced_pot_;
+  ReducedPotential *const p_reduced_pot_;
   double r_C_;
   double E_C_;
   std::unique_ptr<LocalRoot> y_root_;
@@ -288,7 +288,7 @@ private:
   OmegaCG omegacg_;
 
 public:
-  ReducedPotentialQuadrature(Pot1DFeatures &pf);
+  ReducedPotentialQuadrature(ReducedPotential &reduced_pot);
   const double &r_C() const { return r_C_; }
   const double &E_C() const { return E_C_; }
 
@@ -313,6 +313,5 @@ public:
   /// Tip: It is faster to keep the l and T unchanged and scan the s.
   ///
   double Omega(size_t l, size_t s, double T);
-  double unreduced_Omega(size_t l, size_t s, double T);
 };
 } // namespace dlt
