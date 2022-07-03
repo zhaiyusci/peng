@@ -1,0 +1,43 @@
+{
+  "atoms": [
+    {
+      "name": "He",
+      "mass": 4.00260325413
+    },
+    {
+      "name": "Xe",
+      "mass": 131.9041550856
+    }
+  ],
+  "potentials":[
+    {
+      "name": "HeHe",
+      "path": "/home/yuzhai/Documents/dilute/examples/hexe/hehe.so"
+    },
+    {
+      "name": "HeXe",
+      "path": "/home/yuzhai/Documents/dilute/examples/hexe/hexe.so"
+    },
+    {
+      "name": "XeXe",
+      "path": "/home/yuzhai/Documents/dilute/examples/hexe/xexe.so"
+    }
+  ],
+  "accuracy": 1.0e-2,
+  "temperatures": [
+    50.0,
+    100.0,
+    150.0,
+    200.0,
+    250.0,
+    273.15,
+    300.0,
+    350.0
+  ],
+  "maxpq": 4,
+  "molefractions0": [
+    0.25,
+    0.50,
+    0.75
+  ]
+}

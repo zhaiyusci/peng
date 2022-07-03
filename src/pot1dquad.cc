@@ -134,7 +134,7 @@ void ReducedPotentialQuadrature::ChiCG::calculate_integrands(size_t ordersize) {
         // should never run here if Chebyshev-Gauss Quarduture is used
         // because y does not equal 1 in CG Quad
         std::cerr << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
-        throw std::runtime_error(__FILE__ "F<0");
+        throw std::runtime_error(__FILE__ "  F<0");
         F = 1.0e-12;
       }
       double res = 1.0 / sqrt(F) / r_m_;
@@ -170,7 +170,7 @@ ReducedPotentialQuadrature::ReducedPotentialQuadrature(
   y_.reset(new Y(*p_reduced_pot_));
 
   std::tie(r_C_, E_C_) = find_local_maximum(
-      *y_, 1.0, 2 * p_reduced_pot_->r_min() / p_reduced_pot_->sigma());
+      *y_, 0.5, 5 * p_reduced_pot_->r_min() / p_reduced_pot_->sigma());
   // TODO: fit reduced potential
   y_root_.reset(new LocalRoot(*y_, r_C_, 15.0, 21, 1.0e-12));
 }
@@ -193,6 +193,8 @@ std::tuple<double, double> ReducedPotentialQuadrature::r_range(double E) const {
       r_Op = find_local_root(phieff, E, 0.0, r_Op, 21, 1.0e-12);
     }
   }
+  // std::cout << "r_C = " << r_C_ << ", E_C = " << E_C_ << ", E = " << E <<
+  // '\n'; std::cout << "r_Op = " << r_Op << ", r_O = " << r_O << std::endl;
   return std::make_tuple(r_O, r_Op);
 }
 
@@ -474,6 +476,7 @@ double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
 
 } // namespace dlt
 
+/*
 int main() {
   std::cerr << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__
             << std::endl;
@@ -539,3 +542,4 @@ int main() {
 
   return 0;
 }
+*/

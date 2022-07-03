@@ -1,5 +1,5 @@
-#ifndef __DILUTE_ATOMPAIR_HH__
-#define __DILUTE_ATOMPAIR_HH__
+#ifndef _DILUTE_ATOMPAIR_HH_
+#define _DILUTE_ATOMPAIR_HH_
 // #include "cachedfunc.hh"
 #include "mathtools.hh"
 #include "pot1dquad.hh"
@@ -16,6 +16,7 @@ namespace dlt {
 /// Base class for all types of particles.
 ///
 class Particle {
+public:
 private:
   const std::string symbol_;
   const double mass_;
@@ -46,6 +47,7 @@ class DiluteGas {
     return vec;
   }
 
+public:
 private:
   const std::vector<Particle> species_;
   const std::valarray<double> mole_fraction_;
@@ -64,6 +66,7 @@ public:
 // extern std::map<std::pair<Particle, Particle>, Pot1d> POTLIB;
 //
 class PotentialLibrary {
+public:
 private:
   std::map<std::pair<Particle, Particle>, FuncDeriv1D> potlib_;
   static PotentialLibrary *instance_;
@@ -81,6 +84,7 @@ public:
 */
 
 class AtomPair {
+public:
 private:
   const Atom atom0_;
   const Atom atom1_;
@@ -104,9 +108,11 @@ public:
     const double kB = 1.380649e-23;      // BY DEFINITION
     const double amu = 1.6605390666e-27; // CODATA2018
     const double AA = 1.e-10;            // BY DEFINITION
-    return rpq_->Omega(l, s, T * kB / pf_->epsilon()) * 0.5 *
-           std::tgamma(s + 2) * (1.0 - 0.5 * (1.0 + pow(-1, l)) / (1. + l)) *
-           M_PI * pow((pf_->sigma() * AA), 2) /
+    double Omegastar = rpq_->Omega(l, s, T / pf_->epsilon());
+    std::cout << "Omega* = " << Omegastar << std::endl;
+    return Omegastar * 0.5 * std::tgamma(s + 2) *
+           (1.0 - 0.5 * (1.0 + pow(-1, l)) / (1. + l)) * M_PI *
+           pow((pf_->sigma() * AA), 2) /
            sqrt(2 * M_PI * reduced_mass_ * amu / (kB * T));
   }
 };

@@ -1,3 +1,5 @@
+#ifndef _DILUTE_POT1DQUAD_HH_
+#define _DILUTE_POT1DQUAD_HH_
 // #include "atompair.hh"
 #include "cgquad.hh"
 #include "mathtools.hh"
@@ -13,6 +15,7 @@ namespace dlt {
 /// i.e., the "star" one.
 ///
 class ReducedPotential : public FuncDeriv1D {
+public:
 private:
   double sigma_;
   double epsilon_;
@@ -45,7 +48,7 @@ public:
   }
 
   double derivative(double r) const override {
-    return p_pri_pot_->derivative(r * sigma_) / epsilon_ / sigma_;
+    return p_pri_pot_->derivative(r * sigma_) / epsilon_ * sigma_;
   }
 
   bool provide_derivative() const override {
@@ -57,6 +60,7 @@ public:
 /// This class find the features of a potential function.
 ///
 class Pot1DFeatures {
+public:
 private:
   double sigma_;
   double epsilon_;
@@ -106,6 +110,7 @@ class ReducedPotentialQuadrature {
   /// Phi functions
   ///
   class PhiEff : public FuncDeriv1D {
+  public:
   private:
     FuncDeriv1D *ppot_;
     const double b_;
@@ -119,6 +124,7 @@ class ReducedPotentialQuadrature {
   };
 
   class Y : public FuncDeriv1D {
+  public:
   private:
     FuncDeriv1D *const ppot_;
 
@@ -134,6 +140,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of chi.
   ///
   class ChiCG : public CGIntegrator { // {{{
+  public:
   private:
     ReducedPotentialQuadrature *rpq_;
     size_t cache_ordersize_;
@@ -163,6 +170,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of Q, range 1.
   ///
   class QCG1 : public CGIntegrator { //{{{
+  public:
   private:
     ReducedPotentialQuadrature *rpq_;
     size_t cache_ordersize_;
@@ -202,6 +210,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of Q, range 2.
   ///
   class QCG2 : public CGIntegrator { //{{{
+  public:
   private:
     ReducedPotentialQuadrature *rpq_;
     size_t cache_ordersize_;
@@ -237,6 +246,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of Omega.
   ///
   class OmegaCG : public CGIntegrator { //{{{
+  public:
   private:
     ReducedPotentialQuadrature *rpq_;
     size_t ordersize_v_;
@@ -276,6 +286,7 @@ class ReducedPotentialQuadrature {
     }
   }; // }}}
 
+public:
 private:
   ReducedPotential *const p_reduced_pot_;
   double r_C_;
@@ -315,3 +326,5 @@ public:
   double Omega(size_t l, size_t s, double T);
 };
 } // namespace dlt
+
+#endif

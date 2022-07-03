@@ -2,12 +2,13 @@ FFLAGS=-O3 -fcheck=all -Wall -Werror -g -fPIC
 CC=gcc
 CXX=g++
 FC=gfortran
-CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include 
+CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include
+OBJECTS=omega.o pec.o 
 OBJDIR ?= ../build
-SRC := dilute.cc \
-			 pot1dquad.cc mathtools.cc cgquad.cc \
-			 alpha.cc beta.cc global.cc \
-			 alpha_impl.F90 beta_impl.F90 inversion.F90 
+SRC := alpha.cc beta.cc global.cc main.cc \
+			 omega.F \
+			 alpha_impl.F90 beta_impl.F90 inversion.F90 pec.F90 \
+			 userdefpec11.F90 userdefpec12.F90 userdefpec22.F90
 OBJ := $(SRC)
 OBJ := $(OBJ:%.cc=%.o)
 OBJ := $(OBJ:%.F=%.o)
@@ -20,21 +21,10 @@ PWD = $(shell pwd)
 
 all: dilute.exe # main.exe omega11.so omega12.so omega22.so test2.exe
 
+test2.exe: mathtools.o test2.cc
+	$(CXX) $(CPPFLAGS) -o $@ $^ -L ../external/lib -lnlopt -Wl,-rpath,"$(PWD)/../external/lib"
 
-alpha.o: alpha.cc global.hh param.hh
-beta.o: beta.cc global.hh param.hh
-cgquad.o: cgquad.cc cgquad.hh
-pot1dquad.o: pot1dquad.cc pot1dquad.hh cgquad.hh mathtools.hh
-mathtools.o: mathtools.cc mathtools.hh
-dilute.o: dilute.cc dilute.hh mathtools.hh pot1dquad.hh cgquad.hh atompair.hh
-
-alpha_impl.o: alpha_impl.F90 param.hh
-beta_impl.o: beta_impl.F90 param.hh
-inversion.o: inversion.F90 
-
-dilute.exe: $(OBJ) 
-	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lnlopt -lfmt -Wl,-rpath,"$(PWD)/../external/lib"
-
+mathtools.o: mathtools.hh
 
 test:
 	./main.exe > tmp

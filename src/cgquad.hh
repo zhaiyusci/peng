@@ -1,3 +1,5 @@
+#ifndef _DILUTE_CGQUD_HH_
+#define _DILUTE_CGQUD_HH_
 #include <chrono>
 #include <cmath>
 #include <functional>
@@ -188,3 +190,5 @@ public:
 };
 
 } // namespace dlt
+
+#endif
