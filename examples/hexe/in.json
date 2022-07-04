@@ -12,15 +12,15 @@
   "potentials":[
     {
       "name": "HeHe",
-      "path": "/home/yuzhai/Documents/dilute/examples/hexe/hehe.so"
+      "path": "./hehe.so"
     },
     {
       "name": "HeXe",
-      "path": "/home/yuzhai/Documents/dilute/examples/hexe/hexe.so"
+      "path": "./hexe.so"
     },
     {
       "name": "XeXe",
-      "path": "/home/yuzhai/Documents/dilute/examples/hexe/xexe.so"
+      "path": "./xexe.so"
     }
   ],
   "accuracy": 1.0e-2,

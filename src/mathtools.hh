@@ -18,6 +18,7 @@ public:
   virtual double derivative(double x) const;
   virtual bool provide_derivative() const { return false; };
   virtual FuncDeriv1D &operator-();
+  virtual ~FuncDeriv1D() {}
 };
 
 class NegFuncDeriv1D : public FuncDeriv1D {

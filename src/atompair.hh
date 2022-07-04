@@ -3,7 +3,6 @@
 // #include "cachedfunc.hh"
 #include "mathtools.hh"
 #include "pot1dquad.hh"
-#include <cppitertools/itertools.hpp>
 #include <functional>
 #include <map>
 #include <string>

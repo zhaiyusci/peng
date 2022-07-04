@@ -7,6 +7,10 @@
 #include <iostream>
 #include <vector>
 
+// Following
+// https://mathworld.wolfram.com/Chebyshev-GaussQuadrature.html
+// Note that we only need ONE copy of the cosines...
+// so a CGIntegratorBackend class is prepared
 namespace dlt {
 
 ///
