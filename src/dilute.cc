@@ -1,6 +1,7 @@
 #include "dilute.hh"
 #include "atompair.hh"
 #include "mathtools.hh"
+#include "param.hh"
 #include <fstream>
 #include <json.hpp>
 #include <string>
@@ -43,24 +44,19 @@ int main() {
   AtomPair pair11(atom1, atom1, pot11);
   AtomPair pair01(atom0, atom1, pot01);
 
-  // fstream fs;
-  // fs.open("out.txt", std::ios::out);
-  // for (double r = 0.5; r <= 3; r += 0.05) {
-  // // clang-format off
-  // cout << r
-  // << '\t' << pair00.rpq_->y_->value(r)
-  // << '\t' << pair00.rpq_->p_reduced_pot_->value(r)
-  // << '\t' << pair00.rpq_->p_reduced_pot_->derivative(r)
-  // << '\t' << pair00.rpq_->p_reduced_pot_->dlt::FuncDeriv1D::derivative(r)
-  // << '\t' << pair00.ppot_->derivative(r)
-  // << '\t' << pair00.ppot_->dlt::FuncDeriv1D::derivative(r)
-  // << '\n';
-  // // clang-format on
-  // }
-  // cout << flush;
-  // fs.close();
-
-  cout << pair00.Omega(1, 1, 300) << endl;
+  double Omega00[MAXORD * MAXORD];
+  double Omega01[MAXORD * MAXORD];
+  double Omega11[MAXORD * MAXORD];
+  for (auto &&T : temperatures) {
+    for (size_t l = 0; l != maxpq; ++l) {
+      for (size_t s = 0; s != maxpq; ++s) {
+        Omega00[l * MAXORD + s] = (l + 1) * 10 + s + 1;
+        Omega01[l * MAXORD + s] = (l + 1) * 10 + s + 1;
+        Omega11[l * MAXORD + s] = (l + 1) * 10 + s + 1;
+        // << pair00.Omega(l + 1, s + 1, T) << endl;
+      }
+    }
+  }
 
   // Atom atom0;
   return 0;
