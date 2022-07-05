@@ -130,12 +130,12 @@ void ReducedPotentialQuadrature::ChiCG::calculate_integrands(size_t ordersize) {
       if (y <= 1.0e-8) { // r --> inf
         F = 1.0;
       }
-      if (F <= 1.0e-12) {
+      if (F <= 0.0) {
         // should never run here if Chebyshev-Gauss Quarduture is used
         // because y does not equal 1 in CG Quad
         std::cerr << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
         throw std::runtime_error(__FILE__ "  F<0");
-        F = 1.0e-12;
+        F = 1.0e-18;
       }
       double res = 1.0 / sqrt(F) / r_m_;
       integrands_.push_back(res * sqrt(1.0 - y * y));
@@ -154,7 +154,7 @@ double ReducedPotentialQuadrature::chi(double E, double r_m) {
   chicg.set_param(r_m, E, b);
   double quadrature, err;
   bool converged;
-  std::tie(quadrature, err, converged) = chicg.integrate(1.0e-4, 15);
+  std::tie(quadrature, err, converged) = chicg.integrate(1.0e-4, 5);
   if (!converged) {
     std::cout << "Line " << __LINE__ << " ChiCG not converged with E = " << E
               << " and r_m = " << r_m << "." << std::endl;
@@ -355,14 +355,14 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E) {
   double quadrature1;
   bool converged;
   qcg1_.set_param(l, r_E, r_Op, E);
-  std::tie(quadrature1, esterr, converged) = qcg1_.integrate(1.e-4, 15);
+  std::tie(quadrature1, esterr, converged) = qcg1_.integrate(1.e-4, 5);
   if (!converged) {
     std::cout << "Line " << __LINE__ << " QCG1 not converged with E = " << E
               << "." << std::endl;
   }
   double quadrature2;
   qcg2_.set_param(l, r_E, r_O, E);
-  std::tie(quadrature2, esterr, converged) = qcg2_.integrate(1.e-4, 15);
+  std::tie(quadrature2, esterr, converged) = qcg2_.integrate(1.e-4, 5);
   if (!converged) {
     std::cout << "Line " << __LINE__ << " QCG2 not converged with E = " << E
               << "." << std::endl;
@@ -464,7 +464,7 @@ double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
   double quadrature1;
   double converged;
   omegacg_.set_param(l, s, T);
-  std::tie(quadrature1, esterr, converged) = omegacg_.integrate(1.e-4, 7);
+  std::tie(quadrature1, esterr, converged) = omegacg_.integrate(1.e-4, 5);
   if (!converged) {
     std::cout << "Line " << __LINE__ << " OmegaCG not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;

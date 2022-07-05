@@ -1,38 +1,51 @@
+#include "alpha.hh"
 #include "global.hh"
 #include "param.hh"
 #include <iostream>
 #include <tuple>
 #include <vector>
 
-using std::tuple;
-using std::tie;
-using std::make_tuple;
-
-using std::vector;
-using std::string;
-
-extern "C"{
-  void alpha_(double*, int*, double [2], double [MAXORD][MAXORD], double [MAXORD][MAXORD], double [MAXORD][MAXORD], double [], double [], double []);
-  //            T     MAXPQ      X          Omega11                  omega12                    omega22              D12        DT        lambda   
+extern "C" {
+void alpha_(double *T, int *maxpq, double x[2], double omega11[MAXORD][MAXORD],
+            double omega12[MAXORD][MAXORD], double omega22[MAXORD][MAXORD],
+            double D12[], double DT[], double lambda[]);
 }
 
-tuple<vector<double>, vector<double>, vector<double>> alpha(double t, double x[2], double om11[MAXORD][MAXORD], double om12[MAXORD][MAXORD], double om22[MAXORD][MAXORD]){
-  vector<double> D12(maxpq);
-  vector<double> DT(maxpq);
-  vector<double> lambda(maxpq);
+std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
+alpha(double t, double x0, std::vector<double> Omega00,
+      std::vector<double> Omega01, std::vector<double> Omega11, int maxpq) {
+  // Some dirty work: turn C++ omega to fortran 2D array
+  // The following arrays should be "FORTRAN-ready"
+
+  double om11[MAXORD][MAXORD];
+  double om12[MAXORD][MAXORD];
+  double om22[MAXORD][MAXORD];
+  omega_cpp2fort(Omega00, om11, omegaorder(maxpq));
+  omega_cpp2fort(Omega01, om12, omegaorder(maxpq));
+  omega_cpp2fort(Omega11, om22, omegaorder(maxpq));
+  double xs[2];
+  xs[0] = x0;
+  xs[1] = 1.0 - x0;
+
+  std::vector<double> D12(maxpq);
+  std::vector<double> DT(maxpq);
+  std::vector<double> lambda(maxpq);
+  std::cout << "maxpq = " << maxpq << std::endl;
   alpha_(&t, &maxpq, x, om11, om12, om22, D12.data(), DT.data(), lambda.data());
   return make_tuple(D12, DT, lambda);
 }
 
-void calcalpha(){
+/*
+void calcalpha() {
 
-  for(int i = 0; i!=ntemp; ++i){
-    for(auto&& x : xs){
+  for (int i = 0; i != ntemp; ++i) {
+    for (auto &&x : xs) {
       vector<double> D12;
       vector<double> DT;
       vector<double> lambda;
       // Results at different orders
-      tie(D12, DT, lambda) = alpha(temperatures[i], x.data(), om11[i], om12[i], om22[i]); 
+      tie(D12, DT, lambda) =
+          alpha(temperatures[i], x.data(), om11[i], om12[i], om22[i]);
       // Add results to global variables
       D12s.push_back(D12);
       DTs.push_back(DT);
@@ -40,4 +53,4 @@ void calcalpha(){
     }
   }
 }
-
+*/

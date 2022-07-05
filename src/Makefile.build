@@ -6,8 +6,8 @@ CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include
 OBJDIR ?= ../build
 SRC := dilute.cc \
 			 pot1dquad.cc mathtools.cc cgquad.cc \
-			 alpha.cc beta.cc global.cc \
-			 alpha_impl.F90 beta_impl.F90 inversion.F90 
+			 alpha.cc global.cc \
+			 alpha_impl.F90 beta_impl.o inversion.F90 
 OBJ := $(SRC)
 OBJ := $(OBJ:%.cc=%.o)
 OBJ := $(OBJ:%.F=%.o)
@@ -21,15 +21,15 @@ PWD = $(shell pwd)
 all: dilute.exe # main.exe omega11.so omega12.so omega22.so test2.exe
 
 
-alpha.o: alpha.cc global.hh param.hh
-beta.o: beta.cc global.hh param.hh
+alpha.o: alpha.cc global.hh param.hh alpha.hh
+# beta.o: beta.cc global.hh param.hh
 cgquad.o: cgquad.cc cgquad.hh
 pot1dquad.o: pot1dquad.cc pot1dquad.hh cgquad.hh mathtools.hh
 mathtools.o: mathtools.cc mathtools.hh
 dilute.o: dilute.cc dilute.hh mathtools.hh pot1dquad.hh cgquad.hh atompair.hh
 
 alpha_impl.o: alpha_impl.F90 param.hh
-beta_impl.o: beta_impl.F90 param.hh
+# beta_impl.o: beta_impl.F90 param.hh
 inversion.o: inversion.F90 
 
 dilute.exe: $(OBJ) 
