@@ -38,27 +38,13 @@ SUBROUTINE ALPHA(T, MAXPQ, X, OMEGA11, OMEGA12, OMEGA22, MASS1, MASS2, D12, DT, 
   DOUBLE PRECISION :: HINT(0:MAXORD, 0:MAXORD, 2, 2, 2, 2)
   COMMON /GASINFO/MASS ! 2 IS THE TEMP SOLUTION, WHICH CAN BE CHANGED
   COMMON /OMG/ GOMEGA, HINT
-  INTEGER :: K, l, r
+  INTEGER :: K
 
   MASS(1) = MASS1
   MASS(2) = MASS2
   M0=MASS(1)+MASS(2)
   M1=MASS(1)/M0
   M2=MASS(2)/M0
-
-  write(*,*) maxpq
-  write(*,*) "OMEGA11 = " 
-  do l = 1,MAXORD
-    write(*,*) (OMEGA11(l, r) , r=1,MAXORD)
-  enddo
-  write(*,*) "OMEGA12 = " 
-  do l = 1,MAXORD
-    write(*,*) (OMEGA12(l, r) , r=1,MAXORD)
-  enddo
-  write(*,*) "OMEGA22 = " 
-  do l = 1,MAXORD
-    write(*,*) (OMEGA22(l, r) , r=1,MAXORD)
-  enddo
 
   GOMEGA(:,:,1,1)=OMEGA11
   GOMEGA(:,:,1,2)=OMEGA12
