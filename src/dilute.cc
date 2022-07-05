@@ -44,6 +44,10 @@ int main() {
   dlt::AtomPair pair11(atom1, atom1, pot11);
   dlt::AtomPair pair01(atom0, atom1, pot01);
 
+  // std::cout << "pair00.Omega(5,6,300)" << std::endl;
+  // std::cout << pair00.Omega(5,6,300) << std::endl;
+
+
   size_t oo = omegaorder(maxpq);
   size_t omegasize = (1 + oo) * oo / 2;
   for (auto &&T : temperatures) {
@@ -61,9 +65,14 @@ int main() {
       }
     }
     fmt::print("maxpq = {} \n", maxpq);
-    auto alpha_res =
-        alpha(T, molefractions0[0], Omega00, Omega01, Omega11, maxpq);
-    break;
+    std::vector<double> D12;
+    std::vector<double> DT;
+    std::vector<double> lambda;
+    std::tie(D12, DT, lambda) = 
+        alpha(T, molefractions0[0], Omega00, Omega01, Omega11, atom0.mass(), atom1.mass(), maxpq);
+    fmt::print("D12 : {} {} {}\n", D12[0], D12[1], D12[2]);
+    fmt::print("DT  : {} {} {}\n", DT[0], DT[1], DT[2]);
+    fmt::print("lambda : {} {} {}\n", lambda[0], lambda[1], lambda[2]);
   }
 
   // Atom atom0;

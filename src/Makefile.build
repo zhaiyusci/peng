@@ -1,6 +1,6 @@
 FFLAGS=-O3 -fcheck=all -Wall -Werror -g -fPIC 
-CC=clang
-CXX=clang++
+CC=gcc
+CXX=g++
 FC=gfortran
 CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include 
 OBJDIR ?= ../build

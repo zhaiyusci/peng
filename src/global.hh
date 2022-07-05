@@ -29,5 +29,5 @@ inline void omega_cpp2fort(std::vector<double> Omega, double om[MAXORD][MAXORD],
     }
   }
 }
-inline size_t omegaorder(size_t maxpq) { return 2 * maxpq + 2; }
+inline size_t omegaorder(size_t maxpq) { return 2 * maxpq + 3; }
 #endif // __GLOBAL_H__

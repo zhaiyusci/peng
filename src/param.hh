@@ -1,6 +1,6 @@
 #ifndef __PARAM_HH__
 #define __PARAM_HH__
 
-#define MAXORD 5
+#define MAXORD 10
 
 #endif 
