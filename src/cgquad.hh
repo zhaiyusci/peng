@@ -135,7 +135,8 @@ public:
 };
 
 class CGIntegrator {
-protected:
+public:
+  // protected:
   const bool symm_;
   double a_;
   double b_;
@@ -173,6 +174,14 @@ public:
   /// Map the variable in [-1,1] to [a,b].
   ///
   double map_pm1(double x);
+  void show_integrands() {
+    std::cerr << "Integrands : " << ' ';
+    for (auto &&v : integrands_) {
+      std::cerr << v << ' ';
+    }
+    std::cerr << std::endl;
+    return;
+  }
 };
 
 class CGIntegratorBackend {

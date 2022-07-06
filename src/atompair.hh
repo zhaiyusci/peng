@@ -95,7 +95,7 @@ private:
   std::unique_ptr<ReducedPotentialQuadrature> rpq_;
 
 public:
-  AtomPair(Atom &atom0, Atom &atom1, FuncDeriv1D &pot)
+  AtomPair(const Atom &atom0, const Atom &atom1, FuncDeriv1D &pot)
       : atom0_(atom0), atom1_(atom1), ppot_(&pot),
         reduced_mass_((atom0_.mass() * atom1.mass()) /
                       (atom0_.mass() + atom1_.mass())) {
@@ -108,7 +108,7 @@ public:
     const double amu = 1.6605390666e-27; // CODATA2018
     const double AA = 1.e-10;            // BY DEFINITION
     double Omegastar = rpq_->Omega(l, s, T / pf_->epsilon());
-    std::cout << "Omega* = " << Omegastar << std::endl;
+    // std::cout << "Omega* = " << Omegastar << std::endl;
     return Omegastar * 0.5 * std::tgamma(s + 2) *
            (1.0 - 0.5 * (1.0 + pow(-1, l)) / (1. + l)) * M_PI *
            pow((pf_->sigma() * AA), 2) /

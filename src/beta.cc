@@ -3,16 +3,10 @@
 #include <iostream>
 #include <vector>
 
-using std::vector;
-using std::string;
-
-extern "C"{
-  void beta_(double*, int*, double [2], double [MAXORD][MAXORD], double [MAXORD][MAXORD], double [MAXORD][MAXORD], double []);
-  //            T     MAXPQ      X          Omega11                  omega12                    omega22              eta
-}
-
-vector<double> beta(double t, double x[2], double om11[MAXORD][MAXORD], double om12[MAXORD][MAXORD], double om22[MAXORD][MAXORD]){
-  vector<double> eta(maxpq);
+std::vector<double> beta(double t, double x[2], double om11[MAXORD][MAXORD],
+                         double om12[MAXORD][MAXORD],
+                         double om22[MAXORD][MAXORD]) {
+  std::vector<double> eta(maxpq);
   beta_(&t, &maxpq, x, om11, om12, om22, eta.data());
   return eta;
 }

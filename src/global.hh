@@ -4,20 +4,20 @@
 #include <iostream>
 #include <string>
 #include <vector>
-extern std::vector<double> temperatures;
-extern double temps[60];
-extern double x[2]; 
-extern std::vector<std::string> elements;
-extern std::vector< std::vector<double> > xs;
-extern int ntemp;
-extern double acc;
-extern double om11[60][MAXORD][MAXORD];
-extern double om12[60][MAXORD][MAXORD];
-extern double om22[60][MAXORD][MAXORD];
-extern std::vector<std::vector<double> > etas;
-extern std::vector<std::vector<double> > D12s;   
-extern std::vector<std::vector<double> > DTs;    
-extern std::vector<std::vector<double> > lambdas;
+// extern std::vector<double> temperatures;
+// extern double temps[60];
+// extern double x[2];
+// extern std::vector<std::string> elements;
+// extern std::vector< std::vector<double> > xs;
+// extern int ntemp;
+// extern double acc;
+// extern double om11[60][MAXORD][MAXORD];
+// extern double om12[60][MAXORD][MAXORD];
+// extern double om22[60][MAXORD][MAXORD];
+// extern std::vector<std::vector<double> > etas;
+// extern std::vector<std::vector<double> > D12s;
+// extern std::vector<std::vector<double> > DTs;
+// extern std::vector<std::vector<double> > lambdas;
 
 inline void omega_cpp2fort(std::vector<double> Omega, double om[MAXORD][MAXORD],
                            size_t omegaorder) {
@@ -29,5 +29,5 @@ inline void omega_cpp2fort(std::vector<double> Omega, double om[MAXORD][MAXORD],
     }
   }
 }
-inline size_t omegaorder(size_t maxpq) { return 2 * maxpq + 3; }
+inline size_t omegaorder(size_t maxpq) { return 2 * maxpq + 2; }
 #endif // __GLOBAL_H__

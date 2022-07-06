@@ -73,7 +73,7 @@ std::tuple<double, double, bool> CGIntegrator::integrate(double tol,
     err /= fabs(newint); // relative error...
     // std::cerr << err << std::endl;
     // std::cout << newint << std::endl;
-    if (err < tol) {
+    if (!(err >= tol)) {
       return std::make_tuple(newint, err, err < tol);
     }
   }
@@ -81,7 +81,9 @@ std::tuple<double, double, bool> CGIntegrator::integrate(double tol,
             << __FILE__ << ' ' << __LINE__ << ": "
             << "The Chebyshev-Gauss Quadrature did NOT meet the errtol "
                "requirement with order = "
-            << maxordersize << "." << std::endl;
+            << maxordersize << ".\n"
+            << "Current relerr is " << err << ", and result is " << newint
+            << '.' << std::endl;
   return std::make_tuple(newint, err, err < tol);
 }
 
@@ -147,40 +149,3 @@ CubicIter::iterator &CubicIter::iterator::operator++() {
 
 } // namespace dlt
 
-/*
-int main() {
-  {
-    dlt::CubicIter ic(2, 3);
-    for (auto &&i : ic) {
-      std::cout << i << '\n';
-    }
-    std::cout << "=======" << std::endl;
-  }
-  {
-    dlt::CubicIter ic(2, 3, true);
-    for (auto &&i : ic) {
-      std::cout << i << '\n';
-    }
-    std::cout << "=======" << std::endl;
-  }
-  if (false) {
-    dlt::CubicIter ic(2, 3, true, false);
-    for (auto &&i : ic) {
-      std::cout << i << '\n';
-    }
-    std::cout << "=======" << std::endl;
-  }
-  {
-    dlt::CubicIter ic(2, 3, false, false);
-    for (auto &&i : ic) {
-      std::cout << i << '\n';
-    }
-    std::cout << "=======" << std::endl;
-  }
-  {
-    dlt::CubicIter ic(2, 3, false, false);
-    std::cout << *dlt::CubicIter::iterator(&ic, 2, 1, 1) << std::endl;
-  }
-  return 0;
-}
-*/

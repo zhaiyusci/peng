@@ -1,19 +1,29 @@
-#include "alpha.hh"
+#include "transport.hh"
 #include "global.hh"
 #include "param.hh"
 #include <iostream>
 #include <tuple>
 #include <vector>
 
+// This file call FORTRAN files alpha_impl.F90 and beta_impl.F90,
+// in which the algorithms are located.
 extern "C" {
 void alpha_(double *T, int *maxpq, double x[2], double omega11[MAXORD][MAXORD],
             double omega12[MAXORD][MAXORD], double omega22[MAXORD][MAXORD],
             double *mass1, double *mass2, double D12[], double DT[], double lambda[]);
 }
 
-std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>
-alpha(double t, double x0, std::vector<double> Omega00,
-      std::vector<double> Omega01, std::vector<double> Omega11, double mass0, double mass1, int maxpq) {
+extern "C" {
+void beta_(double *T, int *maxpq, double x[2], double omega11[MAXORD][MAXORD],
+           double omega12[MAXORD][MAXORD], double omega22[MAXORD][MAXORD],
+           double *mass1, double *mass2, double eta[]);
+}
+
+std::tuple<std::vector<double> /*D12*/, std::vector<double> /*DT*/,
+           std::vector<double> /*lambda*/, std::vector<double> /*eta*/>
+transport(double t, double x0, std::vector<double> Omega00,
+          std::vector<double> Omega01, std::vector<double> Omega11,
+          double mass0, double mass1, int maxpq) {
   // Some dirty work: turn C++ omega to fortran 2D array
   // The following arrays should be "FORTRAN-ready"
 
@@ -36,9 +46,11 @@ alpha(double t, double x0, std::vector<double> Omega00,
   std::vector<double> D12(maxpq);
   std::vector<double> DT(maxpq);
   std::vector<double> lambda(maxpq);
-  std::cout << "maxpq = " << maxpq << std::endl;
+  std::vector<double> eta(maxpq);
+  // std::cout << "maxpq = " << maxpq << std::endl;
   alpha_(&t, &maxpq, xs, om11, om12, om22, &mass0, &mass1, D12.data(), DT.data(), lambda.data());
-  return make_tuple(D12, DT, lambda);
+  beta_(&t, &maxpq, xs, om11, om12, om22, &mass0, &mass1, eta.data());
+  return make_tuple(D12, DT, lambda, eta);
 }
 
 /*

@@ -1,40 +1,6 @@
 // #include "atompair.hh"
 #include "pot1dquad.hh"
 
-/** The Lennerd-Jones Potential function.
- */
-class : public dlt::FuncDeriv1D { // {{{
-private:
-  mutable double r_6_;
-  mutable double old_r_ = -1.0;
-
-  void prepare_(double r) const {
-    r_6_ = std::pow(r, -6);
-    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    // fake time cost
-    old_r_ = r;
-    return;
-  }
-
-public:
-  double value(double r) const {
-    if (r != old_r_) {
-      prepare_(r);
-    }
-    return 4 * (r_6_ * r_6_ - r_6_);
-  }
-  double derivative(double r) const {
-    if (r != old_r_) {
-      prepare_(r);
-    }
-    return 4 * ((-12) * r_6_ * r_6_ / r + 6 * r_6_ / r);
-  }
-  bool provide_derivative() const { return true; };
-
-} lj;
-
-//}}}
-
 namespace dlt {
 
 Pot1DFeatures::Pot1DFeatures(FuncDeriv1D &pot)
@@ -72,6 +38,8 @@ double ReducedPotentialQuadrature::Y::value(double r) const {
 ReducedPotentialQuadrature::ChiCG::ChiCG(ReducedPotentialQuadrature *rpq)
     : CGIntegrator(true), rpq_(rpq) {
   clean_cache();
+  E_ = -2.0;
+  r_m_ = -1.0;
 }
 
 void ReducedPotentialQuadrature::ChiCG::set_param(double r_m, double E,
@@ -97,9 +65,6 @@ void ReducedPotentialQuadrature::ChiCG::set_param(double r_m, double E,
  */
 void ReducedPotentialQuadrature::ChiCG::calculate_integrands(size_t ordersize) {
   // See if we need an update based on the "flag".
-
-  // std::cout << "vs_.size()  " << vs_.size() << std::endl;
-  // std::cout << "integrands_.size()  " << integrands_.size() << std::endl;
   if (cache_ordersize_ < ordersize) {
     // We only need the positive half of the integration.
     CubicIter ci(cache_ordersize_, ordersize, true, true);
@@ -108,6 +73,9 @@ void ReducedPotentialQuadrature::ChiCG::calculate_integrands(size_t ordersize) {
     for (auto &&i : ci) {
       double y = map_pm1(CGIntegratorBackend::instance()->coss(i));
       double r = r_m_ / y;
+      if (!(r >= 1.0e-5)) {
+        r = 1.0e-5;
+      }
       double v = (*rpq_->p_reduced_pot_)(r);
       vs_.push_back(v);
     }
@@ -123,18 +91,14 @@ void ReducedPotentialQuadrature::ChiCG::calculate_integrands(size_t ordersize) {
       double r = r_m_ / y;
       // double v = (*rpq_->ppot_)(r);
       double F = (1.0 - vs_[i] / E_ - b_ * b_ / r / r);
-      // std::cout << "vs_    " << vs_[i] << '\n';
-      // std::cout << "E_     " << E_ << '\n';
-      // std::cout << "b_     " << b_ << '\n';
-      // std::cout << "r      " << r << '\n';
       if (y <= 1.0e-8) { // r --> inf
         F = 1.0;
       }
-      if (F <= 0.0) {
+      if (!(F >= 1.0e-18)) {
         // should never run here if Chebyshev-Gauss Quarduture is used
         // because y does not equal 1 in CG Quad
-        std::cerr << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
-        throw std::runtime_error(__FILE__ "  F<0");
+        // std::cerr << " ~~F~~ " << F << " ~~r~~ " << r << std::endl;
+        // throw std::runtime_error(__FILE__ "  F < 0");
         F = 1.0e-18;
       }
       double res = 1.0 / sqrt(F) / r_m_;
@@ -156,8 +120,11 @@ double ReducedPotentialQuadrature::chi(double E, double r_m) {
   bool converged;
   std::tie(quadrature, err, converged) = chicg.integrate(1.0e-4, 5);
   if (!converged) {
-    std::cout << "Line " << __LINE__ << " ChiCG not converged with E = " << E
-              << " and r_m = " << r_m << "." << std::endl;
+    std::cerr << "Line " << __LINE__ << " ChiCG not converged with E = " << E
+              << ", r_m = " << r_m << " and b = " << b << "." << '\n';
+    std::cerr << "quadrature   " << quadrature << ' ' << M_PI - b * quadrature
+              << '\n';
+    chicg.show_integrands();
   }
   return M_PI - b * quadrature;
 }
@@ -170,8 +137,7 @@ ReducedPotentialQuadrature::ReducedPotentialQuadrature(
   y_.reset(new Y(*p_reduced_pot_));
 
   std::tie(r_C_, E_C_) = find_local_maximum(
-      *y_, 0.5, 5 * p_reduced_pot_->r_min() / p_reduced_pot_->sigma());
-  // TODO: fit reduced potential
+      *y_, 0.5, 3 * p_reduced_pot_->r_min() / p_reduced_pot_->sigma());
   y_root_.reset(new LocalRoot(*y_, r_C_, 15.0, 21, 1.0e-12));
 }
 
@@ -186,15 +152,12 @@ std::tuple<double, double> ReducedPotentialQuadrature::r_range(double E) const {
     b_O = r2b(r_O, E);
     PhiEff phieff(*p_reduced_pot_, b_O, E);
     r_Op = find_local_root(phieff, E, 1.0, r_C_, 21, 1.0e-12);
-    // std::cout << "Zero check: " << phieff(r_Op) - E << std::endl;
     if (fabs(phieff(r_Op) - E) >= 1.0e-6) {
       double _;
       std::tie(r_Op, _) = find_local_maximum(phieff, 1.0, r_C_);
       r_Op = find_local_root(phieff, E, 0.0, r_Op, 21, 1.0e-12);
     }
   }
-  // std::cout << "r_C = " << r_C_ << ", E_C = " << E_C_ << ", E = " << E <<
-  // '\n'; std::cout << "r_Op = " << r_Op << ", r_O = " << r_O << std::endl;
   return std::make_tuple(r_O, r_Op);
 }
 
@@ -208,8 +171,11 @@ double ReducedPotentialQuadrature::r2b(double r, double E) const {
 }
 
 ReducedPotentialQuadrature::QCG1::QCG1(ReducedPotentialQuadrature *rpq)
-    : CGIntegrator(false), rpq_(rpq), l_(0) {
+    : CGIntegrator(false), rpq_(rpq) {
   clean_cache();
+  l_ = 0;
+  r_E_ = -1.0;
+  r_Op_ = -1.0;
 }
 
 void ReducedPotentialQuadrature::QCG1::set_param(size_t l, double r_E,
@@ -256,7 +222,6 @@ void ReducedPotentialQuadrature::QCG1::calculate_integrands(size_t ordersize) {
     }
     cache_ordersize_ = ordersize;
   }
-  // std::cout << coschis_.size() << '\n' << fct2_.size() << std::endl;
   if (ordersize_ < ordersize) {
     CubicIter ci(ordersize_, ordersize, false, false);
     size_t num = ci.size_from_0();
@@ -274,6 +239,8 @@ ReducedPotentialQuadrature::QCG2::QCG2(ReducedPotentialQuadrature *rpq)
     : CGIntegrator(true), rpq_(rpq) {
   clean_cache();
   l_ = 0;
+  r_E_ = -1.0;
+  r_O_ = -1.0;
 }
 
 /** Set the parameters, clear the inner storage if it is needed.
@@ -357,14 +324,14 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E) {
   qcg1_.set_param(l, r_E, r_Op, E);
   std::tie(quadrature1, esterr, converged) = qcg1_.integrate(1.e-4, 5);
   if (!converged) {
-    std::cout << "Line " << __LINE__ << " QCG1 not converged with E = " << E
+    std::cerr << "Line " << __LINE__ << " QCG1 not converged with E = " << E
               << "." << std::endl;
   }
   double quadrature2;
   qcg2_.set_param(l, r_E, r_O, E);
   std::tie(quadrature2, esterr, converged) = qcg2_.integrate(1.e-4, 5);
   if (!converged) {
-    std::cout << "Line " << __LINE__ << " QCG2 not converged with E = " << E
+    std::cerr << "Line " << __LINE__ << " QCG2 not converged with E = " << E
               << "." << std::endl;
   }
   quadrature2 /= 2;
@@ -428,10 +395,10 @@ void ReducedPotentialQuadrature::OmegaCG::calculate_integrands(
     Qs_.reserve(num);
     for (auto &&i : ci) {
       double y = CGIntegratorBackend::instance()->coss(i);
-      if (y < 1.0e-8) {
-        y = 1.0e-8; // prevent div by 0
-      }
       double r_E = map_pm1(y);
+      if (r_E < 1.0e-8) {
+        r_E = 1.0e-8; // prevent div by 0
+      }
 
       vs_.push_back(rpq_->p_reduced_pot_->value(r_E));
       // weight is included in dvs
@@ -439,22 +406,25 @@ void ReducedPotentialQuadrature::OmegaCG::calculate_integrands(
     }
     ordersize_v_ = ordersize;
   }
-  // std::cout << "Line " << __LINE__ << std::endl;
   if (ordersize_ < ordersize) {
     CubicIter ci(ordersize_, ordersize, true, true);
     size_t num = ci.size_from_0();
     vs_.reserve(num);
     dvs_.reserve(num);
-    // std::cout << "Line " << __LINE__ << std::endl;
 
     for (auto &&i : ci) {
       double x = vs_[i] / T_;
       double res = exp(-x) * pow(x, s_ + 1) * Qs_[i] * dvs_[i];
       integrands_.push_back(res);
+      std::cerr << "x << ' ' << exp(-x) << ' ' << pow(x, s_ + 1) << ' ' << "
+                   "Qs_[i] << ' ' << dvs_[i] << "
+                   "' ' << res"
+                << std::endl;
+      std::cerr << x << ' ' << exp(-x) << ' ' << pow(x, s_ + 1) << Qs_[i] << ' '
+                << dvs_[i] << ' ' << res << std::endl;
     }
     ordersize_ = ordersize;
   }
-  // std::cout << "Line " << __LINE__ << std::endl;
   return;
 }
 
@@ -464,82 +434,15 @@ double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
   double quadrature1;
   double converged;
   omegacg_.set_param(l, s, T);
-  std::tie(quadrature1, esterr, converged) = omegacg_.integrate(1.e-4, 5);
+  std::tie(quadrature1, esterr, converged) = omegacg_.integrate(1.e-4, 15);
   if (!converged) {
-    std::cout << "Line " << __LINE__ << " OmegaCG not converged with l = " << l
+    std::cerr << "Line " << __LINE__ << " OmegaCG not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;
+    omegacg_.show_integrands();
   }
-  // std::cout << "Line " << __LINE__ << std::endl;
   quadrature1 /= 2;
   return coeff * quadrature1;
 }
 
 } // namespace dlt
 
-/*
-int main() {
-  std::cerr << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__
-            << std::endl;
-  std::cout << std::setprecision(18);
-
-  dlt::Pot1DFeatures pf(lj);
-  std::cout << " " << pf.r_min() << " " << pf.sigma() << " " << pf.epsilon()
-            << " " << std::endl;
-  dlt::ReducedPotentialQuadrature rpq(pf.reduced_potential());
-
-  std::cout << "rpq.E_C()" << rpq.E_C() << std::endl;
-  std::cout << "lj(0.9)" << lj(0.9) << std::endl;
-  double E_O, E_Op;
-  std::tie(E_O, E_Op) = rpq.r_range(lj(0.9));
-  std::cout << "E_O" << E_O << std::endl;
-
-  std::cout << rpq.chi(10.0, 0.9) << std::endl;
-
-  std::cout << " ========= ========== =====" << std::endl;
-
-  std::cout << "rpq.chi(lj(0.9), 0.9)" << std::endl;
-  std::cout << rpq.chi(lj(0.9), 0.9) << std::endl;
-  std::cout << "rpq.chi(lj(0.9), 9999.9)" << std::endl;
-  std::cout << rpq.chi(lj(0.9), 9999.9) << std::endl;
-  std::cout << "rpq.chi(lj(0.9), 0.9)" << std::endl;
-  std::cout << rpq.chi(lj(0.9), 0.9) << std::endl;
-
-  // std::cout << "rpq.Q(1, 0.999)" << std::endl;
-  // std::cout << rpq.Q(1, 0.999) << std::endl;
-  //
-  //   std::cout << "rpq.Q(2, 0.999)" << std::endl;
-  //   std::cout << rpq.Q(2, 0.999) << std::endl;
-  //
-  //   std::cout << "rpq.Q(3, 0.999)" << std::endl;
-  //   std::cout << rpq.Q(3, 0.999) << std::endl;
-  //
-  //   std::cout << "rpq.Q(3, 0.99)" << std::endl;
-  //   std::cout << rpq.Q(3, 0.99) << std::endl;
-  //
-  //   std::cout << "rpq.Q(4, 0.999)" << std::endl;
-  //   std::cout << rpq.Q(3, 0.999) << std::endl;
-  //
-  //   std::cout << "rpq.Q(3, 0.99)" << std::endl;
-  //   std::cout << rpq.Q(3, 0.99) << std::endl;
-  //
-  //   std::cout << "rpq.Q(3, 0.999)" << std::endl;
-  //   std::cout << rpq.Q(3, 0.999) << std::endl;
-  //
-  //   std::cout << "rpq.Q(3, 0.3)" << std::endl;
-  //   std::cout << rpq.Q(3, 0.3) << std::endl;
-
-  std::cout << "rpq.Omega(1, 1, 30)" << std::endl;
-  std::cout << rpq.Omega(1, 1, 30) << std::endl;
-
-  std::cout << "rpq.Omega(1, 2, 30)" << std::endl;
-  std::cout << rpq.Omega(1, 2, 30) << std::endl;
-
-  std::cout << "rpq.Omega(2, 2, 30)" << std::endl;
-  std::cout << rpq.Omega(2, 2, 30) << std::endl;
-
-  std::cout << "rpq.Omega(1, 1, 30)" << std::endl;
-  std::cout << rpq.Omega(1, 1, 30) << std::endl;
-
-  return 0;
-}
-*/
