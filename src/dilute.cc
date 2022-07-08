@@ -130,7 +130,7 @@ public:
           DTs    .at(xi, ti, mi) = DT    [mi];
           lambdas.at(xi, ti, mi) = lambda[mi];
           etas   .at(xi, ti, mi) = eta   [mi];
-          // clang-format on 
+          // clang-format on
         }
       }
     }
@@ -192,78 +192,220 @@ int main() {
   nlohmann::json config;
   std::cin >> config;
 
-  if(1){
+  if (1) {
     Task task(config);
     task.execute();
     task.chant();
   }
 
-  if(0){
+  if (0) {
     LoadedPotential hehe("./hehe.so");
     dlt::Pot1DFeatures hehepf(hehe);
     dlt::ReducedPotentialQuadrature heherpq(hehepf.reduced_potential());
-    std::cout << heherpq.chi(5.286831024184222e-05, 6.543886890852044) << std::endl;
+    std::cout << heherpq.chi(5.286831024184222e-05, 6.543886890852044)
+              << std::endl;
 
     LoadedPotential hexe("./hexe.so");
     dlt::Pot1DFeatures hexepf(hexe);
     dlt::ReducedPotentialQuadrature hexerpq(hexepf.reduced_potential());
-    std::cout << hexerpq.chi(5.286831024184222e-05, 6.543886890852044) << std::endl;
+    std::cout << hexerpq.chi(5.286831024184222e-05, 6.543886890852044)
+              << std::endl;
 
     LoadedPotential xexe("./xexe.so");
     dlt::Pot1DFeatures xexepf(xexe);
     dlt::ReducedPotentialQuadrature xexerpq(xexepf.reduced_potential());
-    std::cout << xexerpq.chi(5.286831024184222e-05, 6.543886890852044) << std::endl;
-  }
+    std::cout << xexerpq.chi(5.286831024184222e-05, 6.543886890852044)
+              << std::endl;
 
-  if(0){
-/** The Lennerd-Jones Potential function.
- */
-class : public dlt::FuncDeriv1D { // {{{
-private:
-  mutable double r_6_;
-  mutable double old_r_ = -1.0;
+    std::cout << 1 << ' ' << 1 << ' ' << heherpq.Omega(1, 1, 4.5514316911066173)
+              << std::endl;
+    std::cout << 2 << ' ' << 2 << ' ' << heherpq.Omega(2, 2, 4.5514316911066173)
+              << std::endl;
+    std::cout << 1 << ' ' << 6 << ' ' << heherpq.Omega(1, 6, 4.5514316911066173)
+              << std::endl;
+    std::cout << 4 << ' ' << 4 << ' ' << heherpq.Omega(4, 4, 4.5514316911066173)
+              << std::endl;
 
-  void prepare_(double r) const {
-    r_6_ = std::pow(r, -6);
-    // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    // fake time cost
-    old_r_ = r;
-    return;
-  }
+    std::cout << 1 << ' ' << 1 << ' ' << heherpq.Omega(1, 1, 31.860021837746324)
+              << std::endl;
+    std::cout << 2 << ' ' << 2 << ' ' << heherpq.Omega(2, 2, 31.860021837746324)
+              << std::endl;
+    std::cout << 1 << ' ' << 6 << ' ' << heherpq.Omega(1, 6, 31.860021837746324)
+              << std::endl;
+    std::cout << 4 << ' ' << 4 << ' ' << heherpq.Omega(4, 4, 31.860021837746324)
+              << std::endl;
+    return 0;
 
-public:
-  double value(double r) const {
-    if (r != old_r_) {
-      prepare_(r);
+    std::cout << "===============0.54823988e-2" << std::endl;
+    for (size_t l = 1; l != 7; ++l) {
+      double Q = heherpq.Q(l, -1.0, 0.54823988e-2);
+      Q *= M_PI * (1 - (1 + pow(-1, l)) / (2 * (1 + l)));
+      std::cout << l << ' ' << Q << std::endl;
     }
-    return 4 * (r_6_ * r_6_ - r_6_);
-  }
-  double derivative(double r) const {
-    if (r != old_r_) {
-      prepare_(r);
+
+    std::cout << "===============0.71356795e-1" << std::endl;
+    for (size_t l = 1; l != 7; ++l) {
+      double Q = heherpq.Q(l, -1.0, 0.71356795e-1);
+      Q *= M_PI * (1 - (1 + pow(-1, l)) / (2 * (1 + l)));
+      std::cout << l << ' ' << Q << std::endl;
     }
-    return 4 * ((-12) * r_6_ * r_6_ / r + 6 * r_6_ / r);
+
+    std::cout << "===============0.43800684" << std::endl;
+    for (size_t l = 1; l != 7; ++l) {
+      double Q = heherpq.Q(l, -1.0, 0.43800684);
+      Q *= M_PI * (1 - (1 + pow(-1, l)) / (2 * (1 + l)));
+      std::cout << l << ' ' << Q << std::endl;
+    }
+
+    std::cout << "===============0.51775559D+02" << std::endl;
+    for (size_t l = 1; l != 7; ++l) {
+      double Q = heherpq.Q(l, -1.0, 0.51775559e+02);
+      Q *= M_PI * (1 - (1 + pow(-1, l)) / (2 * (1 + l)));
+      std::cout << l << ' ' << Q << std::endl;
+    }
+
+    std::cout << "==============================" << std::endl;
+    std::cout << "===============0.12105661D+02" << std::endl;
+    for (size_t l = 1; l != 7; ++l) {
+      double Q = hexerpq.Q(l, -1.0, 0.12105661e+02);
+      Q *= M_PI * (1 - (1 + pow(-1, l)) / (2 * (1 + l)));
+      std::cout << l << ' ' << Q << std::endl;
+    }
   }
-  bool provide_derivative() const { return true; };
 
-} lj;
+  if (0) {
+    /** The Lennerd-Jones Potential function.
+     */
+    class : public dlt::FuncDeriv1D {
+    private:
+      mutable double r_6_;
+      mutable double old_r_ = -1.0;
 
-//}}}
+      void prepare_(double r) const {
+        r_6_ = std::pow(r, -6);
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        // fake time cost
+        old_r_ = r;
+        return;
+      }
 
+    public:
+      double value(double r) const {
+        if (r != old_r_) {
+          prepare_(r);
+        }
+        return 4 * (r_6_ * r_6_ - r_6_);
+      }
+      double derivative(double r) const {
+        if (r != old_r_) {
+          prepare_(r);
+        }
+        return 4 * ((-12) * r_6_ * r_6_ / r + 6 * r_6_ / r);
+      }
+      bool provide_derivative() const { return true; };
+
+    } lj;
+
+    const double T = 10.0;
+    std::cout << T << " <== T \n";
+    std::cout << "Omega...\n";
     dlt::Pot1DFeatures pf(lj);
     dlt::ReducedPotentialQuadrature rpq(pf.reduced_potential());
-    for(size_t l = 1; l!=7; ++l){
-      for(size_t s=l; s!=7; ++s){
-        std::cout << l << ' ' << s << ' '<<  "==============" <<std::endl;
-        double _ = rpq.Omega(l, s, 100.0);
-        std::cout << l << ' ' << s << ' '<<  _ <<std::endl;
+    for (size_t l = 1; l != 7; ++l) {
+      for (size_t s = l; s != 7; ++s) {
+        double om = rpq.Omega(l, s, T);
+        std::cout << l << ' ' << s << ' ' << om << std::endl;
       }
     }
+    double om = rpq.Omega(1, 1, T);
+    std::cout << 1 << ' ' << 1 << ' ' << om << std::endl;
 
-
-
+    std::cout << "Q...\n";
+    for (size_t l = 1; l != 7; ++l) {
+      double Q = rpq.Q(l, -1.0, T);
+      Q *= M_PI * (1 - (1 + pow(-1, l)) / (2 * (1 + l)));
+      std::cout << l << ' ' << Q << std::endl;
+    }
   }
-  
+
+  if (0) {
+    // HFDHE2 Potential for helium
+    class : public dlt::FuncDeriv1D {
+    private:
+      mutable double old_r_ = -1.0;
+      mutable double v;
+      mutable double dv;
+      void prepare_(double r) const {
+        const double a = 0.544850e6;
+        const double alpha = 13.353384;
+        const double c6 = 1.3732412;
+        const double c8 = 0.4253785;
+        const double c10 = 0.178100;
+        const double d = 1.241314;
+        double x = r; // / 2.9673;
+        double vr = (x <= 7.6 ? a * exp(-alpha * x) : 0.0);
+        double dvr = -alpha * vr;
+        double x2 = x * x;
+        double x4 = x2 * x2;
+        double x6 = x4 * x2;
+        double x8 = x4 * x4;
+        double x10 = x8 * x2;
+        double va = -(c6 / x6 + c8 / x8 + c10 / x10);
+        double dva =
+            6 * c6 / (x6 * x) + 8 * c8 / (x8 * x) + 10 * c10 / (x10 * x);
+        if (x < d) {
+          double fx = exp(-pow(d / x - 1, 2));
+          double dfx = 2 * fx * (d * d / (x2 * x) - d / x2);
+          v = vr + va * fx;
+          dv = (dvr + dva * fx + va * dfx); // / 2.9673;
+          old_r_ = r;
+          return;
+        } else {
+          v = vr + va;
+          dv = (dvr + dva); // / 2.9673;
+          old_r_ = r;
+          return;
+        }
+      }
+
+    public:
+      double value(double r) const {
+        if (r != old_r_) {
+          prepare_(r);
+        }
+        return v;
+      }
+      double derivative(double r) const {
+        if (r != old_r_) {
+          prepare_(r);
+        }
+        return dv;
+      }
+      bool provide_derivative() const { return true; };
+    } hfdhe2;
+
+    /*
+    std::ofstream f;
+    f.open("pec.txt", std::ios::out);
+    for (double r = 0.5; r <= 10.0; r += 0.05) {
+      f << r << ' ' << hfdhe2(r) << ' ' << hfdhe2.derivative(r) << ' '
+        << hfdhe2.dlt::FuncDeriv1D::derivative(r) << '\n';
+    }
+    f.flush();
+    f.close();
+    return 0;
+    */
+
+    dlt::Pot1DFeatures pf(hfdhe2);
+    dlt::ReducedPotentialQuadrature rpq(pf.reduced_potential());
+    std::cout << rpq.chi(1.0, 1.0) << std::endl;
+    for (size_t l = 1; l != 7; ++l) {
+      for (size_t s = l; s != 7; ++s) {
+        double om = rpq.Omega(l, s, 1.0);
+        std::cout << l << ' ' << s << ' ' << om << std::endl;
+      }
+    }
+  }
 
   return 0;
 }

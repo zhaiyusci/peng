@@ -5,7 +5,7 @@ FC=gfortran
 CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include 
 OBJDIR ?= ../build
 SRC := dilute.cc \
-			 pot1dquad.cc mathtools.cc cgquad.cc \
+			 pot1dquad.cc mathtools.cc cgquad.cc glquad.cc \
 			 transport.cc global.cc \
 			 alpha_impl.F90 beta_impl.o inversion.F90 
 OBJ := $(SRC)
@@ -24,13 +24,14 @@ all: dilute.exe # main.exe omega11.so omega12.so omega22.so test2.exe
 
 transport.o: transport.cc transport.hh global.hh param.hh
 cgquad.o: cgquad.cc cgquad.hh
-pot1dquad.o: pot1dquad.cc pot1dquad.hh cgquad.hh mathtools.hh
+glquad.o: glquad.cc glquad.hh
+pot1dquad.o: pot1dquad.cc pot1dquad.hh cgquad.hh glquad.hh mathtools.hh
 mathtools.o: mathtools.cc mathtools.hh
 dilute.o: dilute.cc dilute.hh mathtools.hh pot1dquad.hh cgquad.hh \
  atompair.hh param.hh transport.hh global.hh
 
 alpha_impl.o: alpha_impl.F90 param.hh
-# beta_impl.o: beta_impl.F90 param.hh
+beta_impl.o: beta_impl.F90 param.hh
 inversion.o: inversion.F90 
 
 dilute.exe: $(OBJ) 

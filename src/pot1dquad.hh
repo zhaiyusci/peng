@@ -2,6 +2,7 @@
 #define _DILUTE_POT1DQUAD_HH_
 // #include "atompair.hh"
 #include "cgquad.hh"
+#include "glquad.hh"
 #include "mathtools.hh"
 #include <iostream>
 #include <memory>
@@ -31,17 +32,17 @@ public:
   ///
   /// The collision radius.
   ///
-  const double &sigma() const { return sigma_; }
+  const double &origin_sigma() const { return sigma_; }
 
   ///
   /// The well depth.
   ///
-  const double &epsilon() const { return epsilon_; }
+  const double &origin_epsilon() const { return epsilon_; }
 
   ///
   /// The equlibrium nuclear seperation.
   ///
-  const double &r_min() const { return r_min_; }
+  const double &origin_r_min() const { return r_min_; }
 
   double value(double r) const override {
     return p_pri_pot_->value(r * sigma_) / epsilon_;
@@ -286,20 +287,45 @@ class ReducedPotentialQuadrature {
     }
   }; // }}}
 
+  ///
+  /// Compute the integration required by the computation of Omega.
+  ///
+  class OmegaGL : public GLIntegrator { //{{{
+  public:
+  private:
+    ReducedPotentialQuadrature *rpq_;
+    size_t l_;
+    size_t s_;
+    double T_;
+
+  public:
+    OmegaGL(ReducedPotentialQuadrature *rpq);
+    /** Set the parameters, clear the inner storage if it is needed.
+     */
+    void set_param(size_t l, size_t s, double T);
+
+    /** Compute the integrands with computed values cached.
+     */
+    void calculate_integrands() override;
+
+  }; // }}}
+
 public:
 private:
-  ReducedPotential *const p_reduced_pot_;
+  FuncDeriv1D *const p_reduced_pot_;
   double r_C_;
   double E_C_;
   std::unique_ptr<LocalRoot> y_root_;
+  std::unique_ptr<LocalRoot> v_root_;
   std::unique_ptr<Y> y_;
   ChiCG chicg;
   QCG1 qcg1_;
   QCG2 qcg2_;
   OmegaCG omegacg_;
+  OmegaGL omegagl_;
 
 public:
-  ReducedPotentialQuadrature(ReducedPotential &reduced_pot);
+  ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot);
   const double &r_C() const { return r_C_; }
   const double &E_C() const { return E_C_; }
 
@@ -316,7 +342,7 @@ public:
   ///
   /// Tip: It is faster to keep the r_E unchanged and scan the l.
   ///
-  double Q(size_t l, double r_E);
+  double Q(size_t l, double r_E, double E);
 
   ///
   /// Compute Omega.

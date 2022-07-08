@@ -1,5 +1,5 @@
-#ifndef _DILUTE_CGQUD_HH_
-#define _DILUTE_CGQUD_HH_
+#ifndef _DILUTE_CGQUAD_HH_
+#define _DILUTE_CGQUAD_HH_
 #include <chrono>
 #include <cmath>
 #include <functional>

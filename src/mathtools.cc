@@ -72,10 +72,11 @@ std::tuple<double, double> find_local_minimum(FuncDeriv1D &func, double lower,
     u = min_i + 1;
     x[0] = xs[min_i];
     if (min_i == 0 || min_i == nsamp - 1) {
-      std::cerr << "WARNING:" << std::endl
+      std::cerr << "WARNING:\n"
                 << __FILE__ << " " << __LINE__
                 << ": Searching range may not be good, with index = " << min_i
-                << " and val = " << min_f << std::endl;
+                << " and val = " << min_f
+                << ", which evaluate with x = " << xs[min_i] << ".\n";
       if (min_i == 0)
         l = 0;
       if (min_i == nsamp - 1)
