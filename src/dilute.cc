@@ -87,8 +87,9 @@ public:
         pot00(config["potentials"][0]["path"].get<std::string>()),
         pot01(config["potentials"][1]["path"].get<std::string>()),
         pot11(config["potentials"][2]["path"].get<std::string>()),
-        pair00(atom0, atom0, pot00), pair11(atom1, atom1, pot11),
-        pair01(atom0, atom1, pot01),
+        pair00(atom0, atom0, pot00, config["accuracy"].get<double>()),
+        pair11(atom1, atom1, pot11, config["accuracy"].get<double>()),
+        pair01(atom0, atom1, pot01, config["accuracy"].get<double>()),
         //
         // clang-format off
         D12s   ("Diffusion",       1e-4, "10⁻⁴m²/s", molefractions0.size(), temperatures.size(), maxpq),
@@ -187,6 +188,13 @@ public:
 };
 
 int main() {
+  // clang-format off
+  std::cout << "   /) ,  /)          " << '\n'
+            << " _(/    //    _/_  _ " << '\n'
+            << "(_(__(_(/_(_(_(___(/_" << "Ver. " << _VERSION_ << '\n';
+  // clang-format on
+  std::cout.flush();
+
   std::cout << std::setprecision(16);
   std::cerr << std::setprecision(16);
   nlohmann::json config;

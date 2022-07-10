@@ -110,7 +110,7 @@ class ReducedPotentialQuadrature {
   ///
   /// Phi functions
   ///
-  class PhiEff : public FuncDeriv1D {
+  class PhiEff : public FuncDeriv1D { // {{{
   public:
   private:
     FuncDeriv1D *ppot_;
@@ -123,8 +123,9 @@ class ReducedPotentialQuadrature {
     double derivative(double r) const;
     bool provide_derivative() const { return ppot_->provide_derivative(); }
   };
+  // }}}
 
-  class Y : public FuncDeriv1D {
+  class Y : public FuncDeriv1D { // {{{
   public:
   private:
     FuncDeriv1D *const ppot_;
@@ -133,6 +134,7 @@ class ReducedPotentialQuadrature {
     Y(FuncDeriv1D &pot) : ppot_(&pot) {}
     double value(double r) const;
   };
+  // }}}
 
   // 2. Worker class that actually do the inegration, inheriated from
   // CGIntegrator
@@ -310,11 +312,13 @@ class ReducedPotentialQuadrature {
 
   }; // }}}
 
+  // 3. The members of THE class
 public:
 private:
   FuncDeriv1D *const p_reduced_pot_;
   double r_C_;
   double E_C_;
+  double tol_;
   std::unique_ptr<LocalRoot> y_root_;
   std::unique_ptr<LocalRoot> v_root_;
   std::unique_ptr<Y> y_;
@@ -325,7 +329,11 @@ private:
   OmegaGL omegagl_;
 
 public:
-  ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot);
+  ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot, double tol = 1.0e-2);
+  void set_tol(double tol) {
+    tol_ = tol;
+    return;
+  }
   const double &r_C() const { return r_C_; }
   const double &E_C() const { return E_C_; }
 

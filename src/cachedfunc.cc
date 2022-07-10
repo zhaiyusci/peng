@@ -1,7 +1,10 @@
 #include "cachedfunc.hh"
 #include<cmath>
+
+namespace dlt {
 std::tuple<double, double, bool, size_t>
 CachedFuncDeriv1D::cubic_spline_(double x) const {
+  // Cubic Hermite spline
 
   // find the right interval using bisec method...
   size_t li, ri, mi;
@@ -64,7 +67,7 @@ CachedFuncDeriv1D::cubic_spline_(double x) const {
       v, dv / (std::get<0>(cache_[ri]) - std::get<0>(cache_[li])), abinit, li);
 }
 
-std::tuple<double, double> CachedFuncDeriv1D::operator()(double x) const {
+double CachedFuncDeriv1D::value(double x) const {
   double f, df;
   size_t li, ri;
   bool abinit, qq;
@@ -79,8 +82,8 @@ std::tuple<double, double> CachedFuncDeriv1D::operator()(double x) const {
   }
   // abinit = true;
   if (abinit) {
-    double af, adf; // The ab init ones
-    std::tie(af, adf) = (*func_)(x);
+    double af = pfunc_->value(x);
+    double adf = pfunc_->derivative(x);
     if (fabs(f - af) < ftol_ && fabs(df - adf) < ftol_ && qq) {
       double x, f, df;
       bool _;
@@ -102,14 +105,16 @@ std::tuple<double, double> CachedFuncDeriv1D::operator()(double x) const {
   // cache_.push_back(std::make_tuple(x, f, df, false));
   // std::sort(cache_.begin(), cache_.end());
   // std::cout << f << "----" << df << std::endl;
-  return std::make_tuple(f, df);
+  return f;
 }
+
 void CachedFuncDeriv1D::add_to_cache(const std::vector<double> &xs) const {
   for (auto &&x : xs) {
-    double af, adf; // The ab init ones
-    std::tie(af, adf) = (*func_)(x);
+    double af = pfunc_->value(x);
+    double adf = pfunc_->derivative(x);
     cache_.push_back(std::make_tuple(x, af, adf, false));
   }
   std::sort(cache_.begin(), cache_.end());
   return;
 }
+} // namespace dlt

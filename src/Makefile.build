@@ -16,6 +16,7 @@ OBJ := $(OBJ:%.F90=%.o)
 VPATH = ../src
 
 PWD = $(shell pwd)
+VERSION = $(shell git rev-parse HEAD)
 .PHONY: clean all
 
 all: dilute.exe # main.exe omega11.so omega12.so omega22.so test2.exe
@@ -35,6 +36,7 @@ beta_impl.o: beta_impl.F90 param.hh
 inversion.o: inversion.F90 
 
 dilute.exe: $(OBJ) 
+	@echo $(VERSION)
 	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lnlopt -lfmt -Wl,-rpath,"$(PWD)/../external/lib"
 
 

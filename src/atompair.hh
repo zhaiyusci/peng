@@ -87,33 +87,23 @@ public:
 private:
   const Atom atom0_;
   const Atom atom1_;
-
   FuncDeriv1D *const ppot_;
+  double tol_;
 
   const double reduced_mass_;
   std::unique_ptr<Pot1DFeatures> pf_;
   std::unique_ptr<ReducedPotentialQuadrature> rpq_;
 
 public:
-  AtomPair(const Atom &atom0, const Atom &atom1, FuncDeriv1D &pot)
-      : atom0_(atom0), atom1_(atom1), ppot_(&pot),
+  AtomPair(const Atom &atom0, const Atom &atom1, FuncDeriv1D &pot,
+           double tol = 1.0e-2)
+      : atom0_(atom0), atom1_(atom1), ppot_(&pot), tol_(tol),
         reduced_mass_((atom0_.mass() * atom1.mass()) /
                       (atom0_.mass() + atom1_.mass())) {
     pf_.reset(new Pot1DFeatures(*ppot_));
-    rpq_.reset(new ReducedPotentialQuadrature(pf_->reduced_potential()));
+    rpq_.reset(new ReducedPotentialQuadrature(pf_->reduced_potential(), tol));
   }
-  double Omega(size_t l, size_t s, double T) const {
-
-    const double kB = 1.380649e-23;      // BY DEFINITION
-    const double amu = 1.6605390666e-27; // CODATA2018
-    const double AA = 1.e-10;            // BY DEFINITION
-    double Omegastar = rpq_->Omega(l, s, T / pf_->epsilon());
-    // std::cout << "Omega* = " << Omegastar << std::endl;
-    return Omegastar * 0.5 * std::tgamma(s + 2) *
-           (1.0 - 0.5 * (1.0 + pow(-1, l)) / (1. + l)) * M_PI *
-           pow((pf_->sigma() * AA), 2) /
-           sqrt(2 * M_PI * reduced_mass_ * amu / (kB * T));
-  }
+  double Omega(size_t l, size_t s, double T) const;
 };
 } // namespace dlt
 

@@ -1,25 +1,27 @@
-#ifndef __DILUTE_CACHEDFUNC_HH__
-#define __DILUTE_CACHEDFUNC_HH__
+#ifndef _DILUTE_CACHEDFUNC_HH_
+#define _DILUTE_CACHEDFUNC_HH_
+#include "mathtools.hh"
 #include <functional>
-/**
- * The 1-dimension function with its 1st order derivative.
- */
-typedef std::function<std::tuple<double, double>(double)> FuncDeriv1D;
 
-class CachedFuncDeriv1D {
-  public:
-    const std::function<std::tuple<double, double>(double)> *const func_;
-    mutable std::vector<std::tuple<double, double, double, bool>> cache_;
-    const double ftol_;
+namespace dlt {
 
-    std::tuple<double, double, bool, size_t> cubic_spline_(double x) const;
+class CachedFuncDeriv1D : public FuncDeriv1D {
+public:
+  FuncDeriv1D *const pfunc_;
+  mutable std::vector<std::tuple<double, double, double, bool>> cache_;
+  const double ftol_;
 
-  public:
-    CachedFuncDeriv1D(
-        const std::function<std::tuple<double, double>(double)> &func,
-        double ftol = 1.0e-8)
-        : func_(&func), ftol_(ftol) {}
-    std::tuple<double, double> operator()(double x) const;
-    void add_to_cache(const std::vector<double> &xs) const;
+  std::tuple<double, double, bool, size_t> cubic_spline_(double x) const;
+
+public:
+  CachedFuncDeriv1D(FuncDeriv1D &func, double ftol = 1.0e-8)
+      : pfunc_(&func), ftol_(ftol) {}
+  double value(double x) const override;
+  double derivative(double x) const override;
+  // We always set this true because we can get it from interpolation.
+  bool provide_derivative() const override { return true; }
+  void add_to_cache(const std::vector<double> &xs) const;
 };
+} // namespace dlt
+
 #endif

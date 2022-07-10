@@ -121,7 +121,7 @@ double ReducedPotentialQuadrature::chi(double E, double r_m) {
   chicg.set_param(r_m, E, b);
   double quadrature, err;
   bool converged;
-  std::tie(quadrature, err, converged) = chicg.integrate(1.0e-4, 15);
+  std::tie(quadrature, err, converged) = chicg.integrate(tol_, 15);
   if (!converged) {
     std::cerr << "Line " << __LINE__ << " ChiCG not converged with E = " << E
               << ", r_m = " << r_m << " and b = " << b << "." << '\n';
@@ -132,15 +132,17 @@ double ReducedPotentialQuadrature::chi(double E, double r_m) {
   return M_PI - b / r_m * quadrature;
 }
 
-ReducedPotentialQuadrature::ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot)
-    : p_reduced_pot_(&reduced_pot), chicg(this), qcg1_(this), qcg2_(this),
-      omegacg_(this), omegagl_(this) {
+ReducedPotentialQuadrature::ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot,
+                                                       double tol)
+    : p_reduced_pot_(&reduced_pot), tol_(tol), chicg(this), qcg1_(this),
+      qcg2_(this), omegacg_(this), omegagl_(this) {
 
   y_.reset(new Y(*p_reduced_pot_));
 
   std::tie(r_C_, E_C_) = find_local_maximum(*y_, 0.5, 5);
   std::cerr << "r_C = " << r_C_ << '\n';
   std::cerr << "E_C = " << E_C_ << '\n';
+
   y_root_.reset(new LocalRoot(*y_, r_C_, 15.0, 21, 1.0e-12));
   v_root_.reset(new LocalRoot(*p_reduced_pot_, 0.1, 1.0, 21, 1.0e-12));
   // Maybe we want to try (0.0,1.0)... but consider the really high energy part
@@ -336,14 +338,14 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E, double E) {
   if (E <= 2 * E_C()) {
     double quadrature1;
     qcg1_.set_param(l, r_E, r_Op, E);
-    std::tie(quadrature1, esterr, converged) = qcg1_.integrate(1.e-4, 15);
+    std::tie(quadrature1, esterr, converged) = qcg1_.integrate(tol_, 15);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG1 not converged with E = " << E
                 << "." << std::endl;
     }
     double quadrature2;
     qcg2_.set_param(l, r_E, r_O, E);
-    std::tie(quadrature2, esterr, converged) = qcg2_.integrate(1.e-4, 15);
+    std::tie(quadrature2, esterr, converged) = qcg2_.integrate(tol_, 15);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG2 not converged with E = " << E
                 << "." << std::endl;
@@ -353,7 +355,7 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E, double E) {
   } else {
     double quadrature2;
     qcg2_.set_param(l, r_E, r_E, E);
-    std::tie(quadrature2, esterr, converged) = qcg2_.integrate(1.e-4, 15);
+    std::tie(quadrature2, esterr, converged) = qcg2_.integrate(tol_, 15);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG2 not converged with E = " << E
                 << "." << std::endl;
@@ -370,7 +372,7 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E, double E) {
 /// integration required by the computation of Omega.
 ///
 ReducedPotentialQuadrature::OmegaCG::OmegaCG(ReducedPotentialQuadrature *rpq)
-    : CGIntegrator(true, -0.1, 1.0), rpq_(rpq) {
+    : CGIntegrator(true, -0.5, 1.0), rpq_(rpq) {
   // The integration range should be [-1,1],
   // however, -0.5 is good enough to avoid some numerical error.
   l_ = 0;
@@ -482,32 +484,31 @@ void ReducedPotentialQuadrature::OmegaGL::calculate_integrands() {
 }
 
 /*
- // This is the Chebyshev-Gauss version.
+// This is the Chebyshev-Gauss version.
 double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
   double coeff = -1.0 / T / std::tgamma(s + 2);
   double esterr;
   double quadrature;
   double converged;
   omegacg_.set_param(l, s, T);
-  std::tie(quadrature, esterr, converged) = omegacg_.integrate(1.e-4, 15);
+  std::tie(quadrature, esterr, converged) = omegacg_.integrate(tol_, 15);
   if (!converged) {
     std::cerr << "Line " << __LINE__ << " OmegaCG not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;
-    // omegacg_.show_integrands();
   }
   quadrature /= 2;
-  std::cerr << "l = " << l << ", s= " << s << ", T = " << T << std::endl;
   return coeff * quadrature;
 }
 */
 
+// This is the Gauss-Laguerre version.
 double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
   double coeff = 1.0 / std::tgamma(s + 2);
   double esterr;
   double quadrature;
   double converged;
   omegagl_.set_param(l, s, T);
-  std::tie(quadrature, esterr, converged) = omegagl_.integrate(1.e-4, 128);
+  std::tie(quadrature, esterr, converged) = omegagl_.integrate(tol_, 128);
   if (!converged) {
     std::cerr << "Line " << __LINE__ << " OmegaGL not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;
@@ -518,4 +519,3 @@ double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
 }
 
 } // namespace dlt
-
