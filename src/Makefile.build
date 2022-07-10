@@ -6,7 +6,7 @@ CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include
 OBJDIR ?= ../build
 SRC := dilute.cc \
 			 pot1dquad.cc mathtools.cc cgquad.cc glquad.cc \
-			 transport.cc global.cc \
+			 transport.cc global.cc atompair.cc \
 			 alpha_impl.F90 beta_impl.o inversion.F90 
 OBJ := $(SRC)
 OBJ := $(OBJ:%.cc=%.o)
@@ -16,12 +16,9 @@ OBJ := $(OBJ:%.F90=%.o)
 VPATH = ../src
 
 PWD = $(shell pwd)
-VERSION = $(shell git rev-parse HEAD)
 .PHONY: clean all
 
 all: dilute.exe # main.exe omega11.so omega12.so omega22.so test2.exe
-
-
 
 transport.o: transport.cc transport.hh global.hh param.hh
 cgquad.o: cgquad.cc cgquad.hh
@@ -34,10 +31,15 @@ dilute.o: dilute.cc dilute.hh mathtools.hh pot1dquad.hh cgquad.hh \
 alpha_impl.o: alpha_impl.F90 param.hh
 beta_impl.o: beta_impl.F90 param.hh
 inversion.o: inversion.F90 
+loadedpotential.o: loadedpotential.cc loadedpotential.hh mathtools.hh
+main.o: main.cc dilute.hh atompair.hh mathtools.hh pot1dquad.hh cgquad.hh \
+ glquad.hh transport.hh global.hh param.hh loadedpotential.hh
 
-dilute.exe: $(OBJ) 
-	@echo $(VERSION)
-	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lnlopt -lfmt -Wl,-rpath,"$(PWD)/../external/lib"
+libdilute.so: $(OBJ) 
+	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lnlopt -lfmt -shared -Wl,-rpath,"$(PWD)/../external/lib"
+
+dilute.exe: main.o loadedpotential.o libdilute.so
+	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L. -ldilute -L../external/lib -lnlopt -lfmt -Wl,-rpath,"$(PWD)/../external/lib:$(PWD)/../build"
 
 
 test:
