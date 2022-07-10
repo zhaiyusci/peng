@@ -1,4 +1,7 @@
-.PHONY: all
+.PHONY: all clean
 
 all:
-	+@make -C ..
+	+@make -C .. all
+
+clean:
+	@make -C .. clean

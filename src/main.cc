@@ -5,9 +5,23 @@
 using namespace dlt;
 int main() {
   // clang-format off
-  std::cout << "   /) ,  /)          " << '\n'
-            << " _(/    //    _/_  _ " << '\n'
-            << "(_(__(_(/_(_(_(___(/_" << "Ver. " << DILUTE_VERSION << '\n';
+  std::cout << "*=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=*\n"
+            << "|                     /) ,  /)                                |\n"
+            << "|                   _(/    //    _/_  _                       |\n"
+            << "|                  (_(__(_(/_(_(_(___(/_                      |\n"
+            << "*=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=*\n"
+            << "\n"
+            << "             Ver. " << DILUTE_VERSION << '\n'
+            << "\n"
+            << "Authors: \n"
+            << "  Yu Zhai <me@zhaiyusci.net> and Hui Li <prof_huili@jlu.edu.cn>\n"
+            << "\n"
+            << "The authors appreciate the financial support from \n"
+            << "  * National Natural Science Foundation of China\n"
+            << "  * Jilin University, China\n" 
+            << "    - The Program for JLU Computational Interdiscipline \n"
+            << "      Innovative Platform\n"
+            ;
   // clang-format on
   std::cout.flush();
 
