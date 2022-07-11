@@ -1,4 +1,3 @@
-// #include "atompair.hh"
 #include "pot1dquad.hh"
 
 namespace dlt {

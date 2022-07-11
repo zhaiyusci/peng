@@ -23,7 +23,7 @@ std::tuple<std::vector<double> /*D12*/, std::vector<double> /*DT*/,
            std::vector<double> /*lambda*/, std::vector<double> /*eta*/>
 transport(double t, double x0, std::vector<double> Omega00,
           std::vector<double> Omega01, std::vector<double> Omega11,
-          double mass0, double mass1, int maxpq) {
+          double mass0, double mass1, int propertyorder) {
   // Some dirty work: turn C++ omega to fortran 2D array
   // The following arrays should be "FORTRAN-ready"
 
@@ -36,20 +36,21 @@ transport(double t, double x0, std::vector<double> Omega00,
       om12[i][j] = 0.99999999999;
       om22[i][j] = 0.99999999999;
     }
-  omega_cpp2fort(Omega00, om11, omegaorder(maxpq));
-  omega_cpp2fort(Omega01, om12, omegaorder(maxpq));
-  omega_cpp2fort(Omega11, om22, omegaorder(maxpq));
+  omega_cpp2fort(Omega00, om11, omegaorder(propertyorder));
+  omega_cpp2fort(Omega01, om12, omegaorder(propertyorder));
+  omega_cpp2fort(Omega11, om22, omegaorder(propertyorder));
   double xs[2];
   xs[0] = x0;
   xs[1] = 1.0 - x0;
 
-  std::vector<double> D12(maxpq);
-  std::vector<double> DT(maxpq);
-  std::vector<double> lambda(maxpq);
-  std::vector<double> eta(maxpq);
+  std::vector<double> D12(propertyorder);
+  std::vector<double> DT(propertyorder);
+  std::vector<double> lambda(propertyorder);
+  std::vector<double> eta(propertyorder);
   // std::cout << "maxpq = " << maxpq << std::endl;
-  alpha_(&t, &maxpq, xs, om11, om12, om22, &mass0, &mass1, D12.data(), DT.data(), lambda.data());
-  beta_(&t, &maxpq, xs, om11, om12, om22, &mass0, &mass1, eta.data());
+  alpha_(&t, &propertyorder, xs, om11, om12, om22, &mass0, &mass1, D12.data(),
+         DT.data(), lambda.data());
+  beta_(&t, &propertyorder, xs, om11, om12, om22, &mass0, &mass1, eta.data());
   return make_tuple(D12, DT, lambda, eta);
 }
 

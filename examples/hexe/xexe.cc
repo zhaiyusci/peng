@@ -2,10 +2,10 @@
 extern "C" double v_mlr_xe_xe_(double *, double *, double *, double *);
 
 // Public variable (as cache)
-double old_r(-1.0);
-double v(0.0);
-double dv(0.0);
-double d2v(0.0);
+static double old_r(-1.0);
+static double v(0.0);
+static double dv(0.0);
+static double d2v(0.0);
 
 // Constant to tranform between units
 const double cm2k = 1.438777356765961;

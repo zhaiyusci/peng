@@ -7,7 +7,7 @@
 #include <json.hpp>
 
 namespace dlt {
-const char DILUTE_VERSION[] = "0.1.0";
+const char DILUTE_VERSION[] = "0.1.1";
 // Class to save the transport properties, in an elegent way.
 class ComputedData {
 protected:
@@ -16,21 +16,22 @@ protected:
   const std::string unit_;
   // const size_t molefractions_size_;
   const size_t temperatures_size_;
-  const size_t maxpq_;
+  const size_t propertyorder_;
   double *const data_;
 
 public:
   ComputedData(const std::string &name, double coeff, const std::string &unit,
                size_t molefractions_size, size_t temperatures_size,
-               size_t maxpq)
+               size_t propertyorder)
       : name_(name), coeff_(coeff), unit_(unit),
-        temperatures_size_(temperatures_size), maxpq_(maxpq),
-        data_(new double[molefractions_size * temperatures_size * maxpq]) {}
+        temperatures_size_(temperatures_size), propertyorder_(propertyorder),
+        data_(new double[molefractions_size * temperatures_size *
+                         propertyorder]) {}
 
   double &at(size_t molefractions_size, size_t temperatures_size,
-             size_t maxpq) {
-    return data_[molefractions_size * temperatures_size_ * maxpq_ +
-                 temperatures_size * maxpq_ + maxpq];
+             size_t propertyorder) {
+    return data_[molefractions_size * temperatures_size_ * propertyorder_ +
+                 temperatures_size * propertyorder_ + propertyorder];
   }
   ~ComputedData() { delete[] data_; }
   friend class Task;
@@ -42,7 +43,7 @@ class Task {
   const dlt::Atom atom1_;
   const std::vector<double> temperatures_;
   const std::vector<double> molefractions0_;
-  const size_t maxpq_;
+  const size_t propertyorder_;
   const double accuracy_;
   FuncDeriv1D *const pot00_;
   FuncDeriv1D *const pot01_;
@@ -75,11 +76,12 @@ class Task {
 public:
   Task(const Atom &atom0, const Atom &atom1,
        const std::vector<double> &temperatures,
-       const std::vector<double> &molefractions0, size_t maxpq, double accuracy,
-       FuncDeriv1D &pot00, FuncDeriv1D &pot01, FuncDeriv1D &pot11);
+       const std::vector<double> &molefractions0, size_t propertyorder,
+       double accuracy, FuncDeriv1D &pot00, FuncDeriv1D &pot01,
+       FuncDeriv1D &pot11);
 
   void execute() {
-    size_t maxls = omegaorder(maxpq_);
+    size_t maxls = omegaorder(propertyorder_);
     size_t omegasize = (1 + maxls) * maxls / 2;
     for (size_t ti = 0; ti != temperatures_.size(); ++ti) {
       std::vector<double> Omega00;
@@ -95,7 +97,6 @@ public:
           Omega11.push_back(pair11_.Omega(l + 1, s + 1, temperatures_[ti]));
         }
       }
-      // fmt::print("maxpq = {} \n", maxpq);
       std::vector<double> D12;
       std::vector<double> DT;
       std::vector<double> lambda;
@@ -103,8 +104,8 @@ public:
       for (size_t xi = 0; xi != molefractions0_.size(); ++xi) {
         std::tie(D12, DT, lambda, eta) =
             transport(temperatures_[ti], molefractions0_[xi], Omega00, Omega01,
-                      Omega11, atom0_.mass(), atom1_.mass(), maxpq_);
-        for (size_t mi = 0; mi != maxpq_; ++mi) {
+                      Omega11, atom0_.mass(), atom1_.mass(), propertyorder_);
+        for (size_t mi = 0; mi != propertyorder_; ++mi) {
           // clang-format off
           D12s_   .at(xi, ti, mi) = D12   [mi];
           DTs_    .at(xi, ti, mi) = DT    [mi];
@@ -119,7 +120,7 @@ public:
 
   void chant() {
     for (size_t ix = 0; ix != molefractions0_.size(); ++ix) {
-      for (size_t m = 0; m != maxpq_; ++m) {
+      for (size_t m = 0; m != propertyorder_; ++m) {
         chant(ix, m);
       }
     }
