@@ -11,7 +11,7 @@ int main() {
             << "|                  (_(__(_(/_(_(_(___(/_                      |\n"
             << "*=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=*\n"
             << "\n"
-            << "             Ver. " << DILUTE_VERSION << '\n'
+            << "Version: " << DILUTE_VERSION << '\n'
             << "\n"
             << "Authors: \n"
             << "  Yu Zhai <me@zhaiyusci.net> and Hui Li <prof_huili@jlu.edu.cn>\n"
