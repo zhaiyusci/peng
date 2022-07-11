@@ -46,7 +46,7 @@ void CGIntegratorBackend::allocate(size_t ordersize) {
   return;
 }
 
-std::tuple<double, double, bool> CGIntegrator::integrate(double tol,
+std::tuple<double, double, bool> CGIntegrator::integrate(double rtol,
                                                          size_t maxordersize) {
   auto backend = CGIntegratorBackend::instance();
   backend->allocate(1);
@@ -73,8 +73,8 @@ std::tuple<double, double, bool> CGIntegrator::integrate(double tol,
     err /= fabs(newint); // relative error...
     // std::cerr << err << std::endl;
     // std::cout << newint << std::endl;
-    if (!(err >= tol)) {
-      return std::make_tuple(newint, err, err < tol);
+    if (!(err >= rtol)) {
+      return std::make_tuple(newint, err, err < rtol);
     }
   }
   std::cerr << "WARNING\n"
@@ -84,7 +84,7 @@ std::tuple<double, double, bool> CGIntegrator::integrate(double tol,
             << maxordersize << ".\n"
             << "Current relerr is " << err << ", and result is " << newint
             << '.' << std::endl;
-  return std::make_tuple(newint, err, err < tol);
+  return std::make_tuple(newint, err, err < rtol);
 }
 
 double CGIntegrator::map_pm1(double x) { return k0_ + k1_ * x; }

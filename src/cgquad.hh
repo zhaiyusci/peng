@@ -150,7 +150,7 @@ public:
 public:
   CGIntegrator(bool symm, double a = -1.0, double b = 1.0);
   void set_a_b(double a, double b);
-  std::tuple<double, double, bool> integrate(double tol, size_t ordersize);
+  std::tuple<double, double, bool> integrate(double rtol, size_t ordersize);
   void clean_workspace() {
     ordersize_ = 0;
     integrands_.clear();

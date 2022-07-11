@@ -318,7 +318,6 @@ private:
   FuncDeriv1D *const p_reduced_pot_;
   double r_C_;
   double E_C_;
-  double tol_;
   std::unique_ptr<LocalRoot> y_root_;
   std::unique_ptr<LocalRoot> v_root_;
   std::unique_ptr<Y> y_;
@@ -329,11 +328,7 @@ private:
   OmegaGL omegagl_;
 
 public:
-  ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot, double tol = 1.0e-2);
-  void set_tol(double tol) {
-    tol_ = tol;
-    return;
-  }
+  ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot);
   const double &r_C() const { return r_C_; }
   const double &E_C() const { return E_C_; }
 
@@ -343,21 +338,21 @@ public:
   ///
   /// Compute chi.
   ///
-  double chi(double E, double r_m);
+  double chi(double E, double r_m, double rtol = 1.0e-3);
 
   ///
   /// Compute Q.
   ///
   /// Tip: It is faster to keep the r_E unchanged and scan the l.
   ///
-  double Q(size_t l, double r_E, double E);
+  double Q(size_t l, double r_E, double E, double rtol = 1.0e-3);
 
   ///
   /// Compute Omega.
   ///
   /// Tip: It is faster to keep the l and T unchanged and scan the s.
   ///
-  double Omega(size_t l, size_t s, double T);
+  double Omega(size_t l, size_t s, double T, double rtol = 1.0e-3);
 };
 } // namespace dlt
 

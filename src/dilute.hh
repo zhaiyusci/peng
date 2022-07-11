@@ -7,7 +7,7 @@
 #include <json.hpp>
 
 namespace dlt {
-const char DILUTE_VERSION[] = "0.1.1";
+const char DILUTE_VERSION[] = "0.2.0";
 // Class to save the transport properties, in an elegent way.
 class ComputedData {
 protected:
@@ -92,9 +92,12 @@ public:
       Omega11.reserve(omegasize);
       for (size_t l = 0; l != maxls; ++l) {
         for (size_t s = l; s != maxls; ++s) {
-          Omega00.push_back(pair00_.Omega(l + 1, s + 1, temperatures_[ti]));
-          Omega01.push_back(pair01_.Omega(l + 1, s + 1, temperatures_[ti]));
-          Omega11.push_back(pair11_.Omega(l + 1, s + 1, temperatures_[ti]));
+          Omega00.push_back(
+              pair00_.Omega(l + 1, s + 1, temperatures_[ti], accuracy_));
+          Omega01.push_back(
+              pair01_.Omega(l + 1, s + 1, temperatures_[ti], accuracy_));
+          Omega11.push_back(
+              pair11_.Omega(l + 1, s + 1, temperatures_[ti], accuracy_));
         }
       }
       std::vector<double> D12;

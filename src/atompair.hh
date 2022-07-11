@@ -95,15 +95,14 @@ private:
   std::unique_ptr<ReducedPotentialQuadrature> rpq_;
 
 public:
-  AtomPair(const Atom &atom0, const Atom &atom1, FuncDeriv1D &pot,
-           double tol = 1.0e-2)
-      : atom0_(atom0), atom1_(atom1), ppot_(&pot), tol_(tol),
+  AtomPair(const Atom &atom0, const Atom &atom1, FuncDeriv1D &pot)
+      : atom0_(atom0), atom1_(atom1), ppot_(&pot),
         reduced_mass_((atom0_.mass() * atom1.mass()) /
                       (atom0_.mass() + atom1_.mass())) {
     pf_.reset(new Pot1DFeatures(*ppot_));
-    rpq_.reset(new ReducedPotentialQuadrature(pf_->reduced_potential(), tol));
+    rpq_.reset(new ReducedPotentialQuadrature(pf_->reduced_potential()));
   }
-  double Omega(size_t l, size_t s, double T) const;
+  double Omega(size_t l, size_t s, double T, double rtol = 1.0e-3) const;
 };
 } // namespace dlt
 
