@@ -1,4 +1,5 @@
 #include "pot1dquad.hh"
+#define CG_MAXORDER 10
 
 namespace dlt {
 
@@ -121,7 +122,7 @@ double ReducedPotentialQuadrature::chi(double E, double r_m, double rtol) {
   chicg.set_param(r_m, E, b);
   double quadrature, err;
   bool converged;
-  std::tie(quadrature, err, converged) = chicg.integrate(rtol, 15);
+  std::tie(quadrature, err, converged) = chicg.integrate(rtol, CG_MAXORDER);
   if (!converged) {
     std::cerr << "Line " << __LINE__ << " ChiCG not converged with E = " << E
               << ", r_m = " << r_m << " and b = " << b << "." << '\n';
@@ -340,14 +341,16 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E, double E,
   if (E <= 2 * E_C()) {
     double quadrature1;
     qcg1_.set_param(l, r_E, r_Op, E);
-    std::tie(quadrature1, esterr, converged) = qcg1_.integrate(rtol, 15);
+    std::tie(quadrature1, esterr, converged) =
+        qcg1_.integrate(rtol, CG_MAXORDER);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG1 not converged with E = " << E
                 << "." << std::endl;
     }
     double quadrature2;
     qcg2_.set_param(l, r_E, r_O, E);
-    std::tie(quadrature2, esterr, converged) = qcg2_.integrate(rtol, 15);
+    std::tie(quadrature2, esterr, converged) =
+        qcg2_.integrate(rtol, CG_MAXORDER);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG2 not converged with E = " << E
                 << "." << std::endl;
@@ -357,7 +360,8 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E, double E,
   } else {
     double quadrature2;
     qcg2_.set_param(l, r_E, r_E, E);
-    std::tie(quadrature2, esterr, converged) = qcg2_.integrate(rtol, 15);
+    std::tie(quadrature2, esterr, converged) =
+        qcg2_.integrate(rtol, CG_MAXORDER);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG2 not converged with E = " << E
                 << "." << std::endl;
@@ -494,9 +498,9 @@ double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T) {
   double quadrature;
   double converged;
   omegacg_.set_param(l, s, T);
-  std::tie(quadrature, esterr, converged) = omegacg_.integrate(tol_, 15);
-  if (!converged) {
-    std::cerr << "Line " << __LINE__ << " OmegaCG not converged with l = " << l
+  std::tie(quadrature, esterr, converged) = omegacg_.integrate(tol_,
+CG_MAXORDER); if (!converged) { std::cerr << "Line " << __LINE__ << " OmegaCG
+not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;
   }
   quadrature /= 2;

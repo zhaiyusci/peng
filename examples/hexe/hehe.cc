@@ -17,7 +17,7 @@ extern "C" double value(double r) {
   }
   return v * cm2k;
 }
-/*
+
 extern "C" double derivative(double r) {
   if (old_r != r){
     v_mlr_he_he_(&r, &v, &dv, &d2v);
@@ -25,4 +25,3 @@ extern "C" double derivative(double r) {
   }
   return dv * cm2k;
 }
-*/
