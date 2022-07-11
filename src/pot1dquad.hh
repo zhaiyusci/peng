@@ -160,7 +160,7 @@ class ReducedPotentialQuadrature {
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize) override;
+    void calculate_integrands(size_t ordersize, double rtol) override;
 
     void clean_cache() {
       cache_ordersize_ = 0;
@@ -198,7 +198,7 @@ class ReducedPotentialQuadrature {
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize) override;
+    void calculate_integrands(size_t ordersize, double rtol) override;
 
     void clean_cache() {
       coschis_.clear();
@@ -234,7 +234,7 @@ class ReducedPotentialQuadrature {
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize) override;
+    void calculate_integrands(size_t ordersize, double rtol) override;
 
     void clean_cache() {
       coschis_.clear();
@@ -271,7 +271,7 @@ class ReducedPotentialQuadrature {
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize) override;
+    void calculate_integrands(size_t ordersize, double rtol) override;
 
     void clean_cache_v() {
       vs_.clear();
@@ -308,7 +308,7 @@ class ReducedPotentialQuadrature {
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands() override;
+    void calculate_integrands(double rtol) override;
 
   }; // }}}
 
@@ -338,21 +338,21 @@ public:
   ///
   /// Compute chi.
   ///
-  double chi(double E, double r_m, double rtol = 1.0e-3);
+  double chi(double E, double r_m, double rtol /*= 1.0e-3*/);
 
   ///
   /// Compute Q.
   ///
   /// Tip: It is faster to keep the r_E unchanged and scan the l.
   ///
-  double Q(size_t l, double r_E, double E, double rtol = 1.0e-3);
+  double Q(size_t l, double r_E, double E, double rtol /*= 1.0e-3*/);
 
   ///
   /// Compute Omega.
   ///
   /// Tip: It is faster to keep the l and T unchanged and scan the s.
   ///
-  double Omega(size_t l, size_t s, double T, double rtol = 1.0e-3);
+  double Omega(size_t l, size_t s, double T, double rtol /*= 1.0e-3*/);
 };
 } // namespace dlt
 

@@ -50,7 +50,7 @@ std::tuple<double, double, bool> CGIntegrator::integrate(double rtol,
                                                          size_t maxordersize) {
   auto backend = CGIntegratorBackend::instance();
   backend->allocate(1);
-  calculate_integrands(1);
+  calculate_integrands(1, rtol);
   // init
   double res = (symm_ ? 0.5 : 1) * integrands_[0];
   double oldint = 0.0;
@@ -58,7 +58,7 @@ std::tuple<double, double, bool> CGIntegrator::integrate(double rtol,
   double err = 0.0;
   for (size_t ordersize = 2; ordersize != maxordersize; ++ordersize) {
     backend->allocate(ordersize);
-    calculate_integrands(ordersize);
+    calculate_integrands(ordersize, rtol);
     // std::cout << integrands_.size() << std::endl;
     CubicIter ci(ordersize - 1, ordersize, symm_, symm_);
     for (auto &&i : ci) {

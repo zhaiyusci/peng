@@ -168,7 +168,7 @@ public:
   /// 3. Design an algorithm with cache mechanism if needed to save the
   /// computational resource.
   ///
-  virtual void calculate_integrands(size_t ordersize) = 0;
+  virtual void calculate_integrands(size_t ordersize, double rtol) = 0;
 
   ///
   /// Map the variable in [-1,1] to [a,b].

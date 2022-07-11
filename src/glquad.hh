@@ -29,7 +29,7 @@ public:
     alpha_ = alpha;
     return;
   }
-  std::tuple<double, double, bool> integrate(double tol, size_t ngridsize);
+  std::tuple<double, double, bool> integrate(double rtol, size_t ngridsize);
   void clean_workspace();
   void reset_workspace(size_t ngrids);
 
@@ -38,7 +38,7 @@ public:
   ///
   /// 1. Fill in integrands_ using xs_.
   ///
-  virtual void calculate_integrands() = 0;
+  virtual void calculate_integrands(double rtol) = 0;
 };
 
 } // namespace dlt

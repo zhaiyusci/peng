@@ -65,7 +65,8 @@ void ReducedPotentialQuadrature::ChiCG::set_param(double r_m, double E,
 
 /** Compute the integrands with computed values cached.
  */
-void ReducedPotentialQuadrature::ChiCG::calculate_integrands(size_t ordersize) {
+void ReducedPotentialQuadrature::ChiCG::calculate_integrands(size_t ordersize,
+                                                             double rtol) {
   // See if we need an update based on the "flag".
   if (cache_ordersize_ < ordersize) {
     // We only need the positive half of the integration.
@@ -208,7 +209,8 @@ void ReducedPotentialQuadrature::QCG1::set_param(size_t l, double r_E,
 
 /** Compute the integrands with computed values cached.
  */
-void ReducedPotentialQuadrature::QCG1::calculate_integrands(size_t ordersize) {
+void ReducedPotentialQuadrature::QCG1::calculate_integrands(size_t ordersize,
+                                                            double rtol) {
   // See if we need an update based on the "flag".
   if (cache_ordersize_ < ordersize) {
     CubicIter ci(cache_ordersize_, ordersize, false, true);
@@ -222,7 +224,7 @@ void ReducedPotentialQuadrature::QCG1::calculate_integrands(size_t ordersize) {
       double v, dv;
       v = rpq_->p_reduced_pot_->value(r_m);
       dv = rpq_->p_reduced_pot_->derivative(r_m);
-      double coschi = cos(rpq_->chi(E_, r_m));
+      double coschi = cos(rpq_->chi(E_, r_m, rtol));
       // Here I put everything else in fct2, include the weight
       double fct2 = (2.0 * (E_ - v) - r_m * dv) * r_m * sqrt(1.0 - y * y);
       coschis_.push_back(coschi);
@@ -274,7 +276,8 @@ void ReducedPotentialQuadrature::QCG2::set_param(size_t l, double r_E,
 
 /** Compute the integrands with computed values cached.
  */
-void ReducedPotentialQuadrature::QCG2::calculate_integrands(size_t ordersize) {
+void ReducedPotentialQuadrature::QCG2::calculate_integrands(size_t ordersize,
+                                                            double rtol) {
   // See if we need an update based on the "flag".
   if (cache_ordersize_ < ordersize) {
     CubicIter ci(cache_ordersize_, ordersize, true, true);
@@ -291,7 +294,7 @@ void ReducedPotentialQuadrature::QCG2::calculate_integrands(size_t ordersize) {
       double v, dv;
       v = rpq_->p_reduced_pot_->value(r_m);
       dv = rpq_->p_reduced_pot_->derivative(r_m);
-      double coschi = cos(rpq_->chi(E_, r_m));
+      double coschi = cos(rpq_->chi(E_, r_m, rtol));
       // Here I put everything else in fct2, include the weight
       double fct2 =
           (2.0 * (E_ - v) - r_m * dv) * r_m * r_m / y * sqrt(1.0 - y * y);
@@ -398,8 +401,8 @@ void ReducedPotentialQuadrature::OmegaCG::set_param(size_t l, size_t s,
 
 /** Compute the integrands with computed values cached.
  */
-void ReducedPotentialQuadrature::OmegaCG::calculate_integrands(
-    size_t ordersize) {
+void ReducedPotentialQuadrature::OmegaCG::calculate_integrands(size_t ordersize,
+                                                               double rtol) {
   // See if we need an update based on the "flag".
   if (ordersize_Q_ < ordersize) {
     CubicIter ci(ordersize_Q_, ordersize, true, true);
@@ -411,7 +414,7 @@ void ReducedPotentialQuadrature::OmegaCG::calculate_integrands(
         y = 1.0e-8; // prevent div by 0
       }
       double r_E = map_pm1(y);
-      Qs_.push_back(rpq_->Q(l_, r_E, -1.0));
+      Qs_.push_back(rpq_->Q(l_, r_E, -1.0, rtol));
     }
     ordersize_Q_ = ordersize;
   }
@@ -472,9 +475,10 @@ void ReducedPotentialQuadrature::OmegaGL::set_param(size_t l, size_t s,
 
 /** Compute the integrands with computed values cached.
  */
-void ReducedPotentialQuadrature::OmegaGL::calculate_integrands() {
-  for (auto &&x : xs_) {
-    double value = rpq_->Q(l_, -1.0, x * T_);
+void ReducedPotentialQuadrature::OmegaGL::calculate_integrands(double rtol) {
+  for (size_t i = 0; i != xs_.size(); ++i) {
+    double Qrtol = ws_[i] > 2 ? rtol / 2 : rtol / ws_[i];
+    double value = rpq_->Q(l_, -1.0, xs_[i] * T_, Qrtol);
     // std::cerr << "Q(" << l_ << ", " << x * T_ << ") = " << value <<
     // std::endl;
     integrands_.push_back(value);

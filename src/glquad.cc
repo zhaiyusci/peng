@@ -1209,14 +1209,14 @@ void GLIntegrator::reset_workspace(size_t ngrids) {
   // std::cerr << "ws_.size() = " << ws_.size() << std::endl;
   return;
 }
-std::tuple<double, double, bool> GLIntegrator::integrate(double tol,
+std::tuple<double, double, bool> GLIntegrator::integrate(double rtol,
                                                          size_t ngridsize) {
   double oldint = 0.0;
   double newint = 0.0;
   double err = 9999.0;
-  for (size_t ngrids = 8; ngrids < ngridsize; ngrids += 8) {
+  for (size_t ngrids = 4; ngrids < ngridsize; ngrids += 4) {
     reset_workspace(ngrids);
-    calculate_integrands();
+    calculate_integrands(rtol);
     newint = 0.0;
     for (size_t i = 0; i != ngrids; ++i) {
       // std::cerr << i << " Summation ==> " << newint << ' ' << integrands_[i]
@@ -1226,8 +1226,8 @@ std::tuple<double, double, bool> GLIntegrator::integrate(double tol,
     err = std::fabs(newint - oldint);
     oldint = newint;
     err /= std::fabs(newint);
-    if (!(err >= tol)) {
-      return std::make_tuple(newint, err, err < tol);
+    if (!(err >= rtol)) {
+      return std::make_tuple(newint, err, err < rtol);
     }
   }
   std::cerr << "WARNING\n"
@@ -1237,6 +1237,6 @@ std::tuple<double, double, bool> GLIntegrator::integrate(double tol,
             << ngridsize << ".\n"
             << "Current relerr is " << err << ", and result is " << newint
             << '.' << std::endl;
-  return std::make_tuple(newint, err, err < tol);
+  return std::make_tuple(newint, err, err < rtol);
 }
 } // namespace dlt
