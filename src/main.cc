@@ -21,7 +21,10 @@ int main() {
             << "Version: " << DILUTE_VERSION << '\n'
             << "\n"
             << "Authors: \n"
-            << "  Yu Zhai <me@zhaiyusci.net> and Hui Li <prof_huili@jlu.edu.cn>\n"
+            << "  Yu Zhai, You Li, Hui Li, and Frederick R. W. McCourt\n"
+            << "\n"
+            << "GitHub Repo: \n"
+            << "  https://github.com/zhaiyusci/dilute\n"
             << "\n"
             << "The authors appreciate the financial support from \n"
             << "  * National Natural Science Foundation of China\n"
