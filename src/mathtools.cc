@@ -190,4 +190,5 @@ double LocalRoot::operator()(double target) const {
   double res = find_local_root(*pfunc_, target, lower, upper, 1, xtol_err_);
   return res;
 }
+
 } // namespace dlt

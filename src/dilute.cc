@@ -1,7 +1,6 @@
 #include "dilute.hh"
 #include "atompair.hh"
 #include "mathtools.hh"
-#include "param.hh"
 #include "transport.hh"
 #include <fmt/core.h>
 #include <fstream>

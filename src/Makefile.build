@@ -6,8 +6,7 @@ CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include
 OBJDIR ?= ../build
 SRC := dilute.cc \
 			 pot1dquad.cc mathtools.cc cgquad.cc glquad.cc \
-			 transport.cc global.cc atompair.cc \
-			 alpha_impl.F90 beta_impl.o inversion.F90 
+			 transport.cc global.cc atompair.cc 
 OBJ := $(SRC)
 OBJ := $(OBJ:%.cc=%.o)
 OBJ := $(OBJ:%.F=%.o)
@@ -20,47 +19,28 @@ PWD = $(shell pwd)
 
 all: dilute.exe # main.exe omega11.so omega12.so omega22.so test2.exe
 
-transport.o: transport.cc transport.hh global.hh param.hh
+transport.o: transport.cc transport.hh global.hh 
 cgquad.o: cgquad.cc cgquad.hh
 glquad.o: glquad.cc glquad.hh
 pot1dquad.o: pot1dquad.cc pot1dquad.hh cgquad.hh glquad.hh mathtools.hh
 mathtools.o: mathtools.cc mathtools.hh
 dilute.o: dilute.cc dilute.hh mathtools.hh pot1dquad.hh cgquad.hh \
- atompair.hh param.hh transport.hh global.hh
+ atompair.hh transport.hh global.hh
 
-alpha_impl.o: alpha_impl.F90 param.hh
-beta_impl.o: beta_impl.F90 param.hh
+
+
+alpha_impl.o: alpha_impl.cc mathtools.hh
+beta_impl.o: beta_impl.cc mathtools.hh
 inversion.o: inversion.F90 
 loadedpotential.o: loadedpotential.cc loadedpotential.hh mathtools.hh
 main.o: main.cc dilute.hh atompair.hh mathtools.hh pot1dquad.hh cgquad.hh \
- glquad.hh transport.hh global.hh param.hh loadedpotential.hh
+ glquad.hh transport.hh global.hh loadedpotential.hh
 
 libdilute.so: $(OBJ) 
 	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lnlopt -lfmt -shared -Wl,-rpath,"$(PWD)/../external/lib"
 
 dilute.exe: main.o loadedpotential.o libdilute.so
 	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L. -ldilute -L../external/lib -lnlopt -lfmt -Wl,-rpath,"$(PWD)/../external/lib:$(PWD)/../build"
-
-
-test:
-	./main.exe > tmp
-	diff l answer || echo ""
-
-main.o omega.o alpha.o alpha_impl.o beta.o beta_impl.o: param.hh
-main.o global.o alpha.o beta.o: global.hh
-
-main.exe: main.o beta.o inversion.o global.o beta_impl.o alpha.o alpha_impl.o
-	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lfmt 
-
-omega11.so: $(OBJECTS) userdefpec11.o 
-	$(FC) $(FFLAGS) -shared -o $@ $^
-
-omega12.so: $(OBJECTS) userdefpec12.o 
-	$(FC) $(FFLAGS) -shared -o $@ $^
-
-omega22.so: $(OBJECTS) userdefpec22.o 
-	$(FC) $(FFLAGS) -shared -o $@ $^
-
 
 clean:
 	rm -f *.exe *.o *.so fort.*

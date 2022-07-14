@@ -105,9 +105,11 @@ public:
       std::vector<double> lambda;
       std::vector<double> eta;
       for (size_t xi = 0; xi != molefractions0_.size(); ++xi) {
-        std::tie(D12, DT, lambda, eta) =
-            transport(temperatures_[ti], molefractions0_[xi], Omega00, Omega01,
-                      Omega11, atom0_.mass(), atom1_.mass(), propertyorder_);
+        std::cout << __FILE__ << ' ' << __LINE__ << std::endl;
+        std::tie(D12, DT, lambda, eta) = dlt::transport(
+            temperatures_[ti], molefractions0_[xi], Omega00, Omega01, Omega11,
+            atom0_.mass(), atom1_.mass(), propertyorder_);
+        std::cout << __FILE__ << ' ' << __LINE__ << std::endl;
         for (size_t mi = 0; mi != propertyorder_; ++mi) {
           // clang-format off
           D12s_   .at(xi, ti, mi) = D12   [mi];
@@ -116,6 +118,7 @@ public:
           etas_   .at(xi, ti, mi) = eta   [mi];
           // clang-format on
         }
+        std::cout << __FILE__ << ' ' << __LINE__ << std::endl;
       }
     }
     return;

@@ -57,5 +57,13 @@ public:
 double find_local_root(FuncDeriv1D &func, double target, double lower,
                        double upper, size_t nsamp = 11,
                        double xtol_err = 1.0e-8);
+
+inline double fact(int n) { return std::tgamma(n + 1); }
+
+inline double poch(int z, int n) { // eq.93
+  return tgamma(z + n * 1) / tgamma(z * 1);
+}
+
+inline int delta(int i, int j) { return i == j ? 1 : 0; }
 } // namespace dlt
 #endif
