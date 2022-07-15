@@ -4,13 +4,9 @@ CXX=g++
 FC=gfortran
 CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include 
 OBJDIR ?= ../build
-SRC := dilute.cc \
-			 pot1dquad.cc mathtools.cc cgquad.cc glquad.cc \
-			 transport.cc global.cc atompair.cc 
-OBJ := $(SRC)
-OBJ := $(OBJ:%.cc=%.o)
-OBJ := $(OBJ:%.F=%.o)
-OBJ := $(OBJ:%.F90=%.o)
+OBJ := dilute.o \
+			 pot1dquad.o mathtools.o cgquad.o glquad.o \
+			 transport.o global.o atompair.o pot1dfeat.o
 
 VPATH = ../src
 
@@ -29,9 +25,6 @@ dilute.o: dilute.cc dilute.hh mathtools.hh pot1dquad.hh cgquad.hh \
 
 
 
-alpha_impl.o: alpha_impl.cc mathtools.hh
-beta_impl.o: beta_impl.cc mathtools.hh
-inversion.o: inversion.F90 
 loadedpotential.o: loadedpotential.cc loadedpotential.hh mathtools.hh
 main.o: main.cc dilute.hh atompair.hh mathtools.hh pot1dquad.hh cgquad.hh \
  glquad.hh transport.hh global.hh loadedpotential.hh

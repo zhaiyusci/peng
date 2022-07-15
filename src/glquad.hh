@@ -9,7 +9,7 @@
 
 // Credit: The working part is taken from
 // https://people.sc.fsu.edu/~jburkardt/cpp_src/gen_laguerre_rule/gen_laguerre_rule.html
-// and Yu Zhai add a decent C++ interface
+// and Yu Zhai add a C++ OOP interface
 
 namespace dlt {
 

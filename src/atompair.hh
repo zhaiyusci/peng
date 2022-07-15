@@ -2,6 +2,7 @@
 #define _DILUTE_ATOMPAIR_HH_
 // #include "cachedfunc.hh"
 #include "mathtools.hh"
+#include "pot1dfeat.hh"
 #include "pot1dquad.hh"
 #include <functional>
 #include <map>
@@ -36,52 +37,10 @@ public:
   Atom(const std::string &symbol, double mass) : Particle(symbol, mass) {}
 };
 
-/*
+
 ///
-/// The Gaseous mixture
-///
-class DiluteGas {
-  static std::valarray<double> normalize(std::valarray<double> vec) {
-    vec /= vec.sum();
-    return vec;
-  }
-
-public:
-private:
-  const std::vector<Particle> species_;
-  const std::valarray<double> mole_fraction_;
-
-public:
-  DiluteGas(std::vector<Particle> species, std::valarray<double> mole_fraction)
-      : species_(species), mole_fraction_(normalize(mole_fraction)) {}
-  inline const std::vector<Particle> species() const { return species_; }
-  inline const std::valarray<double> mole_fraction() const {
-    return mole_fraction_;
-  }
-  auto species_info() { return iter::zip(species_, mole_fraction_); }
-  auto pairs() { return iter::combinations(species_info(), 2); }
-};
-
-// extern std::map<std::pair<Particle, Particle>, Pot1d> POTLIB;
-//
-class PotentialLibrary {
-public:
-private:
-  std::map<std::pair<Particle, Particle>, FuncDeriv1D> potlib_;
-  static PotentialLibrary *instance_;
-  PotentialLibrary() {}
-
-public:
-  static std::map<std::pair<Particle, Particle>, FuncDeriv1D> &potlib() {
-    if (instance_ == nullptr) {
-      instance_ = new PotentialLibrary();
-    }
-    return instance_->potlib_;
-  }
-};
-
-*/
-
+/// Class for atomic pair, which is hold the info for collision integrals.
+/// 
 class AtomPair {
 public:
 private:
@@ -102,6 +61,9 @@ public:
     pf_.reset(new Pot1DFeatures(*ppot_));
     rpq_.reset(new ReducedPotentialQuadrature(pf_->reduced_potential()));
   }
+  ///
+  /// Returns the collision integral SI units.
+  /// 
   double Omega(size_t l, size_t s, double T, double rtol = 1.0e-3) const;
 };
 } // namespace dlt
