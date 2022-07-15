@@ -22,7 +22,7 @@ if [ ! -f FMT_FLAG ]; then
   mkdir -p build
   cd build
   pwd
-  cmake -DCMAKE_INSTALL_PREFIX=../.. ..
+  cmake -DCMAKE_INSTALL_PREFIX=../.. -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
   cmake --build .
   cmake --install .
   cd ../..
