@@ -19,8 +19,7 @@ class ReducedPotentialQuadrature {
   /// Phi functions
   ///
   class PhiEff : public FuncDeriv1D { // {{{
-  public:
-  private:
+  protected:
     FuncDeriv1D *ppot_;
     const double b_;
     const double E_;
@@ -34,8 +33,7 @@ class ReducedPotentialQuadrature {
   // }}}
 
   class Y : public FuncDeriv1D { // {{{
-  public:
-  private:
+  protected:
     FuncDeriv1D *const ppot_;
 
   public:
@@ -51,8 +49,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of chi.
   ///
   class ChiCG : public CGIntegrator { // {{{
-  public:
-  private:
+  protected:
     ReducedPotentialQuadrature *rpq_;
     size_t cache_ordersize_;
     std::vector<double> vs_;
@@ -81,8 +78,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of Q, range 1.
   ///
   class QCG1 : public CGIntegrator { //{{{
-  public:
-  private:
+  protected:
     ReducedPotentialQuadrature *rpq_;
     size_t cache_ordersize_;
     size_t l_;
@@ -121,8 +117,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of Q, range 2.
   ///
   class QCG2 : public CGIntegrator { //{{{
-  public:
-  private:
+  protected:
     ReducedPotentialQuadrature *rpq_;
     size_t cache_ordersize_;
     size_t l_;
@@ -157,8 +152,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of Omega.
   ///
   class OmegaCG : public CGIntegrator { //{{{
-  public:
-  private:
+  protected:
     ReducedPotentialQuadrature *rpq_;
     size_t ordersize_v_;
     size_t ordersize_Q_;
@@ -201,8 +195,7 @@ class ReducedPotentialQuadrature {
   /// Compute the integration required by the computation of Omega.
   ///
   class OmegaGL : public GLIntegrator { //{{{
-  public:
-  private:
+  protected:
     ReducedPotentialQuadrature *rpq_;
     size_t l_;
     size_t s_;
@@ -221,8 +214,7 @@ class ReducedPotentialQuadrature {
   }; // }}}
 
   // 3. The members of THE class
-public:
-private:
+protected:
   FuncDeriv1D *const p_reduced_pot_;
   double r_C_;
   double E_C_;
@@ -237,8 +229,15 @@ private:
 
 public:
   ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot);
-  const double &r_C() const { return r_C_; }
-  const double &E_C() const { return E_C_; }
+  inline double potential_value(double r){
+    return p_reduced_pot_->value(r);
+  }
+  inline double potential_derivative(double r){
+    return p_reduced_pot_->derivative(r);
+  }
+  inline double v_root(double E) {return (*v_root_)(E);}
+  inline double r_C() const { return r_C_; }
+  inline double E_C() const { return E_C_; }
 
   std::tuple<double, double> r_range(double E) const;
   double r2b(double r, double E) const;

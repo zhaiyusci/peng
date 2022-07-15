@@ -135,7 +135,7 @@ public:
 };
 
 class CGIntegrator {
-public:
+protected:
   // protected:
   const bool symm_;
   double a_;
