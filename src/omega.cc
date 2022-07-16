@@ -36,7 +36,7 @@ void OmegaCG::OmegaCGInt::set_param(size_t l, size_t s, double T) {
 
 /** Compute the integrands with computed values cached.
  */
-void OmegaCG::OmegaCGInt::calculate_integrands(size_t ordersize, double rtol) {
+void OmegaCG::OmegaCGInt::calculate_integrands(size_t ordersize) {
   // See if we need an update based on the "flag".
   if (ordersize_Q_ < ordersize) {
     CubicIter ci(ordersize_Q_, ordersize, true, true);
@@ -48,7 +48,7 @@ void OmegaCG::OmegaCGInt::calculate_integrands(size_t ordersize, double rtol) {
         y = 1.0e-8; // prevent div by 0
       }
       double r_E = map_pm1(y);
-      Qs_.push_back(rpq_->Q(l_, r_E, -1.0, rtol));
+      Qs_.push_back(rpq_->Q(l_, r_E, -1.0, q_rtol));
     }
     ordersize_Q_ = ordersize;
   }
@@ -109,10 +109,13 @@ void OmegaGL::OmegaGLInt::set_param(size_t l, size_t s,
 
 /** Compute the integrands with computed values cached.
  */
-void OmegaGL::OmegaGLInt::calculate_integrands(double rtol) {
+void OmegaGL::OmegaGLInt::calculate_integrands(size_t ngridsize) {
+  if (ngridsize !=xs_.size()){
+    throw std::runtime_error("Numbers of grids in GL quad mismatch.");
+  }
   for (size_t i = 0; i != xs_.size(); ++i) {
-    double Qrtol = ws_[i] > 2 ? rtol / 2 : rtol / ws_[i];
-    double value = rpq_->Q(l_, -1.0, xs_[i] * T_, Qrtol);
+    double grid_q_rtol = ws_[i] > 2 ? q_rtol / 2 : q_rtol / ws_[i];
+    double value = rpq_->Q(l_, -1.0, xs_[i] * T_, grid_q_rtol);
     // std::cerr << "Q(" << l_ << ", " << x * T_ << ") = " << value <<
     // std::endl;
     integrands_.push_back(value);
@@ -121,16 +124,14 @@ void OmegaGL::OmegaGLInt::calculate_integrands(double rtol) {
 }
 
 // This is the Chebyshev-Gauss version.
-double OmegaCG::Omega(size_t l, size_t s, double T, double rtol,
-                      size_t maxorder) {
+double OmegaCG::Omega(size_t l, size_t s, double T, double rtol) {
   double coeff = -1.0 / T / std::tgamma(s + 2);
   double esterr;
   double quadrature;
   double converged;
-  maxorder = floor(log(maxorder*1.0)/log(3));
   omegacgint_.set_param(l, s, T);
   std::tie(quadrature, esterr, converged) =
-      omegacgint_.integrate(rtol,maxorder);
+      omegacgint_.integrate(rtol,CG_INT_ORDER_MAX);
   if (!converged) {
     std::cerr << "Line " << __LINE__ << " OmegaCG not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;
@@ -140,14 +141,14 @@ double OmegaCG::Omega(size_t l, size_t s, double T, double rtol,
 }
 
 // This is the Gauss-Laguerre version.
-double OmegaGL::Omega(size_t l, size_t s, double T, double rtol,
-                      size_t maxorder) {
+double OmegaGL::Omega(size_t l, size_t s, double T, double rtol) {
   double coeff = 1.0 / std::tgamma(s + 2);
   double esterr;
   double quadrature;
   double converged;
   omegaglint_.set_param(l, s, T);
-  std::tie(quadrature, esterr, converged) = omegaglint_.integrate(rtol, 128);
+  omegaglint_.q_rtol = rtol;
+  std::tie(quadrature, esterr, converged) = omegaglint_.integrate(rtol, GL_INT_ORDER_MAX);
   if (!converged) {
     std::cerr << "Line " << __LINE__ << " OmegaGL not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;

@@ -31,7 +31,7 @@ void QCG::QCGInt1::set_param(size_t l, double r_E, double r_Op, double E) {
 
 /** Compute the integrands with computed values cached.
  */
-void QCG::QCGInt1::calculate_integrands(size_t ordersize, double rtol) {
+void QCG::QCGInt1::calculate_integrands(size_t ordersize) {
   // See if we need an update based on the "flag".
   if (cache_ordersize_ < ordersize) {
     CubicIter ci(cache_ordersize_, ordersize, false, true);
@@ -45,7 +45,7 @@ void QCG::QCGInt1::calculate_integrands(size_t ordersize, double rtol) {
       double v, dv;
       v = rpq_->potential_value(r_m);
       dv = rpq_->potential_derivative(r_m);
-      double coschi = cos(rpq_->chi(E_, r_m, rtol));
+      double coschi = cos(rpq_->chi(E_, r_m, chi_rtol));
       // Here I put everything else in fct2, include the weight
       double fct2 = (2.0 * (E_ - v) - r_m * dv) * r_m * sqrt(1.0 - y * y);
       coschis_.push_back(coschi);
@@ -96,8 +96,7 @@ void QCG::QCGInt2::set_param(size_t l, double r_E, double r_O, double E) {
 
 /** Compute the integrands with computed values cached.
  */
-void QCG::QCGInt2::calculate_integrands(size_t ordersize,
-                                                            double rtol) {
+void QCG::QCGInt2::calculate_integrands(size_t ordersize) {
   // See if we need an update based on the "flag".
   if (cache_ordersize_ < ordersize) {
     CubicIter ci(cache_ordersize_, ordersize, true, true);
@@ -114,7 +113,7 @@ void QCG::QCGInt2::calculate_integrands(size_t ordersize,
       double v, dv;
       v = rpq_->potential_value(r_m);
       dv = rpq_->potential_derivative(r_m);
-      double coschi = cos(rpq_->chi(E_, r_m, rtol));
+      double coschi = cos(rpq_->chi(E_, r_m, chi_rtol));
       // Here I put everything else in fct2, include the weight
       double fct2 =
           (2.0 * (E_ - v) - r_m * dv) * r_m * r_m / y * sqrt(1.0 - y * y);
@@ -141,7 +140,7 @@ void QCG::QCGInt2::calculate_integrands(size_t ordersize,
  * It is faster to keep the r_E unchanged and scan the l.
  */
 double QCG::Q(size_t l, double r_E, double E,
-                                     double rtol, size_t maxorder) {
+                                     double rtol) {
   // double old_r_E = 0.0;
   double r_O, r_Op;
 
@@ -153,7 +152,7 @@ double QCG::Q(size_t l, double r_E, double E,
   std::tie(r_O, r_Op) = rpq_->r_range(E);
   // std::cerr << "(r_Op , r_O) = " << r_Op << ' ' << r_O << std::endl;
 
-  maxorder = floor(log(maxorder*1.0)/log(3));
+
   double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
   double esterr;
   bool converged;
@@ -161,16 +160,19 @@ double QCG::Q(size_t l, double r_E, double E,
   if (E <= 2 * rpq_->E_C()) {
     double quadrature1;
     qcgint1_.set_param(l, r_E, r_Op, E);
+    qcgint1_.chi_rtol=rtol;
+
     std::tie(quadrature1, esterr, converged) =
-        qcgint1_.integrate(rtol,maxorder);
+        qcgint1_.integrate(rtol,CG_INT_ORDER_MAX);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG1 not converged with E = " << E
                 << "." << std::endl;
     }
     double quadrature2;
     qcgint2_.set_param(l, r_E, r_O, E);
+    qcgint2_.chi_rtol=rtol;
     std::tie(quadrature2, esterr, converged) =
-        qcgint2_.integrate(rtol,maxorder);
+        qcgint2_.integrate(rtol,CG_INT_ORDER_MAX);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG2 not converged with E = " << E
                 << "." << std::endl;
@@ -180,8 +182,9 @@ double QCG::Q(size_t l, double r_E, double E,
   } else {
     double quadrature2;
     qcgint2_.set_param(l, r_E, r_E, E);
+    qcgint2_.chi_rtol=rtol;
     std::tie(quadrature2, esterr, converged) =
-        qcgint2_.integrate(rtol,maxorder);
+        qcgint2_.integrate(rtol,CG_INT_ORDER_MAX);
     if (!converged) {
       std::cerr << "Line " << __LINE__ << " QCG2 not converged with E = " << E
                 << "." << std::endl;

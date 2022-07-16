@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 
+#define CG_INT_ORDER_MAX 15
+
 // Following
 // https://mathworld.wolfram.com/Chebyshev-GaussQuadrature.html
 // Note that we only need ONE copy of the cosines...
@@ -168,7 +170,7 @@ public:
   /// 3. Design an algorithm with cache mechanism if needed to save the
   /// computational resource.
   ///
-  virtual void calculate_integrands(size_t ordersize, double rtol) = 0;
+  virtual void calculate_integrands(size_t ordersize) = 0;
 
   ///
   /// Map the variable in [-1,1] to [a,b].

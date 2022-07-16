@@ -1,5 +1,4 @@
 #include "pot1dquad.hh"
-#define CG_MAXORDER 10
 
 namespace dlt {
 
@@ -26,11 +25,11 @@ double ReducedPotentialQuadrature::Y::value(double r) const {
 }
 
 double ReducedPotentialQuadrature::chi(double E, double r_m, double rtol) {
-  return chicg_.chi(E, r_m, rtol, 1000);
+  return p_chi_impl_->chi(E, r_m, rtol);
 }
 
 ReducedPotentialQuadrature::ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot)
-    : p_reduced_pot_(&reduced_pot), chicg_(*this), qcg_(*this), omegagl_(*this) {
+    : p_reduced_pot_(&reduced_pot), p_chi_impl_(nullptr), p_q_impl_(nullptr), p_omega_impl_(nullptr) {
 
   y_.reset(new Y(*p_reduced_pot_));
 
@@ -43,6 +42,8 @@ ReducedPotentialQuadrature::ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot)
   // Maybe we want to try (0.0,1.0)... but consider the really high energy part
   // is really used...
 }
+
+
 
 std::tuple<double, double> ReducedPotentialQuadrature::r_range(double E) const {
   double r_O, r_Op, b_O;
@@ -81,7 +82,7 @@ double ReducedPotentialQuadrature::r2b(double r, double E) const {
  */
 double ReducedPotentialQuadrature::Q(size_t l, double r_E, double E,
                                      double rtol) {
-  return qcg_.Q(l, r_E, E, rtol, 1000);
+  return p_q_impl_->Q(l, r_E, E, rtol);
 }
 
 // Omega stuff
@@ -94,7 +95,7 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E, double E,
 // This is the Gauss-Laguerre version.
 double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T,
                                          double rtol) {
-  return omegagl_.Omega(l,s,T,rtol, 128);
+  return p_omega_impl_->Omega(l,s,T,rtol);
 }
 
 } // namespace dlt

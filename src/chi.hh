@@ -14,7 +14,7 @@ public:
   ///
   /// Compute chi. User can add some of their thought here.
   ///
-  virtual double chi(double E, double r_m, double rtol, size_t maxorder) = 0;
+  virtual double chi(double E, double r_m, double rtol) = 0;
 };
 
 class ChiCG : public ChiImpl{
@@ -40,7 +40,7 @@ class ChiCG : public ChiImpl{
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize, double rtol) override;
+    void calculate_integrands(size_t ordersize) override;
 
     void clean_cache() {
       cache_ordersize_ = 0;
@@ -52,7 +52,7 @@ class ChiCG : public ChiImpl{
   ChiCGInt chicgint;
 public:
   ChiCG(ReducedPotentialQuadrature & rpq): ChiImpl(rpq), chicgint(rpq){}
-  double chi(double E, double r_m, double rtol, size_t maxorder) override;
+  double chi(double E, double r_m, double rtol) override;
 };
 
 

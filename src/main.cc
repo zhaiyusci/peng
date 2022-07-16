@@ -1,6 +1,7 @@
 #include "dilute.hh"
 #include "loadedpotential.hh"
 #include <iostream>
+#include <json.hpp>
 
 using namespace dlt;
 int main() {

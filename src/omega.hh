@@ -15,7 +15,7 @@ public:
   ///
   /// Compute Omega. User can add some of their thought here.
   ///
-  virtual double Omega(size_t l, size_t s, double T, double rtol, size_t maxorder) = 0;
+  virtual double Omega(size_t l, size_t s, double T, double rtol) = 0;
 };
 
 class OmegaGL: public OmegaImpl{
@@ -32,6 +32,7 @@ class OmegaGL: public OmegaImpl{
     double T_;
 
   public:
+    double q_rtol;
     OmegaGLInt(ReducedPotentialQuadrature &rpq);
     /** Set the parameters, clear the inner storage if it is needed.
      */
@@ -39,7 +40,7 @@ class OmegaGL: public OmegaImpl{
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(double rtol) override;
+    void calculate_integrands(size_t ngridsize) override;
 
   // }}}
   }; 
@@ -49,7 +50,7 @@ class OmegaGL: public OmegaImpl{
 
 public:
   OmegaGL(ReducedPotentialQuadrature & rpq): OmegaImpl(rpq), omegaglint_(rpq){}
-  double Omega(size_t l, size_t s, double T, double rtol, size_t maxorder) override;
+  double Omega(size_t l, size_t s, double T, double rtol) override;
 };
 
 
@@ -58,7 +59,8 @@ class OmegaCG: public OmegaImpl{
   ///
   /// Compute the integration required by the computation of Omega.
   ///
-  class OmegaCGInt : public CGIntegrator { //{{{
+  class OmegaCGInt : public CGIntegrator { 
+    // {{{
   protected:
     ReducedPotentialQuadrature *rpq_;
     size_t ordersize_v_;
@@ -73,6 +75,7 @@ class OmegaCG: public OmegaImpl{
     double T_;
 
   public:
+    double q_rtol;
     OmegaCGInt(ReducedPotentialQuadrature &rpq);
     /** Set the parameters, clear the inner storage if it is needed.
      */
@@ -80,7 +83,7 @@ class OmegaCG: public OmegaImpl{
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize, double rtol) override;
+    void calculate_integrands(size_t ordersize) override;
 
     void clean_cache_v() {
       vs_.clear();
@@ -96,14 +99,15 @@ class OmegaCG: public OmegaImpl{
       // Always clean workspace of the base class.
       clean_workspace();
     }
-  }; // }}}
+  // }}}
+  }; 
 
   OmegaCGInt omegacgint_;
   
 
 public:
   OmegaCG(ReducedPotentialQuadrature & rpq): OmegaImpl(rpq), omegacgint_(rpq){}
-  double Omega(size_t l, size_t s, double T, double rtol, size_t maxorder) override;
+  double Omega(size_t l, size_t s, double T, double rtol) override;
 };
 } // namespace dlt
 

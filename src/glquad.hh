@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 
+#define GL_INT_ORDER_MAX 128
+
 // Credit: The working part is taken from
 // https://people.sc.fsu.edu/~jburkardt/cpp_src/gen_laguerre_rule/gen_laguerre_rule.html
 // and Yu Zhai add a C++ OOP interface
@@ -38,7 +40,7 @@ public:
   ///
   /// 1. Fill in integrands_ using xs_.
   ///
-  virtual void calculate_integrands(double rtol) = 0;
+  virtual void calculate_integrands(size_t ngridsize) = 0;
 };
 
 } // namespace dlt

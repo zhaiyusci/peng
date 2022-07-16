@@ -61,10 +61,13 @@ public:
     pf_.reset(new Pot1DFeatures(*ppot_));
     rpq_.reset(new ReducedPotentialQuadrature(pf_->reduced_potential()));
   }
+  void set_algorithm(ChiImpl& chi_impl, QImpl& q_impl, OmegaImpl& omega_impl){
+    rpq_->set_algorithm(chi_impl, q_impl, omega_impl);
+  }
   ///
   /// Returns the collision integral SI units.
   /// 
-  double Omega(size_t l, size_t s, double T, double rtol = 1.0e-3) const;
+  double Omega(size_t l, size_t s, double T, double rtol) const;
 };
 } // namespace dlt
 

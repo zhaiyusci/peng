@@ -1216,7 +1216,7 @@ std::tuple<double, double, bool> GLIntegrator::integrate(double rtol,
   double err = 9999.0;
   for (size_t ngrids = 4; ngrids < ngridsize; ngrids += 4) {
     reset_workspace(ngrids);
-    calculate_integrands(rtol);
+    calculate_integrands(ngrids);
     newint = 0.0;
     for (size_t i = 0; i != ngrids; ++i) {
       // std::cerr << i << " Summation ==> " << newint << ' ' << integrands_[i]

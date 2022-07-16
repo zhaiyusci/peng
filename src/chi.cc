@@ -1,16 +1,15 @@
-#include "pot1dquad.hh"
 #include "chi.hh"
+#include "pot1dquad.hh"
 
-namespace dlt{
-  ChiCG::ChiCGInt::ChiCGInt(ReducedPotentialQuadrature &rpq)
+namespace dlt {
+ChiCG::ChiCGInt::ChiCGInt(ReducedPotentialQuadrature &rpq)
     : CGIntegrator(true), rpq_(&rpq) {
   clean_cache();
   E_ = -2.0;
   r_m_ = -1.0;
 }
 
-void ChiCG::ChiCGInt::set_param(double r_m, double E,
-                                                  double b) {
+void ChiCG::ChiCGInt::set_param(double r_m, double E, double b) {
   if (E_ != E) {
     clean_workspace();
   }
@@ -30,8 +29,7 @@ void ChiCG::ChiCGInt::set_param(double r_m, double E,
 
 /** Compute the integrands with computed values cached.
  */
-void ChiCG::ChiCGInt::calculate_integrands(size_t ordersize,
-                                                             double rtol) {
+void ChiCG::ChiCGInt::calculate_integrands(size_t ordersize) {
   // See if we need an update based on the "flag".
   if (cache_ordersize_ < ordersize) {
     // We only need the positive half of the integration.
@@ -79,15 +77,15 @@ void ChiCG::ChiCGInt::calculate_integrands(size_t ordersize,
   return;
 }
 
-double ChiCG::chi(double E, double r_m, double rtol, size_t maxorder) {
+double ChiCG::chi(double E, double r_m, double rtol) {
   // double E = ppot_->value(r_E);
   double b = rpq_->r2b(r_m, E);
 
   chicgint.set_param(r_m, E, b);
   double quadrature, err;
   bool converged;
-  maxorder = floor(log(maxorder*1.0)/log(3));
-  std::tie(quadrature, err, converged) = chicgint.integrate(rtol, maxorder);
+  std::tie(quadrature, err, converged) =
+      chicgint.integrate(rtol, CG_INT_ORDER_MAX);
   if (!converged) {
     std::cerr << "Line " << __LINE__ << " ChiCG not converged with E = " << E
               << ", r_m = " << r_m << " and b = " << b << "." << '\n';
@@ -98,4 +96,4 @@ double ChiCG::chi(double E, double r_m, double rtol, size_t maxorder) {
   return M_PI - b / r_m * quadrature;
 }
 
-}
+} // namespace dlt

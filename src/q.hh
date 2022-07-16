@@ -14,7 +14,7 @@ public:
   ///
   /// Compute chi. User can add some of their thought here.
   ///
-  virtual double Q(size_t l, double r_E, double E, double rtol, size_t maxorder) =0;
+  virtual double Q(size_t l, double r_E, double E, double rtol) =0;
 };
 
 class QCG : public QImpl{
@@ -35,6 +35,7 @@ class QCG : public QImpl{
     double E_;
 
   public:
+    double chi_rtol;
     QCGInt1(ReducedPotentialQuadrature &rpq);
 
     ///
@@ -47,7 +48,7 @@ class QCG : public QImpl{
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize, double rtol) override;
+    void calculate_integrands(size_t ordersize) override;
 
     void clean_cache() {
       coschis_.clear();
@@ -76,6 +77,7 @@ class QCG : public QImpl{
     double r_O_;
 
   public:
+    double chi_rtol;
     QCGInt2(ReducedPotentialQuadrature &rpq);
 
     /** Set the parameters, clear the inner storage if it is needed.
@@ -84,7 +86,7 @@ class QCG : public QImpl{
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize, double rtol) override;
+    void calculate_integrands(size_t ordersize) override;
 
     void clean_cache() {
       coschis_.clear();
@@ -101,7 +103,7 @@ class QCG : public QImpl{
 
 public:
   QCG(ReducedPotentialQuadrature & rpq): QImpl(rpq), qcgint1_(rpq), qcgint2_(rpq){}
-  double Q(size_t l, double r_E, double E, double rtol, size_t maxorder) override;
+  double Q(size_t l, double r_E, double E, double rtol) override;
 };
 
 

@@ -4,7 +4,7 @@
 #include "pot1dquad.hh"
 #include "transport.hh"
 #include <fmt/core.h>
-#include <json.hpp>
+// #include <json.hpp>
 
 namespace dlt {
 const char DILUTE_VERSION[] = "0.2.1";
@@ -67,7 +67,7 @@ public:
   Task(const Atom &atom0, const Atom &atom1,
        const std::vector<double> &temperatures,
        const std::vector<double> &molefractions0, size_t propertyorder,
-       double accuracy, FuncDeriv1D &pot00, FuncDeriv1D &pot01,
+       double accuracy,  FuncDeriv1D &pot00, FuncDeriv1D &pot01,
        FuncDeriv1D &pot11);
 
   void execute();

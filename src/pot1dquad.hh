@@ -56,13 +56,19 @@ protected:
   std::unique_ptr<LocalRoot> y_root_;
   std::unique_ptr<LocalRoot> v_root_;
   std::unique_ptr<Y> y_;
-  ChiCG chicg_;
-  QCG qcg_;
-  // OmegaCG omegacg_;
-  OmegaGL omegagl_;
+  ChiImpl* p_chi_impl_;
+  QImpl* p_q_impl_;
+  OmegaImpl* p_omega_impl_;
 
 public:
   ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot);
+
+  void set_algorithm(ChiImpl& chi_impl, QImpl& q_impl, OmegaImpl& omega_impl){
+    p_chi_impl_ = &chi_impl;
+    p_q_impl_ = &q_impl;
+    p_omega_impl_ = &omega_impl;
+    return;
+  }
   inline double potential_value(double r){
     return p_reduced_pot_->value(r);
   }
@@ -79,21 +85,21 @@ public:
   ///
   /// Compute chi.
   ///
-  double chi(double E, double r_m, double rtol /*= 1.0e-3*/);
+  double chi(double E, double r_m, double rtol);
 
   ///
   /// Compute Q.
   ///
   /// Tip: It is faster to keep the r_E unchanged and scan the l.
   ///
-  double Q(size_t l, double r_E, double E, double rtol /*= 1.0e-3*/);
+  double Q(size_t l, double r_E, double E, double rtol);
 
   ///
   /// Compute Omega.
   ///
   /// Tip: It is faster to keep the l and T unchanged and scan the s.
   ///
-  double Omega(size_t l, size_t s, double T, double rtol /*= 1.0e-3*/);
+  double Omega(size_t l, size_t s, double T, double rtol);
 };
 } // namespace dlt
 

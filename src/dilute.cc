@@ -5,7 +5,6 @@
 #include <fmt/core.h>
 #include <fstream>
 #include <iomanip>
-#include <json.hpp>
 #include <string>
 #include <vector>
 
@@ -13,7 +12,7 @@ namespace dlt {
 Task::Task(const Atom &atom0, const Atom &atom1,
            const std::vector<double> &temperatures,
            const std::vector<double> &molefractions0, size_t maxpq,
-           double accuracy, FuncDeriv1D &pot00, FuncDeriv1D &pot01,
+           double accuracy,FuncDeriv1D &pot00, FuncDeriv1D &pot01,
            FuncDeriv1D &pot11)
     : atom0_(atom0), atom1_(atom1), temperatures_(temperatures),
       molefractions0_(molefractions0), propertyorder_(maxpq),
