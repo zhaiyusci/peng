@@ -6,7 +6,7 @@ CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include
 OBJDIR ?= ../build
 OBJ := dilute.o \
 			 pot1dquad.o mathtools.o cgquad.o glquad.o \
-			 transport.o global.o atompair.o pot1dfeat.o
+			 transport.o global.o atompair.o pot1dfeat.o chi.o q.o omega.o
 
 VPATH = ../src
 
@@ -24,6 +24,12 @@ dilute.o: dilute.cc dilute.hh mathtools.hh pot1dquad.hh cgquad.hh \
  atompair.hh transport.hh global.hh
 
 
+
+chi.o: chi.cc pot1dquad.hh cgquad.hh glquad.hh mathtools.hh chi.hh
+q.o: q.cc q.hh cgquad.hh pot1dquad.hh glquad.hh mathtools.hh chi.hh \
+ omega.hh
+omega.o: omega.cc omega.hh cgquad.hh glquad.hh pot1dquad.hh mathtools.hh \
+ chi.hh q.hh
 
 loadedpotential.o: loadedpotential.cc loadedpotential.hh mathtools.hh
 main.o: main.cc dilute.hh atompair.hh mathtools.hh pot1dquad.hh cgquad.hh \

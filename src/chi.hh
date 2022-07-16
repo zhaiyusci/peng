@@ -50,9 +50,8 @@ class ChiCG : public ChiImpl{
    // }}}
   };
   ChiCGInt chicgint;
-  ChiCG(ReducedPotentialQuadrature & rpq): ChiImpl(rpq), chicgint(rpq){}
-
 public:
+  ChiCG(ReducedPotentialQuadrature & rpq): ChiImpl(rpq), chicgint(rpq){}
   double chi(double E, double r_m, double rtol, size_t maxorder) override;
 };
 

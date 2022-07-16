@@ -153,6 +153,7 @@ double QCG::Q(size_t l, double r_E, double E,
   std::tie(r_O, r_Op) = rpq_->r_range(E);
   // std::cerr << "(r_Op , r_O) = " << r_Op << ' ' << r_O << std::endl;
 
+  maxorder = floor(log(maxorder*1.0)/log(3));
   double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
   double esterr;
   bool converged;

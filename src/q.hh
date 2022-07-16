@@ -98,9 +98,9 @@ class QCG : public QImpl{
 
   QCGInt1 qcgint1_;
   QCGInt2 qcgint2_;
-  QCG(ReducedPotentialQuadrature & rpq): QImpl(rpq), qcgint1_(rpq), qcgint2_(rpq){}
 
 public:
+  QCG(ReducedPotentialQuadrature & rpq): QImpl(rpq), qcgint1_(rpq), qcgint2_(rpq){}
   double Q(size_t l, double r_E, double E, double rtol, size_t maxorder) override;
 };
 
