@@ -1205,8 +1205,6 @@ void GLIntegrator::reset_workspace(size_t ngrids) {
   xs_.resize(ngrids_);
   ws_.resize(ngrids_);
   jburkardt::cdgqf(ngrids_, 5, alpha_, 0.0, xs_.data(), ws_.data());
-  // std::cerr << "xs_.size() = " << xs_.size() << std::endl;
-  // std::cerr << "ws_.size() = " << ws_.size() << std::endl;
   return;
 }
 std::tuple<double, double, bool> GLIntegrator::integrate(double rtol,
@@ -1219,8 +1217,6 @@ std::tuple<double, double, bool> GLIntegrator::integrate(double rtol,
     calculate_integrands(ngrids);
     newint = 0.0;
     for (size_t i = 0; i != ngrids; ++i) {
-      // std::cerr << i << " Summation ==> " << newint << ' ' << integrands_[i]
-      // << ' ' << ws_[i] << '\n';
       newint += integrands_[i] * ws_[i];
     }
     err = std::fabs(newint - oldint);

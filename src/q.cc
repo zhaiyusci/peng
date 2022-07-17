@@ -150,13 +150,11 @@ double QCG::Q(size_t l, double r_E, double E,
     r_E = rpq_->v_root(E);
   }
   std::tie(r_O, r_Op) = rpq_->r_range(E);
-  // std::cerr << "(r_Op , r_O) = " << r_Op << ' ' << r_O << std::endl;
 
 
   double coeff = 1.0 / (1.0 - (1.0 + pow(-1, l)) / 2.0 / (1.0 + l)) / E;
   double esterr;
   bool converged;
-  // std::cerr << "l = " << l << ", E = " << E << std::endl;
   if (E <= 2 * rpq_->E_C()) {
     double quadrature1;
     qcgint1_.set_param(l, r_E, r_Op, E);

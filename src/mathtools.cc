@@ -54,7 +54,6 @@ std::tuple<double, double> find_local_minimum(FuncDeriv1D &func, double lower,
 
   std::vector<double> x{0.5 * (lower + upper)};
   // Compute the pointwise values to get the optimization range
-  // std::cerr << "nsamp " << nsamp << std::endl;
   if (nsamp >= 3) {
     {
       double width = upper - lower;
@@ -153,8 +152,6 @@ LocalRoot::LocalRoot(FuncDeriv1D &func, double lower, double upper,
 }
 
 inline bool inrange(double target, double lower, double upper) {
-  // std::cerr << " " << target << " " << lower << " " << upper << " "
-  // << std::endl;
   return (target >= lower && target <= upper) ||
          (target <= lower && target >= upper);
 }
@@ -168,7 +165,6 @@ double LocalRoot::operator()(double target) const {
   size_t l, r, m;
   l = 0;
   r = xs_.size() - 1;
-  // std::cerr << "Starting find range " << std::endl;
   if (inrange(target, fs_[l], fs_[r])) {
     while (r - l != 1) {
       m = (l + r) / 2;
@@ -178,11 +174,9 @@ double LocalRoot::operator()(double target) const {
     upper = xs_[r];
   } else {
     if ((fs_[l] < fs_[r]) == (target > fs_[r])) {
-      // std::cerr << "-->" << std::endl;
       lower = xs_[r] - 1.0e-6; //
       upper = xs_[r] + 1.0e-6; // +inf
     } else {
-      // std::cerr << "<--" << std::endl;
       lower = xs_[l] - 1.0e-6; // -inf
       upper = xs_[l] + 1.0e-6; //
     }

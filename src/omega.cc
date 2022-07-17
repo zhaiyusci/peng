@@ -3,12 +3,6 @@
 
 namespace dlt {
 
-// Omega stuff
-
-///
-/// This class inheriated from the Chebyshev-Gauss Quarduture class, compute the
-/// integration required by the computation of Omega.
-///
 OmegaCG::OmegaCGInt::OmegaCGInt(ReducedPotentialQuadrature &rpq)
     : CGIntegrator(true, -0.5, 1.0), rpq_(&rpq) {
   // The integration range should be [-1,1],
@@ -19,8 +13,7 @@ OmegaCG::OmegaCGInt::OmegaCGInt(ReducedPotentialQuadrature &rpq)
   clean_cache_Q();
   clean_cache_v();
 }
-/** Set the parameters, clear the inner storage if it is needed.
- */
+
 void OmegaCG::OmegaCGInt::set_param(size_t l, size_t s, double T) {
   if (s_ != s || T_ != T) {
     clean_workspace();
@@ -34,8 +27,6 @@ void OmegaCG::OmegaCGInt::set_param(size_t l, size_t s, double T) {
   return;
 }
 
-/** Compute the integrands with computed values cached.
- */
 void OmegaCG::OmegaCGInt::calculate_integrands(size_t ordersize) {
   // See if we need an update based on the "flag".
   if (ordersize_Q_ < ordersize) {
@@ -87,8 +78,6 @@ void OmegaCG::OmegaCGInt::calculate_integrands(size_t ordersize) {
 
 OmegaGL::OmegaGLInt::OmegaGLInt(ReducedPotentialQuadrature &rpq)
     : GLIntegrator(), rpq_(&rpq) {
-  // The integration range should be [-1,1],
-  // however, -0.5 is good enough to avoid some numerical error.
   l_ = 0;
   s_ = 0;
   T_ = 0.0;
@@ -107,8 +96,7 @@ void OmegaGL::OmegaGLInt::set_param(size_t l, size_t s,
   return;
 }
 
-/** Compute the integrands with computed values cached.
- */
+// Compute the integrands with computed values cached.
 void OmegaGL::OmegaGLInt::calculate_integrands(size_t ngridsize) {
   if (ngridsize !=xs_.size()){
     throw std::runtime_error("Numbers of grids in GL quad mismatch.");
@@ -116,8 +104,6 @@ void OmegaGL::OmegaGLInt::calculate_integrands(size_t ngridsize) {
   for (size_t i = 0; i != xs_.size(); ++i) {
     double grid_q_rtol = ws_[i] > 2 ? q_rtol / 2 : q_rtol / ws_[i];
     double value = rpq_->Q(l_, -1.0, xs_[i] * T_, grid_q_rtol);
-    // std::cerr << "Q(" << l_ << ", " << x * T_ << ") = " << value <<
-    // std::endl;
     integrands_.push_back(value);
   }
   return;
@@ -152,9 +138,7 @@ double OmegaGL::Omega(size_t l, size_t s, double T, double rtol) {
   if (!converged) {
     std::cerr << "Line " << __LINE__ << " OmegaGL not converged with l = " << l
               << " s = " << s << " and T = " << T << "." << std::endl;
-    // omegacg_.show_integrands();
   }
-  // std::cerr << "l = " << l << ", s= " << s << ", T = " << T << std::endl;
   return coeff * quadrature;
 }
 

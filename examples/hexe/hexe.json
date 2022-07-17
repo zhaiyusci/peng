@@ -24,7 +24,7 @@
     } 
   ],
   "accuracy": 1.0e-2,
-  "temperatures.bak": [
+  "temperatures": [
     50.0,
     100.0,
     150.0,
@@ -32,7 +32,7 @@
     250.0,
     300.0
   ],
-  "temperatures": [
+  "temperatures.bak": [
     50.0
   ],
   "propertyorder": 3,

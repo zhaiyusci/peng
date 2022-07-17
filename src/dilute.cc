@@ -12,7 +12,7 @@ namespace dlt {
 Task::Task(const Atom &atom0, const Atom &atom1,
            const std::vector<double> &temperatures,
            const std::vector<double> &molefractions0, size_t maxpq,
-           double accuracy,FuncDeriv1D &pot00, FuncDeriv1D &pot01,
+           double accuracy, FuncDeriv1D &pot00, FuncDeriv1D &pot01,
            FuncDeriv1D &pot11)
     : atom0_(atom0), atom1_(atom1), temperatures_(temperatures),
       molefractions0_(molefractions0), propertyorder_(maxpq),
@@ -26,7 +26,11 @@ Task::Task(const Atom &atom0, const Atom &atom1,
         lambdas_("Therm. Conduct.", 1e-3, "mW/m⋅K",   molefractions0.size(), temperatures.size(), maxpq),
         etas_   ("Viscosity",       1e-6, "μPa⋅s",    molefractions0.size(), temperatures.size(), maxpq)
 // clang-format on
-{}
+{
+  pair00_.set_algorithm<ChiCG, QCG, OmegaGL>();
+  pair01_.set_algorithm<ChiCG, QCG, OmegaGL>();
+  pair11_.set_algorithm<ChiCG, QCG, OmegaGL>();
+}
 
 ComputedData &Task::get_property_(size_t i) {
   switch (i) {
@@ -42,8 +46,11 @@ ComputedData &Task::get_property_(size_t i) {
   throw std::runtime_error("No such property.");
 }
 
+///
+/// Compute Omegas and then properties.
+///
 void Task::execute() {
-  size_t maxls = omegaorder(propertyorder_);
+  size_t maxls = 2 * propertyorder_ + 3; // Highest Omega order.
   size_t omegasize = (1 + maxls) * maxls / 2;
   for (size_t ti = 0; ti != temperatures_.size(); ++ti) {
     std::vector<double> Omega00;
@@ -67,11 +74,9 @@ void Task::execute() {
     std::vector<double> lambda;
     std::vector<double> eta;
     for (size_t xi = 0; xi != molefractions0_.size(); ++xi) {
-      std::cout << __FILE__ << ' ' << __LINE__ << std::endl;
       std::tie(D12, DT, lambda, eta) = dlt::transport(
           temperatures_[ti], molefractions0_[xi], Omega00, Omega01, Omega11,
           atom0_.mass(), atom1_.mass(), propertyorder_);
-      std::cout << __FILE__ << ' ' << __LINE__ << std::endl;
       for (size_t mi = 0; mi != propertyorder_; ++mi) {
         // clang-format off
           D12s_   .at(xi, ti, mi) = D12   [mi];
@@ -80,7 +85,6 @@ void Task::execute() {
           etas_   .at(xi, ti, mi) = eta   [mi];
         // clang-format on
       }
-      std::cout << __FILE__ << ' ' << __LINE__ << std::endl;
     }
   }
   return;

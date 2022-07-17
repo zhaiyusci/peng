@@ -1,6 +1,5 @@
 #define EIGEN_NO_DEBUG
 #include "transport.hh"
-#include "global.hh"
 #include "mathtools.hh"
 #include <algorithm>
 #include <eigen3/Eigen/Dense>
@@ -169,6 +168,9 @@ public:
     }
     raw_D_mat(propertyorder_, propertyorder_) = A(0, 0); // C
                                                          //
+    std::cerr << "raw_D_mat:" << '\n';
+    std::cerr << raw_D_mat << std::endl;
+
     for (size_t i = 1; i <= propertyorder_; ++i) {
       Eigen::MatrixXd A_mat(2 * i, 2 * i);
       // clang-format off
@@ -424,22 +426,6 @@ public:
       }
     }
 
-    for (size_t io1 = 0; io1 != 2; ++io1) {
-      for (size_t io0 = 0; io0 != 2; ++io0) {
-        for (size_t i1 = 0; i1 != 2; ++i1) {
-          for (size_t i0 = 0; i0 != 2; ++i0) {
-            for (size_t q = 0; q <= propertyorder_; ++q) {
-              for (size_t p = 0; p <= propertyorder_; ++p) {
-                std::cout << "Lint(" << p << q << i0 << i1 << io0 << io1 << ")"
-                          << std::endl;
-                std::cout << Lint(p, q, i0, i1, io0, io1) << std::endl;
-              }
-            }
-          }
-        }
-      }
-    }
-
     molefraction0_ = molefraction0;
     molefraction1_ = 1 - molefraction0;
 
@@ -455,8 +441,9 @@ public:
       }
     }
 
-    std::cout << "raw_B_mat:" << std::endl;
-    std::cout << raw_B_mat << std::endl;
+    std::cerr << "raw_B_mat:" << '\n';
+    std::cerr << raw_B_mat << std::endl;
+
     for (size_t i = 1; i <= propertyorder_; ++i) {
       Eigen::MatrixXd B_mat(2 * i, 2 * i);
       B_mat.block(0, 0, 2 * i, 2 * i) = raw_B_mat.block(
@@ -577,7 +564,6 @@ public:
           }
         }
 
-        std::cout << " l, r = " << l << ' ' << r << std::endl;
         s_sum += b * Omega(l, r);
       }
     }
@@ -617,9 +603,6 @@ public:
     int ap = abs(p);
     int aq = abs(q);
     if (p > 0 && q > 0) {
-      std::cout << "Lint(ap - 1, aq - 1, 0, 0, 0, 0)" << std::endl;
-      std::cout << ap << ' ' << aq << ' ' << Lint(ap - 1, aq - 1, 0, 0, 0, 0)
-                << std::endl;
       return molefraction0_ * molefraction0_ *
                  Lint(ap - 1, aq - 1, 0, 0, 0, 0) +
              molefraction0_ * molefraction1_ * Lint(ap - 1, aq - 1, 0, 0, 0, 1);
@@ -642,7 +625,7 @@ transport(double t, double x0, std::vector<double> Omega00,
   // Some dirty work: turn C++ omega to fortran 2D array
   // The following arrays should be "FORTRAN-ready"
 
-  int maxord = omegaorder(propertyorder);
+  int maxord = 2 * propertyorder + 3;
 
   Eigen::MatrixXd om00(maxord + 1, maxord + 1);
   Eigen::MatrixXd om01(maxord + 1, maxord + 1);

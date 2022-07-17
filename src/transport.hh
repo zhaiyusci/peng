@@ -1,6 +1,5 @@
 #ifndef _DILUTE_ALPHA_HH_
 #define _DILUTE_ALPHA_HH_
-#include "global.hh"
 #include <iostream>
 #include <tuple>
 #include <vector>

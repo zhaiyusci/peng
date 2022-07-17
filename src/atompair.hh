@@ -61,9 +61,15 @@ public:
     pf_.reset(new Pot1DFeatures(*ppot_));
     rpq_.reset(new ReducedPotentialQuadrature(pf_->reduced_potential()));
   }
-  void set_algorithm(ChiImpl& chi_impl, QImpl& q_impl, OmegaImpl& omega_impl){
-    rpq_->set_algorithm(chi_impl, q_impl, omega_impl);
+  ///
+  /// Set up algorithms.
+  ///
+  template <typename TConcreteChi, typename TConcreteQ, typename TConcreteOmega>
+  void set_algorithm() {
+    rpq_->set_algorithm<TConcreteChi, TConcreteQ, TConcreteOmega>();
+    return;
   }
+
   ///
   /// Returns the collision integral SI units.
   /// 

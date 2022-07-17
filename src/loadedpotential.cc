@@ -19,6 +19,10 @@ LoadedPotential::LoadedPotential(std::string libpath)
         << "Fail to open user-defined potential function. Library path is "
         << libpath << ".\n"
         << "Use abstract path to solve this problem." << std::endl;
+    std::cout
+        << "Fail to open user-defined potential function. Library path is "
+        << libpath << ".\n"
+        << "Use abstract path to solve this problem." << std::endl;
   }
 }
 double LoadedPotential::derivative(double r) const {

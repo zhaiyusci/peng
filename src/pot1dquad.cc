@@ -40,7 +40,7 @@ ReducedPotentialQuadrature::ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot)
   y_root_.reset(new LocalRoot(*y_, r_C_, 15.0, 21, 1.0e-12));
   v_root_.reset(new LocalRoot(*p_reduced_pot_, 0.1, 1.0, 21, 1.0e-12));
   // Maybe we want to try (0.0,1.0)... but consider the really high energy part
-  // is really used...
+  // is rarely used...
 }
 
 
@@ -62,8 +62,6 @@ std::tuple<double, double> ReducedPotentialQuadrature::r_range(double E) const {
       r_Op = find_local_root(phieff, E, 0.1, r_Op, 21, 1.0e-12);
     }
   }
-  // std::cerr << "E = " << E << ", r_O = " << r_O << ", r_Op = " << r_Op <<
-  // '\n';
   return std::make_tuple(r_O, r_Op);
 }
 
@@ -85,14 +83,11 @@ double ReducedPotentialQuadrature::Q(size_t l, double r_E, double E,
   return p_q_impl_->Q(l, r_E, E, rtol);
 }
 
-// Omega stuff
-
 ///
 /// This class inheriated from the Chebyshev-Gauss Quarduture class, compute the
 /// integration required by the computation of Omega.
 ///
 
-// This is the Gauss-Laguerre version.
 double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T,
                                          double rtol) {
   return p_omega_impl_->Omega(l,s,T,rtol);

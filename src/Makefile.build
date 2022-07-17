@@ -5,35 +5,35 @@ FC=gfortran
 CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include 
 OBJDIR ?= ../build
 OBJ := dilute.o \
-			 pot1dquad.o mathtools.o cgquad.o glquad.o \
-			 transport.o global.o atompair.o pot1dfeat.o chi.o q.o omega.o
+			 mathtools.o cgquad.o glquad.o \
+			 pot1dfeat.o pot1dquad.o \
+			 atompair.o transport.o \
+			 chi.o q.o omega.o
 
 VPATH = ../src
 
 PWD = $(shell pwd)
-.PHONY: clean all
+.PHONY: all clean
 
 all: dilute.exe # main.exe omega11.so omega12.so omega22.so test2.exe
 
-transport.o: transport.cc transport.hh global.hh 
+dilute.o: dilute.cc dilute.hh atompair.hh mathtools.hh pot1dfeat.hh \
+	pot1dquad.hh cgquad.hh glquad.hh chi.hh q.hh omega.hh transport.hh
+mathtools.o: mathtools.cc mathtools.hh
 cgquad.o: cgquad.cc cgquad.hh
 glquad.o: glquad.cc glquad.hh
-pot1dquad.o: pot1dquad.cc pot1dquad.hh cgquad.hh glquad.hh mathtools.hh
-mathtools.o: mathtools.cc mathtools.hh
-dilute.o: dilute.cc dilute.hh mathtools.hh pot1dquad.hh cgquad.hh \
- atompair.hh transport.hh global.hh
-
-
-
-chi.o: chi.cc pot1dquad.hh cgquad.hh glquad.hh mathtools.hh chi.hh
+pot1dfeat.o: pot1dfeat.cc pot1dfeat.hh mathtools.hh
+pot1dquad.o: pot1dquad.cc pot1dquad.hh cgquad.hh glquad.hh mathtools.hh \
+	chi.hh q.hh omega.hh
+atompair.o: atompair.cc atompair.hh mathtools.hh pot1dfeat.hh \
+	pot1dquad.hh cgquad.hh glquad.hh chi.hh q.hh omega.hh
+transport.o: transport.cc transport.hh mathtools.hh
+chi.o: chi.cc chi.hh cgquad.hh pot1dquad.hh glquad.hh mathtools.hh q.hh \
+	omega.hh
 q.o: q.cc q.hh cgquad.hh pot1dquad.hh glquad.hh mathtools.hh chi.hh \
- omega.hh
+	omega.hh
 omega.o: omega.cc omega.hh cgquad.hh glquad.hh pot1dquad.hh mathtools.hh \
- chi.hh q.hh
-
-loadedpotential.o: loadedpotential.cc loadedpotential.hh mathtools.hh
-main.o: main.cc dilute.hh atompair.hh mathtools.hh pot1dquad.hh cgquad.hh \
- glquad.hh transport.hh global.hh loadedpotential.hh
+	chi.hh q.hh
 
 libdilute.so: $(OBJ) 
 	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lnlopt -lfmt -shared -Wl,-rpath,"$(PWD)/../external/lib"

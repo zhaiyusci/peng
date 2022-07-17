@@ -59,20 +59,14 @@ std::tuple<double, double, bool> CGIntegrator::integrate(double rtol,
   for (size_t ordersize = 2; ordersize != maxordersize; ++ordersize) {
     backend->allocate(ordersize);
     calculate_integrands(ordersize);
-    // std::cout << integrands_.size() << std::endl;
     CubicIter ci(ordersize - 1, ordersize, symm_, symm_);
     for (auto &&i : ci) {
-      // std::cout << __LINE__ << ' ' << i << ' ' << integrands_[i] <<
-      // std::endl;
       res += integrands_[i];
     }
     oldint = newint;
     newint = (symm_ ? 2 : 1) * res * M_PI / pow(3, ordersize - 1) * k1_;
     err = fabs(oldint - newint);
-    // std::cerr << "ERR for order" << order << " : " << err << "   ";
     err /= fabs(newint); // relative error...
-    // std::cerr << err << std::endl;
-    // std::cout << newint << std::endl;
     if (!(err >= rtol)) {
       return std::make_tuple(newint, err, err < rtol);
     }
