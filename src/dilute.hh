@@ -7,7 +7,7 @@
 // #include <json.hpp>
 
 namespace dlt {
-const char DILUTE_VERSION[] = "0.2.1";
+const char DILUTE_VERSION[] = "0.3.0";
 // Class to save the transport properties, in an elegent way.
 class ComputedData {
 protected:
