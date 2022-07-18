@@ -5,6 +5,10 @@
 
 namespace dlt {
 class ReducedPotentialQuadrature;
+
+/**
+ * @brief Abstract class for computing Omega.
+ */
 class OmegaImpl {
 protected:
   ReducedPotentialQuadrature *rpq_;
@@ -12,17 +16,25 @@ protected:
 public:
   OmegaImpl(ReducedPotentialQuadrature &rpq) : rpq_(&rpq) {}
 
-  ///
-  /// Compute Omega. User can add some of their thought here.
-  ///
+  /**
+   * @brief Compute omega. User can add some of their thought here.
+   *
+   * @param l: Omega's order 1.
+   * @param s: Omega's order 2.
+   * @param T: temperature.
+   * @param rtol: allowed relative error.
+   */
   virtual double Omega(size_t l, size_t s, double T, double rtol) = 0;
 };
 
+/**
+ * @brief Compute Omega using Gauss-Laguerre quadratures.
+ */
 class OmegaGL: public OmegaImpl{
 
-  ///
-  /// Compute the integration required by the computation of Omega.
-  ///
+  /**
+   * @brief Compute the integration required by the computation of Omega.
+   */
   class OmegaGLInt : public GLIntegrator { 
     // {{{
   protected:
@@ -53,12 +65,14 @@ public:
   double Omega(size_t l, size_t s, double T, double rtol) override;
 };
 
-
+/**
+ * @brief Compute Omega using Chebyshev-Gauss quadratures.
+ */
 class OmegaCG: public OmegaImpl{
 
-  ///
-  /// Compute the integration required by the computation of Omega.
-  ///
+  /**
+   * @brief Compute the integration required by the computation of Omega.
+   */
   class OmegaCGInt : public CGIntegrator { 
     // {{{
   protected:

@@ -3,10 +3,10 @@
 #include "mathtools.hh"
 
 namespace dlt{
-///
-/// This class defined the reduced potential energy surface,
-/// i.e., the "star" one.
-///
+
+/**
+ * @brief The reduced potential energy surface, i.e., the "star" one.
+ */
 class ReducedPotential : public FuncDeriv1D {
 public:
 private:
@@ -21,19 +21,19 @@ public:
       : sigma_(sigma), epsilon_(epsilon), r_min_(r_min), p_pri_pot_(p_pri_pot) {
   }
 
-  ///
-  /// The collision radius.
-  ///
+  /**
+   * @brief The collision radius.
+   */
   const double &origin_sigma() const { return sigma_; }
 
-  ///
-  /// The well depth.
-  ///
+  /**
+   * @brief The well depth.
+   */
   const double &origin_epsilon() const { return epsilon_; }
 
-  ///
-  /// The equlibrium nuclear seperation.
-  ///
+  /**
+   * @brief The equlibrium nuclear seperation.
+   */
   const double &origin_r_min() const { return r_min_; }
 
   double value(double r) const override {
@@ -49,9 +49,9 @@ public:
   }
 };
 
-///
-/// This class find the features of a potential function.
-///
+/**
+ * @brief Find the features of a potential function.
+ */
 class Pot1DFeatures {
 public:
 private:
@@ -64,29 +64,30 @@ private:
 public:
   Pot1DFeatures(FuncDeriv1D &pot);
 
-  ///
-  /// The collision radius.
-  ///
+  /**
+   * @brief The collision radius.
+   */
+
   const double &sigma() const { return sigma_; }
 
-  ///
-  /// The well depth.
-  ///
+  /**
+   * @brief The well depth.
+   */
   const double &epsilon() const { return epsilon_; }
 
-  ///
-  /// The equlibrium nuclear seperation.
-  ///
+  /**
+   * @brief The equlibrium nuclear seperation.
+   */
   const double &r_min() const { return r_min_; }
 
-  ///
-  /// The potential.
-  ///
+  /**
+   * @brief Get the potential function.
+   */
   FuncDeriv1D &pot() const { return *ppot_; }
 
-  ///
-  /// Reduced potential energy curve.
-  ///
+  /**
+   * @brief Get the reduced (starred) potential function.
+   */
   ReducedPotential &reduced_potential() {
     if (p_reduced_ == nullptr) {
       p_reduced_.reset(new ReducedPotential(sigma_, epsilon_, r_min_, ppot_));

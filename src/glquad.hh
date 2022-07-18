@@ -15,8 +15,10 @@
 
 namespace dlt {
 
+/**
+ * @brief The Gauss-Laguerre integrator.
+ */
 class GLIntegrator {
-  // public:
 protected:
   double alpha_;
   // Working space
@@ -35,11 +37,13 @@ public:
   void clean_workspace();
   void reset_workspace(size_t ngrids);
 
-  ///
-  /// User implemented method. Basically, user should
-  ///
-  /// 1. Fill in integrands_ using xs_.
-  ///
+  /**
+   * @brief Compute the integrands.
+   *
+   * User implemented method. Basically, user should
+   *
+   * 1. Fill in integrands_ using xs_.
+   */
   virtual void calculate_integrands(size_t ngridsize) = 0;
 };
 

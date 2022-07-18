@@ -4,6 +4,9 @@
 #include <dlfcn.h>
 
 namespace dlt {
+/**
+ * @brief Load external potential as FuncDeriv1D.
+ */
 class LoadedPotential : public dlt::FuncDeriv1D {
 protected:
   std::string libpath_;
@@ -12,6 +15,12 @@ protected:
   double (*pderivative_)(double);
 
 public:
+  /**
+   * @brief Constructor.
+   *
+   * @param libpath: The path of the library in which the required functions are
+   * located.
+   */
   LoadedPotential(std::string libpath);
   ~LoadedPotential() { dlclose(plib_); }
   double value(double r) const override { return pvalue_(r); }

@@ -10,8 +10,10 @@
 static const double kB = 1.380649e-23;      // BY DEFINITION
 static const double amu = 1.6605390666e-27; // CODATA2018
                                             //
-
-namespace dlt {
+namespace {
+/**
+ * @brief Store a 6-dimension array.
+ */
 class Hexa {
 private:
   size_t size0_;
@@ -59,7 +61,9 @@ public:
   }
   size_t size() const { return sizet_; }
 };
+} // namespace
 
+namespace dlt {
 class AlphaImpl {
 private:
   size_t propertyorder_;

@@ -4,6 +4,10 @@
 
 namespace dlt {
 class ReducedPotentialQuadrature;
+
+/**
+ * @brief Abstract class for computing chi.
+ */
 class ChiImpl {
 protected:
   ReducedPotentialQuadrature *rpq_;
@@ -11,17 +15,26 @@ protected:
 public:
   ChiImpl(ReducedPotentialQuadrature &rpq) : rpq_(&rpq) {}
 
-  ///
-  /// Compute chi. User can add some of their thought here.
-  ///
+  /**
+   * @brief Compute chi.
+   *
+   * Users should implement this method, and add some of their thought here.
+   *
+   * @param E: Initial kinect energy for collision.
+   * @param r_m: Closest distance of the collision.
+   * @param rtol: allowed relative error.
+   */
   virtual double chi(double E, double r_m, double rtol) = 0;
 };
 
+/**
+ * @brief Compute chi using Chebyshev-Gauss quadrature.
+ */
 class ChiCG : public ChiImpl{
-  ///
-  /// Compute the integration required by the computation of chi.
-  ///
-  class ChiCGInt : public CGIntegrator { 
+  /**
+   * @brief Compute the integration required by the computation of chi.
+   */
+  class ChiCGInt : public CGIntegrator {
     // {{{
   public:
   private:
@@ -40,12 +53,12 @@ class ChiCG : public ChiImpl{
 
     /** Compute the integrands with computed values cached.
      */
-    void calculate_integrands(size_t ordersize) override;
+  void calculate_integrands(size_t ordersize) override;
 
-    void clean_cache() {
-      cache_ordersize_ = 0;
-      vs_.clear();
-      clean_workspace();
+  void clean_cache() {
+    cache_ordersize_ = 0;
+    vs_.clear();
+    clean_workspace();
     }
    // }}}
   };

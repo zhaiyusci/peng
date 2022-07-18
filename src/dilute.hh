@@ -8,7 +8,11 @@
 
 namespace dlt {
 const char DILUTE_VERSION[] = "0.3.0";
-// Class to save the transport properties, in an elegent way.
+
+namespace {
+/**
+ * @brief Class to save the transport properties, in an elegent way.
+ */
 class ComputedData {
 protected:
   const std::string name_;
@@ -37,7 +41,11 @@ public:
   friend class Task;
 };
 
-// Class that hold the data of a Task.
+} // namespace
+
+/**
+ * @brief Class that hold the data of a Task.
+ */
 class Task {
   const dlt::Atom atom0_;
   const dlt::Atom atom1_;
@@ -64,20 +72,34 @@ class Task {
   void chant_(size_t ix, size_t m);
 
 public:
+  /**
+   * @brief Constructor.
+   *
+   * @param atom0, atom1: atoms.
+   * @param temperatures: in Kelvin.
+   * @param molefractions0: mole fractions for the first specie.
+   * @param propertyorder: order of the preperties need computing in
+   * Chapman-Enskog solution.
+   * @param rtol: allowed relative error.
+   * @param pot00, pot01, pot11: Interatomic interaction.
+   */
   Task(const Atom &atom0, const Atom &atom1,
        const std::vector<double> &temperatures,
        const std::vector<double> &molefractions0, size_t propertyorder,
-       double accuracy,  FuncDeriv1D &pot00, FuncDeriv1D &pot01,
-       FuncDeriv1D &pot11);
+       double rtol, FuncDeriv1D &pot00, FuncDeriv1D &pot01, FuncDeriv1D &pot11);
 
+  /**
+   * @brief Do the computation.
+   */
   void execute();
 
-  ///
-  /// Print out the final results, i.e., the properties.
-  /// We name it "chant" to show our respect to Barker, Fock and Smith,
-  /// in whose work [Phys. Fluids, 7, 897 (1964)]
-  /// the output subroutine was named "SHOUT".
-  ///
+  /**
+   * @brief Print out the final results, i.e., the properties.
+   *
+   * We name it "chant" to show our respect to Barker, Fock and Smith,
+   * in whose work [Phys. Fluids, 7, 897 (1964)]
+   * the output subroutine was named "SHOUT".
+   */
   void chant();
 
 };

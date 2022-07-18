@@ -1,0 +1,13 @@
+# Doxyfile 1.9.4
+
+PROJECT_NAME           = Dilute
+PROJECT_NUMBER         = 0.3.0
+PROJECT_LOGO           = /home/yuzhai/Works/dilute/drawing.png
+OUTPUT_DIRECTORY       = ./docs
+EXTRACT_LOCAL_CLASSES  = NO
+INPUT                  = ./src \
+                         ./README.md
+USE_MDFILE_AS_MAINPAGE = README.md
+GENERATE_LATEX         = NO
+HAVE_DOT               = YES
+UML_LOOK               = YES

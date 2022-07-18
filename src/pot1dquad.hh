@@ -14,7 +14,11 @@
 
 namespace dlt {
 
-/// The quadrature algorithm for reduced potential.
+/**
+ * @brief The quadrature algorithm for reduced (starred) potential.
+ *
+ * Note that this is for reduced potential, and everything output is reduced.
+ */
 class ReducedPotentialQuadrature {
   // 1. The functions need to find the numerical roots / minima / maxima
 
@@ -63,9 +67,15 @@ protected:
 public:
   ReducedPotentialQuadrature(FuncDeriv1D &reduced_pot);
 
+  /**
+   * @brief The potential function value.
+   */
   inline double potential_value(double r){
     return p_reduced_pot_->value(r);
   }
+  /**
+   * @brief The potential function derivative.
+   */
   inline double potential_derivative(double r){
     return p_reduced_pot_->derivative(r);
   }
@@ -76,28 +86,52 @@ public:
   std::tuple<double, double> r_range(double E) const;
   double r2b(double r, double E) const;
 
-  ///
-  /// Compute chi.
-  ///
+  /**
+   * @brief Compute chi.
+   *
+   * Pass all parameters to the ChiImpl algorithm class.
+   *
+   * @param E: Initial kinect energy for collision.
+   * @param r_m: Closest distance of the collision.
+   * @param rtol: allowed relative error.
+   */
   double chi(double E, double r_m, double rtol);
 
-  ///
-  /// Compute Q.
-  ///
-  /// Tip: It is faster to keep the r_E unchanged and scan the l.
-  ///
+  /**
+   * @brief Compute Q.
+   *
+   * Pass all parameters to the QImpl algorithm class.
+   *
+   * @param l: Q's order.
+   * @param r_E: the minimum r the collision can approach (with b = 0).
+   * @param E: initial kinetic energy of the collision.
+   * @param rtol: allowed relative error.
+   *
+   */
   double Q(size_t l, double r_E, double E, double rtol);
 
-  ///
-  /// Compute Omega.
-  ///
-  /// Tip: It is faster to keep the l and T unchanged and scan the s.
-  ///
+  /**
+   * @brief Compute Omega.
+   *
+   * Pass all parameters to the OmegaImpl algorithm class.
+   *
+   * @param l: Omega's order 1.
+   * @param s: Omega's order 2.
+   * @param T: temperature.
+   * @param rtol: allowed relative error.
+   */
   double Omega(size_t l, size_t s, double T, double rtol);
 
-  ///
-  /// Set up algorithms.
-  ///
+  /**
+   * @brief Set up algorithms.
+   *
+   * Note that this is a template method and the template parameters must be
+   * definite in compile time.
+   *
+   * @param TConcreteChi: name for chi integrator concrete class.
+   * @param TConcreteQ: name for Q integrator concrete class.
+   * @param TConcreteOmega: name for Omega integrator concrete class.
+   */
   template <typename TConcreteChi, typename TConcreteQ, typename TConcreteOmega>
   void set_algorithm() {
     p_chi_impl_.reset(new TConcreteChi(*this));

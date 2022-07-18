@@ -4,6 +4,10 @@
 
 namespace dlt {
 class ReducedPotentialQuadrature;
+
+/**
+ * @brief Abstract class for computing Q.
+ */
 class QImpl {
 protected:
   ReducedPotentialQuadrature *rpq_;
@@ -11,16 +15,29 @@ protected:
 public:
   QImpl(ReducedPotentialQuadrature &rpq) : rpq_(&rpq) {}
 
-  ///
-  /// Compute chi. User can add some of their thought here.
-  ///
+  /**
+   * @brief Compute chi. User can add some of their thought here.
+   *
+   * @param l: Q's order.
+   * @param r_E: the minimum r the collision can approach (with b = 0).
+   * @param E: initial kinetic energy of the collision.
+   * @param rtol: allowed relative error.
+   *
+   * You will find r_E should be a function of E, or vice versa. But in
+   * practice, the Q function is likely called by Omega function, where they are
+   * both computed. In such case, it is suggest to pass both values in to save
+   * computational resources.
+   */
   virtual double Q(size_t l, double r_E, double E, double rtol) =0;
 };
 
+/**
+ * @brief Compute Q using two Chebyshev-Gauss quadratures.
+ */
 class QCG : public QImpl{
-  ///
-  /// Compute the integration required by the computation of Q, range 1.
-  ///
+  /**
+   * @brief Compute the integration required by the computation of Q, range 1.
+   */
   class QCGInt1 : public CGIntegrator { 
     //{{{
   protected:
@@ -58,11 +75,11 @@ class QCG : public QImpl{
       clean_workspace();
     }
   // }}}
-  }; 
+  };
 
-  ///
-  /// Compute the integration required by the computation of Q, range 2.
-  ///
+  /**
+   * @brief Compute the integration required by the computation of Q, range 2.
+   */
   class QCGInt2 : public CGIntegrator { 
     //{{{
   protected:

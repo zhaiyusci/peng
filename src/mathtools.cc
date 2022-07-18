@@ -113,6 +113,7 @@ std::tuple<double, double> find_local_maximum(FuncDeriv1D &func, double lower,
   return std::make_tuple(x, -f);
 }
 
+namespace {
 class AbsDiff : public FuncDeriv1D {
 private:
   FuncDeriv1D *const func_;
@@ -126,6 +127,7 @@ public:
   double value(double x) const { return fabs(func_->value(x) - target_); }
   bool provide_derivative() const { return false; }
 };
+} // namespace
 
 double find_local_root(FuncDeriv1D &func, double target, double lower,
                        double upper, size_t nsamp, double xtol_err) {

@@ -13,25 +13,28 @@
 // https://mathworld.wolfram.com/Chebyshev-GaussQuadrature.html
 // Note that we only need ONE copy of the cosines...
 // so a CGIntegratorBackend class is prepared
+
 namespace dlt {
 
-///
-/// This class is used to iterate over the n^3 data...
-///
-/// There are two fashions to visit the data.
-///
-/// 1. In case half_visit == true, only the positive half the data is visited,
-/// This can often happen if the function we want to treat is an even function.
-/// When this happens, the half_storage must be true because if the data is
-/// stored fully, i.e., the negative part of the function is also recorded as
-/// grids, It is unreasonable to only visit the positive half.
-///
-/// 2. When half_visit == false, both positive half and negative half is
-/// visited. This case coresponds to two fashions of storage. The full storage
-/// will cache all the results in a list, while the half storage only record the
-/// positive half. Chances are that we generate the full grids from a
-/// half-stored grids, like in the CGIntegrator case.
-///
+/**
+ * @brief Iterate the n^3 data helper.
+ *
+ * This class is used to iterate the n^3 data...
+ *
+ * There are two fashions to visit the data.
+ *
+ * 1. In case half_visit == true, only the positive half the data is visited,
+ * This can often happen if the function we want to treat is an even function.
+ * When this happens, the half_storage must be true because if the data is
+ * stored fully, i.e., the negative part of the function is also recorded as
+ * grids, It is unreasonable to only visit the positive half.
+ *
+ * 2. When half_visit == false, both positive half and negative half is
+ * visited. This case coresponds to two fashions of storage. The full storage
+ * will cache all the results in a list, while the half storage only record the
+ * positive half. Chances are that we generate the full grids from a
+ * half-stored grids, like in the CGIntegrator case.
+ */
 class CubicIter {
 private:
   size_t border_;
@@ -41,6 +44,7 @@ private:
   bool half_storage_; // in storage, only save the positive half
 
 public:
+  // A singleton.
   CubicIter() = delete;
   CubicIter(size_t eorder)
       : border_(0), eorder_(eorder), half_visit_(false), half_storage_(true) {}
@@ -53,6 +57,10 @@ public:
                                "elements in the full storage.");
     }
   }
+
+  /**
+   * @brief CubicIter's iterator.
+   */
   class iterator {
   protected:
     CubicIter *ci_;
@@ -63,27 +71,27 @@ public:
     size_t totidx_;
 
   public:
-    ///
-    /// Used with ++iterator.
-    ///
+    /**
+     * @brief ++iterator.
+     */
     iterator &operator++();
 
-    ///
-    /// Returns the order.
-    ///
+    /**
+     * @brief Get the order.
+     */
     size_t order() { return order_; }
     bool negative() { return negative_ == 1; }
 
-    ///
-    /// Returns the index, 0-based, of the current order and sign
-    ///(if fully visit the space, i.e., half_visit_ == false).
-    ///
+    /**
+     * @brief Returns the index, 0-based, of the current order and sign (if
+     * fully visit the space, i.e., half_visit_ == false).
+     */
     size_t idx() { return idx_; }
 
-    ///
-    /// Returns the total index, but the sign is also returned.
-    /// You can seperate the sign and index easily.
-    ///
+    /**
+     * @brief Returns the total index, but the sign is also returned.
+     * You can separate the sign and index easily.
+     */
     int operator*() const {
       if (ci_->half_storage_) {
         return totidx_ * (negative_ ? -1 : 1);
@@ -97,20 +105,37 @@ public:
     }
     bool operator!=(iterator &rhs) const { return !(operator==(rhs)); }
 
+    /**
+     * @brief Constructor.
+     *
+     * @param ci: The CubicIter.
+     * @param order: 3^order.
+     * @param negative: on the negative part?
+     * @param idx: the index return by the idx() method.
+     */
     iterator(CubicIter *ci, size_t order, size_t negative, size_t idx);
   };
 
-  ///
-  /// Returns the begin iterator, following the STL fashion.
-  ///
+  /**
+   * @brief Return the begin iterator, following the STL fashion.
+   */
   iterator begin() { return iterator(this, border_, 0, 0); }
 
-  ///
-  /// Returns the end iterator, not really visited, following the STL fashion.
-  ///
+  /**
+   * @brief Return the end iterator, not really visitable, following the STL
+   * fashion.
+   */
   iterator end() { return iterator(this, eorder_, 0, 0); }
 
 private:
+  /**
+   * @brief The size of Iterable object of the given order if counting from
+   * order 0.
+   *
+   * But we assume it takes the same visit logic, say, the half_visit_.
+   *
+   * @param order: the order specified.
+   */
   size_t size_from_0_(size_t order) {
     if (order == 0) {
       return 0;
@@ -123,19 +148,26 @@ private:
   }
 
 public:
-  ///
-  /// The size of the Iterable object if counting from order 0.
-  ///
+  /**
+   * @brief The size of the Iterable object if counting from order 0.
+   */
   size_t size_from_0() { return size_from_0_(eorder_); }
 
-  ///
-  /// The size of the Iterable object.
-  /// In my context, I do not really need this method.
-  /// TODO: check it.
-  ///
+  /**
+   * @brief The size of the Iterable object.
+   *
+   * In our context, we do not really need this method.
+   */
   size_t size() { return size_from_0_(eorder_) - size_from_0_(border_); }
 };
 
+/**
+ * @brief The Chebyshev-Gauss integrator.
+ *
+ * We note that some even function only need a half integration, or some
+ * function can use the positive half of CG quadrature to do the integration.
+ * This two situation is kept in mind when design the class.
+ */
 class CGIntegrator {
 protected:
   // protected:
@@ -158,18 +190,19 @@ public:
     integrands_.clear();
   }
 
-  ///
-  /// User implemented method. Basically, user should
-  ///
-  /// 1. Fill in integrands_ according the rule.  The internal iterating
-  /// logic is implemented with CubicIter class, the document of which is
-  /// provided;
-  ///
-  /// 2. Update ordersize_ together with integrands_;
-  ///
-  /// 3. Design an algorithm with cache mechanism if needed to save the
-  /// computational resource.
-  ///
+  /**
+   * @brief User implemented method.
+   *
+   * Basically, user should
+   *
+   * 1. Fill in integrands_ according the rule.  The internal iterating logic is
+   * implemented with CubicIter class, the document of which is provided;
+   *
+   * 2. Update ordersize_ together with integrands_;
+   *
+   * 3. Design an algorithm with cache mechanism if needed to save the
+   * computational resource.
+   */
   virtual void calculate_integrands(size_t ordersize) = 0;
 
   ///
@@ -178,6 +211,11 @@ public:
   double map_pm1(double x);
 };
 
+/**
+ * @brief Backend for CGIntegrator.
+ *
+ * Compute and provide the cosines for CGIntegrator.
+ */
 class CGIntegratorBackend {
 
 protected:
