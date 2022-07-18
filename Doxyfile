@@ -2,7 +2,7 @@
 
 PROJECT_NAME           = Dilute
 PROJECT_NUMBER         = 0.3.0
-PROJECT_LOGO           = /home/yuzhai/Works/dilute/drawing.png
+PROJECT_LOGO           = ./xi.png
 OUTPUT_DIRECTORY       = ./docs
 EXTRACT_LOCAL_CLASSES  = NO
 INPUT                  = ./src \
