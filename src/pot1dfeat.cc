@@ -4,7 +4,7 @@ namespace dlt {
 
 Pot1DFeatures::Pot1DFeatures(FuncDeriv1D &pot)
     : ppot_(&pot), p_reduced_(nullptr) {
-  std::tie(r_min_, epsilon_) = find_local_minimum(*ppot_, 1.0, 5.0);
+  std::tie(r_min_, epsilon_) = find_local_minimum(*ppot_, 1.0, 9.0);
   // TODO: I believe this range is safe...
   epsilon_ *= -1;
   std::cerr << "r_min  = " << r_min_ << '\n';

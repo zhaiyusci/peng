@@ -149,5 +149,104 @@ inline double poch(int z, int n) { // eq.93
  * @brief The delta symbol.
  */
 inline int delta(int i, int j) { return i == j ? 1 : 0; }
+
+/**
+ * @brief Data structure to hold data that is grow by n^2.
+ */
+template <typename T> class Ext2D {
+protected:
+  std::size_t size_;
+  std::vector<T> data_;
+
+public:
+  Ext2D(std::size_t r = 0, std::size_t c = 0, const T &init = T()) {
+    resize(r, c, init);
+  }
+
+  std::size_t size() const { return size_ * size_; }
+  // As if we take the size in dimension dim.
+  std::size_t size(size_t dim) const { return size_; }
+
+  void resize(std::size_t r, std::size_t c, const T &init = T()) {
+    // We take two arguments to remind user that this is a 2D data struct.
+    if (r == c) {
+      size_ = r;
+      data_.resize(r * c, init);
+    } else {
+      throw std::runtime_error("Ext2d only deals with square maxtrix.");
+    }
+    return;
+  }
+
+  T &operator()(std::size_t idx) { return data_[idx]; }
+  T &operator[](std::size_t idx) { return data_[idx]; }
+  T &operator()(std::size_t r, std::size_t c) { return data_[index(r, c)]; }
+
+  static std::tuple<std::size_t, std::size_t> index(std::size_t idx) {
+    std::size_t maxrc = std::floor(std::sqrt(idx));
+    std::size_t r = idx - maxrc * maxrc;
+    if (r > maxrc) {
+      return std::make_tuple(maxrc, 2 * maxrc - r);
+    } else {
+      return std::make_tuple(r, maxrc);
+    }
+  }
+
+  static std::size_t index(std::size_t r, std::size_t c) {
+    std::size_t idx = std::max(r, c);
+    idx *= idx;
+    if (r <= c) {
+      idx += r;
+    } else {
+      idx += 2 * r - c;
+    }
+    return idx;
+  }
+
+  class iterator {
+  protected:
+    Ext2D<T> *p_container_;
+    size_t idx_;
+    size_t r_;
+    size_t c_;
+
+  public:
+    iterator(Ext2D<T> *p_container, size_t idx)
+        : p_container_(p_container), idx_(idx), r_(0), c_(0) {
+      std::tie(r_, c_) = p_container_->index(idx);
+    }
+    iterator(Ext2D<T> *p_container, size_t r, size_t c)
+        : p_container_(p_container), idx_(0), r_(r), c_(c) {
+      idx_ = p_container_->index(r, c);
+    }
+    T &operator*() { return (*p_container_)[idx_]; }
+
+    iterator &operator++() {
+      ++idx_;
+      if (r_ < c_) {
+        ++r_;
+      } else if (c_ != 0) {
+        --c_;
+      } else {
+        c_ = r_ + 1;
+        r_ = 0;
+      }
+      return *this;
+    }
+
+    bool operator!=(const iterator &rhs) {
+      return idx_ != rhs.idx_ || p_container_ != rhs.p_container_;
+    }
+
+    bool operator<(const iterator &rhs) { return idx_ < rhs.idx_; }
+
+    std::size_t idx() { return idx_; }
+    std::size_t row() { return r_; }
+    std::size_t col() { return c_; }
+  };
+
+  iterator begin() { return iterator(this, 0); }
+  iterator end() { return iterator(this, size()); }
+};
 } // namespace dlt
 #endif
