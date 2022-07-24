@@ -25,6 +25,7 @@ public:
    * @param rtol: allowed relative error.
    */
   virtual double Omega(size_t l, size_t s, double T, double rtol) = 0;
+  virtual ~OmegaImpl() {}
 };
 
 /**

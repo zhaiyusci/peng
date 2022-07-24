@@ -46,9 +46,6 @@ class Task {
   const std::vector<double> molefractions0_;
   const size_t propertyorder_;
   const double accuracy_;
-  FuncDeriv1D *const pot00_;
-  FuncDeriv1D *const pot01_;
-  FuncDeriv1D *const pot11_;
 
   // Data...
   dlt::AtomPair pair00_;
@@ -131,9 +128,8 @@ public:
        FuncDeriv1D &pot00, FuncDeriv1D &pot01, FuncDeriv1D &pot11)
       : atom0_(atom0), atom1_(atom1), temperatures_(temperatures),
         molefractions0_(molefractions0), propertyorder_(maxpq),
-        accuracy_(accuracy), pot00_(&pot00), pot01_(&pot01), pot11_(&pot11),
-        pair00_(atom0, atom0, pot00), pair11_(atom1, atom1, pot11),
-        pair01_(atom0, atom1, pot01),
+        accuracy_(accuracy), pair00_(atom0, atom0, pot00),
+        pair11_(atom1, atom1, pot11), pair01_(atom0, atom1, pot01),
         //
         // clang-format off
         D12s_   ("Diffusion",       1e-4, "10⁻⁴m²/s", molefractions0.size(), temperatures.size(), maxpq),

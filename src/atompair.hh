@@ -65,7 +65,6 @@ private:
   const Atom atom0_;
   const Atom atom1_;
   FuncDeriv1D *const ppot_;
-  double tol_;
 
   const double reduced_mass_;
   std::unique_ptr<Pot1DFeatures> pf_;

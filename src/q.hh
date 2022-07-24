@@ -29,6 +29,7 @@ public:
    * computational resources.
    */
   virtual double Q(size_t l, double r_E, double E, double rtol) =0;
+  virtual ~QImpl() {}
 };
 
 /**

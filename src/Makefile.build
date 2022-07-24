@@ -1,8 +1,18 @@
-FFLAGS=-O3 -fcheck=all -Wall -Werror -g -fPIC 
+# GNU Compiler
 CC=gcc
 CXX=g++
-FC=gfortran
 CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include 
+
+# # LLVM Compiler
+# CC=clang
+# CXX=clang++
+# CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include 
+
+# # Intel Compiler
+# CC=icc
+# CXX=icpc
+# CPPFLAGS=-O3 -Wall -Werror -g -fPIC -std=c++17 -I../external/include -diag-disable 2196
+
 OBJDIR ?= ../build
 OBJ := dilute.o \
 			 mathtools.o cgquad.o glquad.o \
@@ -52,10 +62,4 @@ clean:
 
 %.o: %.cc
 	$(CXX) $(CPPFLAGS) -c $< -o $@
-
-%.o: %.F
-	$(FC) $(FFLAGS) -c $< -o $@
-
-%.o: %.F90
-	$(FC) $(FFLAGS) -c $< -o $@
 

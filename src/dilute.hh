@@ -6,7 +6,7 @@
 // #include <json.hpp>
 
 namespace dlt {
-const char DILUTE_VERSION[] = "0.4.0";
+const char DILUTE_VERSION[] = "0.4.1";
 
 } // namespace dlt
 

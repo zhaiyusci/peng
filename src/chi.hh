@@ -25,6 +25,7 @@ public:
    * @param rtol: allowed relative error.
    */
   virtual double chi(double E, double r_m, double rtol) = 0;
+  virtual ~ChiImpl() {}
 };
 
 /**
