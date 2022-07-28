@@ -1,7 +1,7 @@
 #include "loadedpotential.hh"
 #include <dlfcn.h>
 #include <string>
-namespace dlt{
+namespace peng{
 LoadedPotential::LoadedPotential(std::string libpath)
     : libpath_(libpath), plib_(nullptr), pvalue_(nullptr),
       pderivative_(nullptr) {
@@ -29,7 +29,7 @@ double LoadedPotential::derivative(double r) const {
   if (provide_derivative()) {
     return pderivative_(r);
   } else {
-    return this->dlt::FuncDeriv1D::derivative(r);
+    return this->peng::FuncDeriv1D::derivative(r);
   }
 }
 }

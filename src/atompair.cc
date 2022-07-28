@@ -1,6 +1,6 @@
 #include "atompair.hh"
 
-namespace dlt {
+namespace peng {
 double AtomPair::Omega(size_t l, size_t s, double T, double rtol) const {
 
   const double kB = 1.380649e-23;      // BY DEFINITION
@@ -12,5 +12,5 @@ double AtomPair::Omega(size_t l, size_t s, double T, double rtol) const {
          pow((pf_->sigma() * AA), 2) /
          sqrt(2 * M_PI * reduced_mass_ * amu / (kB * T));
 }
-} // namespace dlt
+} // namespace peng
 // PotentialLibrary *PotentialLibrary::instance_ = nullptr;

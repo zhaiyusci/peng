@@ -1,5 +1,5 @@
-#ifndef _DILUTE_TRANSPORT_HH_
-#define _DILUTE_TRANSPORT_HH_
+#ifndef _PENG_TRANSPORT_HH_
+#define _PENG_TRANSPORT_HH_
 #include "atompair.hh"
 #include <eigen3/Eigen/Dense>
 #include <iostream>
@@ -7,9 +7,9 @@
 #include <vector>
 
 /**
- * @brief The top level namespace for the Dilute project.
+ * @brief The top level namespace for the Peng project.
  */
-namespace dlt {
+namespace peng {
 /**
  * @brief Abstract class defining the interface of a Omega provider.
  *
@@ -155,6 +155,6 @@ public:
   evaluate(double temperature, double molefraction0, size_t po);
 };
 
-} // namespace dlt
+} // namespace peng
 
 #endif

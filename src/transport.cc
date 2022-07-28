@@ -12,7 +12,7 @@
 static const double kB = 1.380649e-23;      // BY DEFINITION
 static const double amu = 1.6605390666e-27; // CODATA2018
 
-namespace dlt {
+namespace peng {
 
 OmegaCache::OmegaCache(AtomPair &atompair, double rtol)
     : p_atompair_(&atompair), rtol_(rtol) {}
@@ -491,4 +491,4 @@ double TransportProperties::B_(int p, int q) {
            molefraction0_ * molefraction1_ * Lint(ap - 1, aq - 1)(1, 1, 1, 0);
 }
 
-} // namespace dlt
+} // namespace peng

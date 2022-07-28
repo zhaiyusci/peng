@@ -1,13 +1,13 @@
-#ifndef _DILUTE_LOADEDPOTENTIAL_HH_
-#define _DILUTE_LOADEDPOTENTIAL_HH_
+#ifndef _PENG_LOADEDPOTENTIAL_HH_
+#define _PENG_LOADEDPOTENTIAL_HH_
 #include "mathtools.hh"
 #include <dlfcn.h>
 
-namespace dlt {
+namespace peng {
 /**
  * @brief Load external potential as FuncDeriv1D.
  */
-class LoadedPotential : public dlt::FuncDeriv1D {
+class LoadedPotential : public peng::FuncDeriv1D {
 protected:
   std::string libpath_;
   void *plib_;
@@ -27,5 +27,5 @@ public:
   bool provide_derivative() const override { return pderivative_ != nullptr; }
   double derivative(double r) const override;
 };
-} // namespace dlt
+} // namespace peng
 #endif

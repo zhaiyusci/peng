@@ -1,6 +1,6 @@
 #include "pot1dquad.hh"
 
-namespace dlt {
+namespace peng {
 
 ReducedPotentialQuadrature::PhiEff::PhiEff(FuncDeriv1D &pot, double b, double E)
     : ppot_(&pot), b_(b), E_(E) {}
@@ -93,4 +93,4 @@ double ReducedPotentialQuadrature::Omega(size_t l, size_t s, double T,
   return p_omega_impl_->Omega(l,s,T,rtol);
 }
 
-} // namespace dlt
+} // namespace peng

@@ -1,4 +1,4 @@
-#include "dilute.hh"
+#include "peng.hh"
 #include "atompair.hh"
 #include "mathtools.hh"
 #include "transport.hh"
@@ -8,11 +8,11 @@
 #include <string>
 #include <vector>
 
-namespace dlt {
+namespace peng {
 
 
 ///
 /// Compute Omegas and then properties.
 ///
 
-} // namespace dlt
+} // namespace peng

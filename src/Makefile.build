@@ -14,7 +14,7 @@ CPPFLAGS=-O3 -Wall -Werror -g -fPIC --std=c++17 -I../external/include
 # CPPFLAGS=-O3 -Wall -Werror -g -fPIC -std=c++17 -I../external/include -diag-disable 2196
 
 OBJDIR ?= ../build
-OBJ := dilute.o \
+OBJ := peng.o \
 			 mathtools.o cgquad.o glquad.o \
 			 pot1dfeat.o pot1dquad.o \
 			 atompair.o transport.o \
@@ -25,9 +25,9 @@ VPATH = ../src
 PWD = $(shell pwd)
 .PHONY: all clean
 
-all: dilute.exe # main.exe omega11.so omega12.so omega22.so test2.exe
+all: peng.exe # main.exe omega11.so omega12.so omega22.so test2.exe
 
-dilute.o: dilute.cc dilute.hh atompair.hh mathtools.hh pot1dfeat.hh \
+peng.o: peng.cc peng.hh atompair.hh mathtools.hh pot1dfeat.hh \
 	pot1dquad.hh cgquad.hh glquad.hh chi.hh q.hh omega.hh transport.hh
 mathtools.o: mathtools.cc mathtools.hh
 cgquad.o: cgquad.cc cgquad.hh
@@ -47,15 +47,15 @@ omega.o: omega.cc omega.hh cgquad.hh glquad.hh pot1dquad.hh mathtools.hh \
 	chi.hh q.hh
 
 
-main.o: main.cc dilute.hh atompair.hh mathtools.hh pot1dfeat.hh \
+main.o: main.cc peng.hh atompair.hh mathtools.hh pot1dfeat.hh \
 	pot1dquad.hh cgquad.hh glquad.hh chi.hh q.hh omega.hh transport.hh \
 	loadedpotential.hh
 
-libdilute.so: $(OBJ) 
+libpeng.so: $(OBJ) 
 	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L../external/lib -lnlopt -lfmt -shared -Wl,-rpath,"$(PWD)/../external/lib"
 
-dilute.exe: main.o loadedpotential.o libdilute.so
-	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L. -ldilute -L../external/lib -lnlopt -lfmt -Wl,-rpath,"$(PWD)/../external/lib:$(PWD)/../build"
+peng.exe: main.o loadedpotential.o libpeng.so
+	$(CC) -o $@ $^ -ldl -lgfortran -lstdc++ -lm -L. -lpeng -L../external/lib -lnlopt -lfmt -Wl,-rpath,"$(PWD)/../external/lib:$(PWD)/../build"
 
 clean:
 	rm -f *.exe *.o *.so fort.*

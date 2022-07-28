@@ -1,8 +1,8 @@
-#ifndef _DILUTE_POT1DFEAT_HH_
-#define _DILUTE_POT1DFEAT_HH_
+#ifndef _PENG_POT1DFEAT_HH_
+#define _PENG_POT1DFEAT_HH_
 #include "mathtools.hh"
 
-namespace dlt{
+namespace peng{
 
 /**
  * @brief The reduced potential energy surface, i.e., the "star" one.

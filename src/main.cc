@@ -1,9 +1,9 @@
-#include "dilute.hh"
+#include "peng.hh"
 #include "loadedpotential.hh"
 #include <fmt/core.h>
 #include <iostream>
 #include <json.hpp>
-using namespace dlt;
+// using namespace peng;
 
 /**
  * @brief Class to save the transport properties, in an elegent way.
@@ -40,17 +40,17 @@ public:
  * @brief Class that hold the data of a Task.
  */
 class Task {
-  const dlt::Atom atom0_;
-  const dlt::Atom atom1_;
+  const peng::Atom atom0_;
+  const peng::Atom atom1_;
   const std::vector<double> temperatures_;
   const std::vector<double> molefractions0_;
   const size_t propertyorder_;
   const double accuracy_;
 
   // Data...
-  dlt::AtomPair pair00_;
-  dlt::AtomPair pair11_;
-  dlt::AtomPair pair01_;
+  peng::AtomPair pair00_;
+  peng::AtomPair pair11_;
+  peng::AtomPair pair01_;
 
   ComputedData D12s_;
   ComputedData DTs_;
@@ -122,10 +122,11 @@ public:
    * @param rtol: allowed relative error.
    * @param pot00, pot01, pot11: Interatomic interaction.
    */
-  Task(const Atom &atom0, const Atom &atom1,
+  Task(const peng::Atom &atom0, const peng::Atom &atom1,
        const std::vector<double> &temperatures,
        const std::vector<double> &molefractions0, size_t maxpq, double accuracy,
-       FuncDeriv1D &pot00, FuncDeriv1D &pot01, FuncDeriv1D &pot11)
+       peng::FuncDeriv1D &pot00, peng::FuncDeriv1D &pot01,
+       peng::FuncDeriv1D &pot11)
       : atom0_(atom0), atom1_(atom1), temperatures_(temperatures),
         molefractions0_(molefractions0), propertyorder_(maxpq),
         accuracy_(accuracy), pair00_(atom0, atom0, pot00),
@@ -138,19 +139,20 @@ public:
         etas_   ("Viscosity",       1e-6, "μPa⋅s",    molefractions0.size(), temperatures.size(), maxpq)
   // clang-format on
   {
-    pair00_.set_algorithm<ChiCG, QCG, OmegaGL>();
-    pair01_.set_algorithm<ChiCG, QCG, OmegaGL>();
-    pair11_.set_algorithm<ChiCG, QCG, OmegaGL>();
+    pair00_.set_algorithm<peng::ChiCG, peng::QCG, peng::OmegaGL>();
+    pair01_.set_algorithm<peng::ChiCG, peng::QCG, peng::OmegaGL>();
+    pair11_.set_algorithm<peng::ChiCG, peng::QCG, peng::OmegaGL>();
   }
 
   /**
    * @brief Do the computation.
    */
   void execute() {
-    OmegaCache om00(pair00_, accuracy_);
-    OmegaCache om01(pair01_, accuracy_);
-    OmegaCache om11(pair11_, accuracy_);
-    TransportProperties tp(atom0_.mass(), atom1_.mass(), om00, om01, om11);
+    peng::OmegaCache om00(pair00_, accuracy_);
+    peng::OmegaCache om01(pair01_, accuracy_);
+    peng::OmegaCache om11(pair11_, accuracy_);
+    peng::TransportProperties tp(atom0_.mass(), atom1_.mass(), om00, om01,
+                                 om11);
 
     for (size_t ti = 0; ti != temperatures_.size(); ++ti) {
       std::cerr << "T = " << temperatures_[ti] << std::endl;
@@ -191,25 +193,31 @@ public:
 int main() {
   // clang-format off
   std::cout << "*=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=*\n" 
-            << "{   ,gggggggggggg,                                            }\n"
-            << "{  dP'''88''''''Y8b,       ,dPYb,              I8             }\n"
-            << "{  Yb,  88       `8b,      IP'`Yb              I8             }\n"
-            << "{   `'  88        `8b gg   I8  8I           88888888          }\n"
-            << "{       88         Y8 ''   I8  8'              I8             }\n"
-            << "{       88         d8 gg   I8 dP  gg      gg   I8    ,ggg,    }\n"
-            << "{       88        ,8P 88   I8dP   I8      8I   I8   i8' '8i   }\n"
-            << "{       88       ,8P' 88   I8P    I8,    ,8I  ,I8,  I8, ,8I   }\n"
-            << "{       88______,dP'_,88,_,d8b,_ ,d8b,  ,d8b,,d88b, `YbadP'   }\n"
-            << "{      888888888P'  8P''Y88P''Y888P''Y88P'`Y88P''Y8888P'Y888  }\n"
+            << "{        ,ggggggggggg,                                        }\n"
+            << "{       dP^^^88^^^^^^Y8,                               88     }\n"
+            << "{       Yb,  88      `8b                              I88I    }\n"
+            << "{        `^  88      ,8P                              i88i    }\n"
+            << "{            88aaaad8P^                                88     }\n"
+            << "{            88^^^^^,ggg,    ,ggg,,ggg,     ,gggg,gg   88     }\n"
+            << "{            88    i8^ ^8i  ,8^ ^8P^ ^8,   dP^  ^Y8I   88     }\n"
+            << "{            88    I8, ,8I  I8   8I   8I  i8'    ,8I   ii     }\n"
+            << "{            88    `YbadP' ,dP   8I   Yb,,d8,   ,d8I          }\n"
+            << "{            88   888P^Y8888P'   8I   `Y8P^Y8888P^888  db     }\n"
+            << "{                                               ,d8I'  qp     }\n"
+            << "{                                             ,dP'8I          }\n"
+            << "{                                            ,8^  8I          }\n"
+            << "{                                            I8   8I          }\n"
+            << "{                                            `8, ,8I          }\n"
+            << "{                                             `Y8P^           }\n"
             << "*=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=~-=*\n"
             << "\n"
-            << "Version: " << DILUTE_VERSION << '\n'
+            << "Version: " << peng::PENG_VERSION << '\n'
             << "\n"
             << "Authors: \n"
             << "  Yu Zhai, You Li, Hui Li, and Frederick R. W. McCourt\n"
             << "\n"
             << "GitHub Repo: \n"
-            << "  https://github.com/zhaiyusci/dilute\n"
+            << "  https://github.com/zhaiyusci/peng\n"
             << "\n"
             << "The authors appreciate the financial support from \n"
             << "  * National Natural Science Foundation of China\n"
@@ -226,19 +234,22 @@ int main() {
   nlohmann::json config;
   std::cin >> config;
 
-  Atom atom0(config["atoms"][0]["name"].get<std::string>(),
-             config["atoms"][0]["mass"].get<double>());
-  Atom atom1(config["atoms"][1]["name"].get<std::string>(),
-             config["atoms"][1]["mass"].get<double>());
+  peng::Atom atom0(config["atoms"][0]["name"].get<std::string>(),
+                   config["atoms"][0]["mass"].get<double>());
+  peng::Atom atom1(config["atoms"][1]["name"].get<std::string>(),
+                   config["atoms"][1]["mass"].get<double>());
   std::vector<double> temperatures(
       config["temperatures"].get<std::vector<double>>());
   std::vector<double> molefractions0(
       config["molefractions0"].get<std::vector<double>>());
   size_t propertyorder(config["propertyorder"].get<size_t>());
   double accuracy(config["accuracy"].get<double>());
-  LoadedPotential pot00(config["potentials"][0]["path"].get<std::string>());
-  LoadedPotential pot01(config["potentials"][1]["path"].get<std::string>());
-  LoadedPotential pot11(config["potentials"][2]["path"].get<std::string>());
+  peng::LoadedPotential pot00(
+      config["potentials"][0]["path"].get<std::string>());
+  peng::LoadedPotential pot01(
+      config["potentials"][1]["path"].get<std::string>());
+  peng::LoadedPotential pot11(
+      config["potentials"][2]["path"].get<std::string>());
 
   Task task(atom0, atom1, temperatures, molefractions0, propertyorder, accuracy,
             pot00, pot01, pot11);

@@ -1,10 +1,10 @@
-#ifndef __DILUTE_MATHTOOLS_HH__
-#define __DILUTE_MATHTOOLS_HH__
+#ifndef __PENG_MATHTOOLS_HH__
+#define __PENG_MATHTOOLS_HH__
 #include <iostream>
 #include <memory>
 #include <nlopt.hpp>
 #include <valarray>
-namespace dlt {
+namespace peng {
 
 class NegFuncDeriv1D;
 
@@ -248,5 +248,5 @@ public:
   iterator begin() { return iterator(this, 0); }
   iterator end() { return iterator(this, size()); }
 };
-} // namespace dlt
+} // namespace peng
 #endif

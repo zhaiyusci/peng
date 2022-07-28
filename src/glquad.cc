@@ -1190,7 +1190,7 @@ void timestamp()
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 
-namespace dlt {
+namespace peng {
 GLIntegrator::GLIntegrator(double alpha) : alpha_(alpha) {}
 void GLIntegrator::clean_workspace() {
   ngrids_ = 0;
@@ -1235,4 +1235,4 @@ std::tuple<double, double, bool> GLIntegrator::integrate(double rtol,
             << '.' << std::endl;
   return std::make_tuple(newint, err, err < rtol);
 }
-} // namespace dlt
+} // namespace peng

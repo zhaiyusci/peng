@@ -1,7 +1,7 @@
 #include "q.hh"
 #include "pot1dquad.hh"
 
-namespace dlt {
+namespace peng {
 QCG::QCGInt1::QCGInt1(ReducedPotentialQuadrature &rpq)
     : CGIntegrator(false), rpq_(&rpq) {
   clean_cache();
@@ -193,4 +193,4 @@ double QCG::Q(size_t l, double r_E, double E,
 }
 
 
-} // namespace dlt
+} // namespace peng

@@ -7,7 +7,7 @@
 
 #include "cgquad.hh"
 
-namespace dlt {
+namespace peng {
 
 CGIntegratorBackend *CGIntegratorBackend::instance_ = nullptr;
 CGIntegrator::CGIntegrator(bool symm, double a, double b) : symm_(symm) {
@@ -141,5 +141,5 @@ CubicIter::iterator &CubicIter::iterator::operator++() {
   return *this;
 }
 
-} // namespace dlt
+} // namespace peng
 

@@ -1,8 +1,8 @@
-#ifndef _DILUTE_Q_HH_
-#define _DILUTE_Q_HH_
+#ifndef _PENG_Q_HH_
+#define _PENG_Q_HH_
 #include "cgquad.hh"
 
-namespace dlt {
+namespace peng {
 class ReducedPotentialQuadrature;
 
 /**
@@ -125,6 +125,6 @@ public:
 };
 
 
-} // namespace dlt
+} // namespace peng
 
 #endif

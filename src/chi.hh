@@ -1,8 +1,8 @@
-#ifndef _DILUTE_CHI_HH_
-#define _DILUTE_CHI_HH_
+#ifndef _PENG_CHI_HH_
+#define _PENG_CHI_HH_
 #include "cgquad.hh"
 
-namespace dlt {
+namespace peng {
 class ReducedPotentialQuadrature;
 
 /**
@@ -70,6 +70,6 @@ public:
 };
 
 
-} // namespace dlt
+} // namespace peng
 
 #endif

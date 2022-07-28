@@ -1,9 +1,9 @@
-#ifndef _DILUTE_OMEGA_HH_
-#define _DILUTE_OMEGA_HH_
+#ifndef _PENG_OMEGA_HH_
+#define _PENG_OMEGA_HH_
 #include "cgquad.hh"
 #include "glquad.hh"
 
-namespace dlt {
+namespace peng {
 class ReducedPotentialQuadrature;
 
 /**
@@ -124,6 +124,6 @@ public:
   OmegaCG(ReducedPotentialQuadrature & rpq): OmegaImpl(rpq), omegacgint_(rpq){}
   double Omega(size_t l, size_t s, double T, double rtol) override;
 };
-} // namespace dlt
+} // namespace peng
 
 #endif

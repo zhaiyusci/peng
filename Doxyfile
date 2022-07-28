@@ -1,6 +1,6 @@
 # Doxyfile 1.9.4
 
-PROJECT_NAME           = Dilute
+PROJECT_NAME           = Peng
 PROJECT_NUMBER         = 0.3.0
 PROJECT_LOGO           = ./xi.png
 OUTPUT_DIRECTORY       = ./docs

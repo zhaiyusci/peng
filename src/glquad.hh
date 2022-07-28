@@ -13,7 +13,7 @@
 // https://people.sc.fsu.edu/~jburkardt/cpp_src/gen_laguerre_rule/gen_laguerre_rule.html
 // and Yu Zhai add a C++ OOP interface
 
-namespace dlt {
+namespace peng {
 
 /**
  * @brief The Gauss-Laguerre integrator.
@@ -47,6 +47,6 @@ public:
   virtual void calculate_integrands(size_t ngridsize) = 0;
 };
 
-} // namespace dlt
+} // namespace peng
 
 #endif

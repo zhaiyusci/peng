@@ -1,7 +1,7 @@
 #include "omega.hh"
 #include "pot1dquad.hh"
 
-namespace dlt {
+namespace peng {
 
 OmegaCG::OmegaCGInt::OmegaCGInt(ReducedPotentialQuadrature &rpq)
     : CGIntegrator(true, -0.5, 1.0), rpq_(&rpq) {
@@ -142,4 +142,4 @@ double OmegaGL::Omega(size_t l, size_t s, double T, double rtol) {
   return coeff * quadrature;
 }
 
-} // namespace dlt
+} // namespace peng

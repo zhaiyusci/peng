@@ -3,7 +3,7 @@
 #include <tuple>
 #include <valarray>
 #include <vector>
-namespace dlt {
+namespace peng {
 double FuncDeriv1D::derivative(double x) const {
   std::cerr << "Fallback to the finite differential method." << std::endl;
   const double dx = 1.0e-6;
@@ -187,4 +187,4 @@ double LocalRoot::operator()(double target) const {
   return res;
 }
 
-} // namespace dlt
+} // namespace peng

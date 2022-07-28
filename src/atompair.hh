@@ -1,5 +1,5 @@
-#ifndef _DILUTE_ATOMPAIR_HH_
-#define _DILUTE_ATOMPAIR_HH_
+#ifndef _PENG_ATOMPAIR_HH_
+#define _PENG_ATOMPAIR_HH_
 // #include "cachedfunc.hh"
 #include "mathtools.hh"
 #include "pot1dfeat.hh"
@@ -10,7 +10,7 @@
 #include <valarray>
 #include <vector>
 
-namespace dlt {
+namespace peng {
 
 /**
  * @brief Base class for all types of particles.
@@ -105,6 +105,6 @@ public:
    */
   double Omega(size_t l, size_t s, double T, double rtol) const;
 };
-} // namespace dlt
+} // namespace peng
 
 #endif

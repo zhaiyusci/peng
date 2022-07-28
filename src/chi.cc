@@ -1,7 +1,7 @@
 #include "chi.hh"
 #include "pot1dquad.hh"
 
-namespace dlt {
+namespace peng {
 ChiCG::ChiCGInt::ChiCGInt(ReducedPotentialQuadrature &rpq)
     : CGIntegrator(true), rpq_(&rpq) {
   clean_cache();
@@ -96,4 +96,4 @@ double ChiCG::chi(double E, double r_m, double rtol) {
   return M_PI - b / r_m * quadrature;
 }
 
-} // namespace dlt
+} // namespace peng

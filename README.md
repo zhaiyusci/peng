@@ -1,4 +1,4 @@
-# Dilute: A software package for the thermophysics of dilute gases.
+# Peng: A software package for the thermophysics of dilute gases.
 
 ## Introduction
 
@@ -12,7 +12,7 @@ FORTRAN programs were written in around 1960s to 1980s, when most programs were 
 We struggled to make them work in new mechines, and often some modification is required simply because we used different compilers.
 We actually need a software which is written following the standard and can work out-of-the-box.
 
-In this repo we present **Dilute**, 
+In this repo we present **Peng**, 
 which compute the collision integrals and the transport properties of binary dilute gases.
 By now, we focus on the case where both kinds of particles are atoms, 
 which limits the code to of rare gases mixtures.
@@ -102,7 +102,7 @@ Put the path in the JSON file.
 
 ### The JSON input file
 
-Input files of dilute executable obey the [JSON format](https://en.wikipedia.org/wiki/JSON).
+Input files of peng executable obey the [JSON format](https://en.wikipedia.org/wiki/JSON).
 The users can find examples of input file in `examples/hexe/hexe.json`.
 
 Although the sample JSON file is self-explained, we list the keys below.

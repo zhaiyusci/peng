@@ -1,5 +1,5 @@
-#ifndef _DILUTE_CGQUAD_HH_
-#define _DILUTE_CGQUAD_HH_
+#ifndef _PENG_CGQUAD_HH_
+#define _PENG_CGQUAD_HH_
 #include <chrono>
 #include <cmath>
 #include <functional>
@@ -14,7 +14,7 @@
 // Note that we only need ONE copy of the cosines...
 // so a CGIntegratorBackend class is prepared
 
-namespace dlt {
+namespace peng {
 
 /**
  * @brief Iterate the n^3 data helper.
@@ -234,6 +234,6 @@ public:
   double coss(int i);
 };
 
-} // namespace dlt
+} // namespace peng
 
 #endif

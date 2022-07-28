@@ -1,5 +1,5 @@
-#ifndef _DILUTE_POT1DQUAD_HH_
-#define _DILUTE_POT1DQUAD_HH_
+#ifndef _PENG_POT1DQUAD_HH_
+#define _PENG_POT1DQUAD_HH_
 // #include "atompair.hh"
 #include "cgquad.hh"
 #include "glquad.hh"
@@ -12,7 +12,7 @@
 #include "q.hh"
 #include "omega.hh"
 
-namespace dlt {
+namespace peng {
 
 /**
  * @brief The quadrature algorithm for reduced (starred) potential.
@@ -140,6 +140,6 @@ public:
     return;
   }
 };
-} // namespace dlt
+} // namespace peng
 
 #endif

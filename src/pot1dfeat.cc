@@ -1,6 +1,6 @@
 #include "pot1dfeat.hh"
 
-namespace dlt {
+namespace peng {
 
 Pot1DFeatures::Pot1DFeatures(FuncDeriv1D &pot)
     : ppot_(&pot), p_reduced_(nullptr) {
