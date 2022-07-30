@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="48"
+   height="48"
+   viewBox="0 0 12.7 12.7"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="peng.svg"
+   inkscape:export-filename="peng.png"
+   inkscape:export-xdpi="150"
+   inkscape:export-ydpi="150"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     units="px"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="9.421661"
+     inkscape:cx="0.21227679"
+     inkscape:cy="18.998773"
+     inkscape:window-width="1920"
+     inkscape:window-height="1007"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-134.35089,-118.03155)">
+    <path
+       id="path3597"
+       style="fill:#cccccc;stroke-width:0.0400303"
+       d="m 142.78325,118.14493 a 4.1380362,1.8572288 0 0 0 -4.13804,1.85731 4.1380362,1.8572288 0 0 0 0.32445,0.71999 l -0.13665,0.59048 0.58954,-0.22861 a 4.1380362,1.8572288 0 0 0 3.36069,0.77532 4.1380362,1.8572288 0 0 0 4.13803,-1.85718 4.1380362,1.8572288 0 0 0 -4.13803,-1.85731 z" />
+    <circle
+       style="fill:#1a1a1a;stroke:none;stroke-width:0.015025"
+       id="path846-8"
+       cx="185.71548"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <circle
+       style="fill:#333333;stroke:none;stroke-width:0.015025"
+       id="path846-8-05"
+       cx="186.05765"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <circle
+       style="fill:#4d4d4d;stroke:none;stroke-width:0.015025"
+       id="path846-8-1"
+       cx="186.55331"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <circle
+       style="fill:#666666;stroke:none;stroke-width:0.015025"
+       id="path846-8-0"
+       cx="187.2636"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <circle
+       style="fill:#808080;stroke:none;stroke-width:0.015025"
+       id="path846-8-1-1"
+       cx="188.22543"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <circle
+       style="fill:#999999;stroke:none;stroke-width:0.015025"
+       id="path846-8-0-6"
+       cx="189.53868"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <circle
+       style="fill:#b3b3b3;stroke:none;stroke-width:0.015025"
+       id="path846-8-1-5"
+       cx="190.94992"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <circle
+       style="fill:#cccccc;stroke:none;stroke-width:0.015025"
+       id="path846-8-0-2"
+       cx="192.66513"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <circle
+       style="fill:#ff0000;stroke:none;stroke-width:0.015025"
+       id="path846"
+       cx="181.81526"
+       cy="-11.145366"
+       r="1.9501168"
+       transform="rotate(45)" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.80772px;line-height:1.25;font-family:'OCR A Std';-inkscape-font-specification:'OCR A Std, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.0542679"
+       x="139.8719"
+       y="120.62836"
+       id="text2893"><tspan
+         sodipodi:role="line"
+         id="tspan2891"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.80772px;font-family:'OCR A Std';-inkscape-font-specification:'OCR A Std, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.0542679"
+         x="139.8719"
+         y="120.62836">Peng!</tspan></text>
+  </g>
+</svg>

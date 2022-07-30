@@ -1,4 +1,4 @@
-# Peng: A software package for the thermophysics of dilute gases.
+# <span style="font-variant: small-caps;">Peng</span>: A software package for the thermophysics of dilute gases.
 
 ## Introduction
 
@@ -8,22 +8,22 @@ just like in other fields.
 No need to say, software packages play roles in the computational research.
 
 However, many codes used in this field is out-of-date not in the sense of science but in programming.
-FORTRAN programs were written in around 1960s to 1980s, when most programs were designed specifically for a type of mechine.
-We struggled to make them work in new mechines, and often some modification is required simply because we used different compilers.
+FORTRAN programs were written in around 1960s to 1980s, when most programs were designed specifically for a type of machine.
+We struggled to make them work in new machines, and often some modification is required simply because we used different compilers.
 We actually need a software which is written following the standard and can work out-of-the-box.
 
-In this repo we present **Peng**, 
+In this repo we present **Platform of ENergetic Gasses**, <span style="font-variant: small-caps; font-weight: bold;">Peng</span>, 
 which compute the collision integrals and the transport properties of binary dilute gases.
 By now, we focus on the case where both kinds of particles are atoms, 
 which limits the code to of rare gases mixtures.
 However, you **can** test your effective potential energy curve for polyatomic molecules with the help of this project.
 
-In this contribution, the code is cleaned and is made possible to used in a modern mechine.
+In this contribution, the code is cleaned and is made possible to used in a modern machine.
 
 ## Build
 
 To build the project, simply run `make` in the root directory.
-On a mechine with Internet connection, 
+On a machine with Internet connection, 
 the building script will download and build the required libraries automatically, 
 and then compile the dilute project.
 
@@ -43,7 +43,7 @@ the lite way to take user provided PECs must be using C interface.
 Most programming languages has a C interface, 
 and the user can load the PECs at runtime.
 
-At least one function providing the value of PEC should be witten, of which the signature is (in C)
+At least one function providing the value of PEC should be written, of which the signature is (in C)
 ```c
 double value(double r);
 ```
