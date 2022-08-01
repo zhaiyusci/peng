@@ -84,16 +84,28 @@ double ChiCG::chi(double E, double r_m, double rtol) {
   chicgint.set_param(r_m, E, b);
   double quadrature, err;
   bool converged;
-  std::tie(quadrature, err, converged) =
-      chicgint.integrate(rtol, CG_INT_ORDER_MAX);
-  if (!converged) {
-    std::cerr << "Line " << __LINE__ << " ChiCG not converged with E = " << E
-              << ", r_m = " << r_m << " and b = " << b << "." << '\n';
-    std::cerr << "quadrature   " << quadrature << ' ' << M_PI - b * quadrature
-              << '\n';
-    // chicg.show_integrands();
+  std::tie(quadrature, err, converged) = chicgint.integrate(1.1, 5);
+  double res = M_PI - b / r_m * quadrature;
+
+  if (std::fabs(res) <= 20 * M_PI) {
+    // Do this only when chi is not so large,
+    // i.e., we do not want waste or computational resources on
+    // orbiting ...
+    // Following Barker et al., Phys Fluids, 7, 897 (1964)
+
+    std::tie(quadrature, err, converged) =
+        chicgint.integrate(rtol, CG_INT_ORDER_MAX);
+    if (!converged) {
+      std::cerr << "Line " << __LINE__ << " ChiCG not converged with E = " << E
+                << ", r_m = " << r_m << " and b = " << b << "." << '\n';
+      std::cerr << "quadrature   " << quadrature << ' ' << M_PI - b * quadrature
+                << '\n';
+      // chicg.show_integrands();
+    }
+
+    res = M_PI - b / r_m * quadrature;
   }
-  return M_PI - b / r_m * quadrature;
+  return res;
 }
 
 } // namespace peng

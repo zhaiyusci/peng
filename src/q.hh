@@ -45,7 +45,7 @@ class QCG : public QImpl{
     ReducedPotentialQuadrature *rpq_;
     size_t cache_ordersize_;
     size_t l_;
-    std::vector<double> coschis_;
+    std::vector<double> chis_;
     std::vector<double> fct2_;
     // the following is for recording running status
     double r_E_;
@@ -69,7 +69,7 @@ class QCG : public QImpl{
     void calculate_integrands(size_t ordersize) override;
 
     void clean_cache() {
-      coschis_.clear();
+      chis_.clear();
       fct2_.clear();
       cache_ordersize_ = 0;
       // Always clean workspace of the base class.
@@ -87,7 +87,7 @@ class QCG : public QImpl{
     ReducedPotentialQuadrature *rpq_;
     size_t cache_ordersize_;
     size_t l_;
-    std::vector<double> coschis_;
+    std::vector<double> chis_;
     std::vector<double> fct2_;
     // the following is for recording running status
     double r_E_;
@@ -107,7 +107,7 @@ class QCG : public QImpl{
     void calculate_integrands(size_t ordersize) override;
 
     void clean_cache() {
-      coschis_.clear();
+      chis_.clear();
       fct2_.clear();
       cache_ordersize_ = 0;
       // Always clean workspace of the base class.

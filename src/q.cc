@@ -1,5 +1,6 @@
 #include "q.hh"
 #include "pot1dquad.hh"
+#include <cmath>
 
 namespace peng {
 QCG::QCGInt1::QCGInt1(ReducedPotentialQuadrature &rpq)
@@ -37,7 +38,7 @@ void QCG::QCGInt1::calculate_integrands(size_t ordersize) {
     CubicIter ci(cache_ordersize_, ordersize, false, true);
     size_t num = ci.size_from_0();
     integrands_.reserve(num);
-    coschis_.reserve(num);
+    chis_.reserve(num);
     fct2_.reserve(num);
     for (auto &&i : ci) {
       double y = CGIntegratorBackend::instance()->coss(i);
@@ -45,10 +46,10 @@ void QCG::QCGInt1::calculate_integrands(size_t ordersize) {
       double v, dv;
       v = rpq_->potential_value(r_m);
       dv = rpq_->potential_derivative(r_m);
-      double coschi = cos(rpq_->chi(E_, r_m, chi_rtol));
+      double chi = rpq_->chi(E_, r_m, chi_rtol);
       // Here I put everything else in fct2, include the weight
       double fct2 = (2.0 * (E_ - v) - r_m * dv) * r_m * sqrt(1.0 - y * y);
-      coschis_.push_back(coschi);
+      chis_.push_back(chi);
       fct2_.push_back(fct2);
     }
     cache_ordersize_ = ordersize;
@@ -58,7 +59,18 @@ void QCG::QCGInt1::calculate_integrands(size_t ordersize) {
     size_t num = ci.size_from_0();
     integrands_.reserve(num);
     for (auto &&i : ci) {
-      double res = (1.0 - pow(coschis_[i], l_)) * fct2_[i];
+      double res;
+      if (std::fabs(chis_[i]) <= 20 * M_PI) {
+        res = (1.0 - pow(cos(chis_[i]), l_)) * fct2_[i];
+      } else {
+        if (l_ % 2 == 1) {
+          res = fct2_[i];
+        } else {
+          res = (1.0 - std::tgamma(l_ / 2.0 + 0.5) /
+                           std::tgamma(l_ / 2.0 + 1.0) / std::sqrt(M_PI)) *
+                fct2_[i];
+        }
+      }
       integrands_.push_back(res);
     }
     ordersize_ = ordersize;
@@ -102,7 +114,7 @@ void QCG::QCGInt2::calculate_integrands(size_t ordersize) {
     CubicIter ci(cache_ordersize_, ordersize, true, true);
     size_t num = ci.size_from_0();
     integrands_.reserve(num);
-    coschis_.reserve(num);
+    chis_.reserve(num);
     fct2_.reserve(num);
     for (auto &&i : ci) {
       double y = CGIntegratorBackend::instance()->coss(i);
@@ -113,11 +125,11 @@ void QCG::QCGInt2::calculate_integrands(size_t ordersize) {
       double v, dv;
       v = rpq_->potential_value(r_m);
       dv = rpq_->potential_derivative(r_m);
-      double coschi = cos(rpq_->chi(E_, r_m, chi_rtol));
+      double chi = rpq_->chi(E_, r_m, chi_rtol);
       // Here I put everything else in fct2, include the weight
       double fct2 =
           (2.0 * (E_ - v) - r_m * dv) * r_m * r_m / y * sqrt(1.0 - y * y);
-      coschis_.push_back(coschi);
+      chis_.push_back(chi);
       fct2_.push_back(fct2);
     }
     cache_ordersize_ = ordersize;
@@ -127,7 +139,18 @@ void QCG::QCGInt2::calculate_integrands(size_t ordersize) {
     size_t num = ci.size_from_0();
     integrands_.reserve(num);
     for (auto &&i : ci) {
-      double res = (1.0 - pow(coschis_[i], l_)) * fct2_[i];
+      double res;
+      if (std::fabs(chis_[i]) <= 20 * M_PI) {
+        res = (1.0 - pow(cos(chis_[i]), l_)) * fct2_[i];
+      } else {
+        if (l_ % 2 == 1) {
+          res = fct2_[i];
+        } else {
+          res = (1.0 - std::tgamma(l_ / 2.0 + 0.5) /
+                           std::tgamma(l_ / 2.0 + 1.0) / std::sqrt(M_PI)) *
+                fct2_[i];
+        }
+      }
       integrands_.push_back(res);
     }
     ordersize_ = ordersize;
