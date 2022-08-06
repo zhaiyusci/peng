@@ -114,3 +114,9 @@ they will **not** effect the computation, thus, can be used as comments.
 - `temperatures`: Array of the temperatures at which the properties are computed.
 - `molefractions0`: Array of the mole fractions of `atoms[0]`, and the mole fraction of `atoms[1]` is computed accordingly.
 - `propertyorder`: The maximum order when compute the transport properties.
+
+
+This project is spported by
+- 2020-JCJQ project (GFJQ2126-007)
+- National Natural Science Foundation of China (22073035)
+- The Program for JLU Computational Interdiscipline Innovative Platform
