@@ -18,8 +18,6 @@ By now, we focus on the case where both kinds of particles are atoms,
 which limits the code to of rare gases mixtures.
 However, you **can** test your effective potential energy curve for polyatomic molecules with the help of this project.
 
-In this contribution, the code is cleaned and is made possible to used in a modern machine.
-
 ## Build
 
 To build the project, simply run `make` in the root directory.
