@@ -1,5 +1,7 @@
 # <span style="font-variant: small-caps;">Peng</span>: A software package for the thermophysics of dilute gases.
 
+Authors: [Yu Zhai](https://www/zhaiyusci.net/), You Li, [Hui Li](https://huiligroup.org/), and Frederick R. W. McCourt
+
 ## Introduction
 
 Thermophysics of gases is an important field in chemical physics, 
