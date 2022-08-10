@@ -14,7 +14,7 @@ FORTRAN programs were written in around 1960s to 1980s, when most programs were 
 We struggled to make them work in new machines, and often some modification is required simply because we used different compilers.
 We actually need a software which is written following the standard and can work out-of-the-box.
 
-In this repo we present the **Platform of ENergetic Gasses**, <span style="font-variant: small-caps; font-weight: bold;">Peng</span>, 
+In this repo we present the **Platform of ENergetic Gases**, <span style="font-variant: small-caps; font-weight: bold;">Peng</span>, 
 which compute the collision integrals and the transport properties of binary dilute gases.
 By now, we focus on the case where both kinds of particles are atoms, 
 which limits the code to of rare gases mixtures.
