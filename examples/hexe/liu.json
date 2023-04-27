@@ -1,0 +1,38 @@
+{
+  "atoms": [
+    {
+      "name": "He",
+      "mass": 4.00260325413
+    },
+    {
+      "name": "Xe",
+      "mass": 131.9041550856
+    }
+  ],
+  "potentials": [
+    {
+      "name": "HeHe",
+      "path": "./hehe.so"
+    },
+    {
+      "name": "HeXe",
+      "path": "./hexe.so"
+    },
+    {
+      "name": "XeXe",
+      "path": "./xexe.so"
+    }
+  ],
+  "accuracy": 1.0e-3,
+  "temperatures": [
+    50.0,
+    100.0,
+    200.0,
+    500.0,
+    1000.0
+  ],
+  "propertyorder": 5,
+  "molefractions0": [
+    0.25
+  ]
+}

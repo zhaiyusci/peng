@@ -1,0 +1,8 @@
+-O3
+-Wall
+-Werror
+-g
+-fPIC
+--std=c++17
+-I../../external/include
+-I../../src

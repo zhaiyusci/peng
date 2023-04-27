@@ -6,7 +6,7 @@
 // #include <json.hpp>
 
 namespace peng {
-const char PENG_VERSION[] = "0.4.2";
+const char PENG_VERSION[] = "1.0.0";
 
 } // namespace peng
 

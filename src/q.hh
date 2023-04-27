@@ -124,7 +124,6 @@ public:
   double Q(size_t l, double r_E, double E, double rtol) override;
 };
 
-
 } // namespace peng
 
 #endif
