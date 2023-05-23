@@ -2,6 +2,11 @@
 
 Authors: [Yu Zhai](https://www.zhaiyusci.net/), You Li, [Hui Li](https://huiligroup.org/), and Frederick R. W. McCourt
 
+Please cite: 
+Zhai, Li, Li, and McCourt. "Peng: A program for transport properties of low-density binary gas mixtures", _Computer Physics Communications_ **287**, 108712 (2023)
+[doi:10.1016/j.cpc.2023.108712](https://doi.org/10.1016/j.cpc.2023.108712/)
+
+
 ## Introduction
 
 Thermophysics of gases is an important field in chemical physics, 
